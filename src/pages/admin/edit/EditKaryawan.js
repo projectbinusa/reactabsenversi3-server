@@ -20,9 +20,7 @@ function EditKaryawan() {
 
   const getUser = async () => {
     try {
-      const res = await axios.get(
-        `${API_DUMMY}/api/user/getUserBy/${id}`
-      );
+      const res = await axios.get(`${API_DUMMY}/api/user/getUserBy/${id}`);
       setUsername(res.data.username);
       setIdJabatan(res.data.jabatan ? res.data.jabatan.idJabatan : "");
       setIdShift(res.data.shift ? res.data.shift.id : "");
@@ -59,23 +57,6 @@ function EditKaryawan() {
     getShiftOptions();
   }, [id, adminId]);
 
-  useEffect(() => {
-    if (jabatanOptions.length > 0 && idJabatan) {
-      const jabatanExist = jabatanOptions.some(
-        (option) => option.idJabatan === idJabatan
-      );
-      if (!jabatanExist) {
-        setIdJabatan(jabatanOptions[0].idJabatan);
-      }
-    }
-    if (shiftOptions.length > 0 && idShift) {
-      const shiftExist = shiftOptions.some((option) => option.id === idShift);
-      if (!shiftExist) {
-        setIdShift(shiftOptions[0].id);
-      }
-    }
-  }, [jabatanOptions, shiftOptions, idJabatan, idShift]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -95,7 +76,6 @@ function EditKaryawan() {
       setTimeout(() => {
         history.push("/admin/karyawan");
         window.location.reload();
-
       }, 2000);
     } catch (error) {
       console.log(error);

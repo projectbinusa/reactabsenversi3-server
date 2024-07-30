@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../components/NavbarUser";
-import Sidebar from "../../components/SidebarUser";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Toast } from "flowbite-react";
 import { API_DUMMY } from "../../utils/api";
+import SidebarNavbar from "../../components/SidebarNavbar";
 
 function IzinAbsen() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -69,11 +69,11 @@ function IzinAbsen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="sticky top-0 z-50">
-        <Navbar toggleSidebar={toggleSidebar} />
+        <SidebarNavbar />
       </div>
       <div className="flex h-full">
-        <div className="fixed">
-          <Sidebar isOpen={sidebarOpen} />
+        <div className="sticky top-16 z-40">
+          <Navbar />
         </div>
         <div className="content-page max-h-screen container p-8 min-h-screen md:ml-64">
           <div className="add-izin mt-12 bg-white p-5 rounded-xl shadow-lg border border-gray-300">

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import Sidebar from "../../../components/SidebarUser";
 import Navbar from "../../../components/NavbarUser";
 import Webcam from "react-webcam";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Loader from "../../../components/Loader";
 import { API_DUMMY } from "../../../utils/api";
+import SidebarNavbar from "../../../components/SidebarNavbar";
 
 function AbsenMasuk() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -162,11 +162,11 @@ function AbsenMasuk() {
       {loading && <Loader />}
       <div className="flex flex-col h-screen">
         <div className="sticky top-0 z-50">
-          <Navbar toggleSidebar={toggleSidebar} />
+          <SidebarNavbar />
         </div>
         <div className="flex h-full">
-          <div className={`${sidebarOpen ? "fixed" : "hidden"}  lg:flex`}>
-            <Sidebar isOpen={sidebarOpen} />
+          <div className="sticky top-16 z-40">
+            <Navbar />
           </div>
           <div className="content-page max-h-screen container p-8 min-h-screen ml-0 lg:ml-64">
             <div className="add-izin mt-12 bg-white p-5 rounded-xl shadow-lg border border-gray-300">

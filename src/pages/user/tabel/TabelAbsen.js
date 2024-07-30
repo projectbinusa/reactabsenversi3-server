@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../../components/NavbarUser";
-import Sidebar from "../../../components/SidebarUser";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +10,7 @@ import {
 import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { API_DUMMY } from "../../../utils/api";
+import SidebarNavbar from "../../../components/SidebarNavbar";
 
 function TabelAbsen() {
   const [absensi, setAbsensi] = useState([]);
@@ -117,13 +117,13 @@ function TabelAbsen() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-screen">
       <div className="sticky top-0 z-50">
-        <Navbar />
+        <SidebarNavbar />
       </div>
-      <div className="flex flex-1">
-        <div className="fixed">
-          <Sidebar />
+      <div className="flex h-full">
+        <div className="sticky top-16 z-40">
+          <Navbar />
         </div>
         <div className="content-page flex-1 p-8 md:ml-64 mt-16">
           <div className="tabel-absen bg-blue-100 p-5 rounded-xl shadow-xl border border-gray-300 text-center">

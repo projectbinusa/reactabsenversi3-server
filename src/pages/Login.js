@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Swal from "sweetalert2";
 import Logo from "../components/absensii.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import ikon dari react-icons
@@ -57,7 +57,6 @@ function Login() {
   };
 
   return (
-
     <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
       <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
@@ -109,7 +108,22 @@ function Login() {
                     </svg>
                     <span className="ml-3">Sign In</span>
                   </button>
-                  <p className="mt-6 text-base text-gray-600 text-center">
+                  <div className="text-center mt-6">
+                    <Link
+                      className="inline-block text-sm text-blue-500 align-baseline hover:text-blue-800"
+                      to="/forgotpass"
+                    >
+                      Tidak ingat kata sandi?
+                    </Link>
+                    <br />
+                    <Link
+                      className="inline-block text-sm text-blue-500 align-baseline hover:text-blue-800"
+                      to="/registerUser"
+                    >
+                      Tidak memiliki akun? Register
+                    </Link>
+                  </div>
+                  {/* <p className="mt-6 text-base text-gray-600 text-center">
                     Tidak memiliki akun?
                     <a
                       href="/registerUser"
@@ -117,7 +131,7 @@ function Login() {
                     >
                       Register
                     </a>
-                  </p>
+                  </p> */}
                 </div>
               </form>
             </div>

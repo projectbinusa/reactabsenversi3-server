@@ -3,7 +3,6 @@ import { Tabs } from "flowbite-react";
 import { HiAdjustments, HiClipboardList, HiUserCircle } from "react-icons/hi";
 import { MdDashboard } from "react-icons/md";
 import Navbar from "../../components/NavbarUser";
-import Sidebar from "../../components/SidebarUser";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +10,7 @@ import axios from "axios";
 import Loader from "../../components/Loader";
 import Swal from "sweetalert2";
 import { API_DUMMY } from "../../utils/api";
+import SidebarNavbar from "../../components/SidebarNavbar";
 function Profile() {
   const [passwordLama, setPasswordLama] = useState("");
   const [passwordBaru, setPasswordBaru] = useState("");
@@ -172,9 +172,13 @@ function Profile() {
     <>
       {loading && <Loader />}
       <div className="flex flex-col h-screen">
-        <Navbar />
+        <div className="sticky top-0 z-50">
+          <SidebarNavbar />
+        </div>
         <div className="flex h-full">
-          <Sidebar />
+          <div className="sticky top-16 z-40">
+            <Navbar />
+          </div>
           <div className="content-page container p-8 ml-0 md:ml-64 mt-12">
             <Tabs aria-label="Tabs with underline" style="underline">
               <Tabs.Item active title="Profile" icon={HiUserCircle}>

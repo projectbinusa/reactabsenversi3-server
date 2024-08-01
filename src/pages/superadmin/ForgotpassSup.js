@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { API_DUMMY } from "../utils/api";
+import { API_DUMMY } from "../../utils/api";
 import axios from "axios";
-import forgotPass from "../components/asset/Forgot password.png";
+import forgotPass from "../../components/asset/Forgot password.png";
 import Swal from "sweetalert2";
 
-function ForgotPass() {
+function ForgotPassSup() {
   const [email, setEmail] = useState("");
 
   const send_email = async (e) => {
     e.preventDefault();
-    let url_hit = `${API_DUMMY}/api/user/forgot_password`;
+    let url_hit = `${API_DUMMY}/api/superadmin/forgot_password`;
     try {
       const response = await axios.post(url_hit, {
         email,
@@ -21,7 +21,7 @@ function ForgotPass() {
           showConfirmButton: false,
           timer: 1500,
         });
-        window.location.href = "/verify-code";
+        window.location.href = "/verify-code-sup";
       } else {
         Swal.fire("Gagal", "Email tidak ditemukan", "error");
       }
@@ -105,4 +105,4 @@ function ForgotPass() {
   );
 }
 
-export default ForgotPass;
+export default ForgotPassSup;

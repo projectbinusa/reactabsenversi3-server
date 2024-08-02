@@ -53,6 +53,10 @@ public class User {
    @JoinColumn(name = "idAdmin")
    private Admin admin;
 
+   @ManyToOne
+   @JoinColumn(name = "idKelas")
+   private Kelas kelas;
+
 
    @Column(name = "role")
    private String role;

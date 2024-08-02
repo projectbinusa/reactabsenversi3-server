@@ -40,6 +40,12 @@ public class KelasController {
         return ResponseEntity.ok(kelasList);
     }
 
+    @GetMapping("/getALlByAdmin/{idAdmin}")
+    public ResponseEntity<List<Kelas>> getALlByAdmin(@PathVariable Long idAdmin) {
+        List<Kelas> kelasList =  kelasService.getAllByIdAdmin(idAdmin);
+        return ResponseEntity.ok(kelasList);
+    }
+
     @PutMapping("/editKelasById/{id}")
     public ResponseEntity<Kelas> editJabatanById(@PathVariable("id") Long id, @RequestBody Kelas kelas) {
         Kelas updatedKelas = kelasService.editKelasById(id, kelas);

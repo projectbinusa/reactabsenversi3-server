@@ -32,6 +32,10 @@ public class KelasImpl implements KelasService {
     }
 
     @Override
+    public List<Kelas>getAllByIdAdmin(Long idAdmin){
+        return kelasRepository.findByIdAdmin(idAdmin);
+    }
+    @Override
     public Kelas editKelasById(Long id, Kelas updateKelas){
         Kelas kelas = kelasRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("id kelas tidak ditemukan : " + id));

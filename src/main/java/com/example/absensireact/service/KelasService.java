@@ -15,6 +15,8 @@ public interface KelasService {
 
     List<Kelas> getALlByOrganisasi(Long idOrganisasi);
 
+    List<Kelas>getAllByIdAdmin(Long idAdmin);
+
     Kelas editKelasById(Long id, Kelas updateKelas);
 
     Kelas tambahKelas(Kelas kelas);

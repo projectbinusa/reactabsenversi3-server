@@ -18,14 +18,19 @@ public class Kelas {
     @JoinColumn(name = "idOrganisasi")
     private Organisasi organisasi;
 
+    @OneToOne
+    @JoinColumn(name = "idAdmin")
+    private Admin admin;
+
     public Kelas(){
 
     }
 
-    public Kelas(Long id, String namaKelas, Organisasi organisasi) {
+    public Kelas(Long id, String namaKelas, Organisasi organisasi, Admin admin) {
         this.id = id;
         this.namaKelas = namaKelas;
         this.organisasi = organisasi;
+        this.admin = admin;
     }
 
     public Long getId() {
@@ -50,5 +55,13 @@ public class Kelas {
 
     public void setOrganisasi(Organisasi organisasi) {
         this.organisasi = organisasi;
+    }
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
     }
 }

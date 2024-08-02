@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface KelasRepository extends JpaRepository<Kelas ,Long> {
 
-    @Query(value = "SELECT * FROM kelas WHERE id_organisasi = :idorganisasi", nativeQuery = true)
+    @Query(value = "SELECT * FROM kelas WHERE id_organisasi = :idOrganisasi", nativeQuery = true)
     List<Kelas>findAllByOrganisasi(Long idOrganisasi);
 }

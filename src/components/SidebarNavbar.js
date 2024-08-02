@@ -17,6 +17,7 @@ import {
   faCube,
   faDatabase,
   faMapLocationDot,
+  faSchool,
   faSignal,
   faTable,
   faUserCheck,
@@ -236,6 +237,21 @@ function SidebarNavbar() {
                           </a>
                         </li>
                       </ul>
+                    </li>
+                    {/* <!-- Menu Kelas --> */}
+                    <li>
+                      <a
+                        href="/admin/kelas"
+                        className="flex items-center w-full p-2 text-blue-900 transition duration-75 rounded-lg pl-11 group hover:bg-blue-100 dark:text-white dark:hover:bg-blue-700"
+                      >
+                        <FontAwesomeIcon
+                          className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
+                          icon={faSchool}
+                        />
+                        <span className="flex-1 ml-3 whitespace-nowrap">
+                          Kelas
+                        </span>
+                      </a>
                     </li>
                     {/* <!-- Dropdown Rekapan --> */}
                     <li>

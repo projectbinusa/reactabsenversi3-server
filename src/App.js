@@ -85,6 +85,9 @@ import ResetPassword from "./pages/ResetPassword";
 import VerifyCodeSup from "./pages/superadmin/VerifyCodeSup";
 import ResetPasswordSup from "./pages/superadmin/ReserPasswordSup";
 import ForgotPassSup from "./pages/superadmin/ForgotpassSup";
+import KelasSiswa from "./pages/admin/masterdata/KelasSiswa";
+import AddKelas from "./pages/admin/add/AddKelas";
+import EditKelas from "./pages/admin/edit/EditKelas";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -97,12 +100,20 @@ function App() {
           <Route path="/registerUser" component={RegisterUser} exact />
           <Route path="/registerSA" component={RegisterSuperadmin} exact />
           <Route path="/forgotpass" component={ForgotPass} exact />
-          <Route path="/verify-code" component={VerifyCode} exact/>
-          <Route path="/reset-password/:token" component={ResetPassword} exact/>
+          <Route path="/verify-code" component={VerifyCode} exact />
+          <Route
+            path="/reset-password/:token"
+            component={ResetPassword}
+            exact
+          />
           {/* superadmin */}
           <Route path="/forgotpassSup" component={ForgotPassSup} exact />
-          <Route path="/verify-code-sup" component={VerifyCodeSup} exact/>
-          <Route path="/reset-password-sup/:token" component={ResetPasswordSup} exact/>
+          <Route path="/verify-code-sup" component={VerifyCodeSup} exact />
+          <Route
+            path="/reset-password-sup/:token"
+            component={ResetPasswordSup}
+            exact
+          />
           {/* start admin */}
           {/* Admin Routes */}
           {role === "ADMIN" && (
@@ -111,6 +122,7 @@ function App() {
               <Route path="/admin/profil" component={Profil} exact />
               {/* master data */}
               <Route path="/admin/karyawan" component={Karyawan} exact />
+              <Route path="/admin/kelas" component={KelasSiswa} exact />
               <Route path="/admin/jabatan" component={Jabatan} exact />
               <Route path="/admin/shift" component={Shift} exact />
               <Route path="/admin/lokasi" component={Lokasi} exact />
@@ -141,11 +153,13 @@ function App() {
               <Route path="/admin/addshift" component={AddShift} exact />
               <Route path="/admin/addlok" component={AddLokasi} exact />
               <Route path="/admin/addor" component={AddOrganisasi} exact />
+              <Route path="/admin/addkelas" component={AddKelas} exact />
               <Route path="/admin/editK/:id" component={EditKaryawan} exact />
               <Route path="/admin/editJ/:id" component={EditJabatan} exact />
               <Route path="/admin/editL/:id" component={EditLokasi} exact />
               <Route path="/admin/editO/:id" component={EditOrganisasi} exact />
               <Route path="/admin/editS/:id" component={EditShift} exact />
+              <Route path="/admin/editkelas/:id" component={EditKelas} exact />
               {/* rekapan */}
               <Route path="/admin/simpel" component={Simpel} exact />
               <Route path="/admin/perkaryawan" component={Perkaryawan} exact />
@@ -210,11 +224,7 @@ function App() {
                 component={OrganisasiSA}
                 exact
               />
-              <Route
-                path="/superadmin/profile"
-                component={ProfilSA}
-                exact
-              />
+              <Route path="/superadmin/profile" component={ProfilSA} exact />
               <Route
                 path="/superadmin/addO"
                 component={AddOrganisasiSA}

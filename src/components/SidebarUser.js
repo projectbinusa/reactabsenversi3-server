@@ -16,6 +16,7 @@ import {
   faDatabase,
   faKey,
   faMapLocationDot,
+  faSchool,
   faSignal,
   faTable,
   faUserCheck,
@@ -51,8 +52,6 @@ const Sidebar = () => {
   const toggleAbsen = () => {
     setAbsenOpen(!absenOpen);
   };
-
-
 
   return (
     <aside
@@ -129,7 +128,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faBriefcase}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Jabatan</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Jabatan
+                      </span>
                     </a>
                   </li>
 
@@ -143,7 +144,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faBusinessTime}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Shift</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Shift
+                      </span>
                     </a>
                   </li>
 
@@ -157,7 +160,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faMapLocationDot}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Lokasi</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Lokasi
+                      </span>
                     </a>
                   </li>
 
@@ -173,6 +178,22 @@ const Sidebar = () => {
                       />{" "}
                       <span className="flex-1 ml-3 whitespace-nowrap">
                         Organisasi
+                      </span>
+                    </a>
+                  </li>
+                  {/* <!-- Menu Kelas --> */}
+
+                  <li>
+                    <a
+                      href="/admin/kelas"
+                      className="flex items-center w-full p-2 text-blue-900 transition duration-75 rounded-lg pl-11 group hover:bg-blue-100 dark:text-white dark:hover:bg-blue-700"
+                    >
+                      <FontAwesomeIcon
+                        className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
+                        icon={faSchool}
+                      />
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Kelas
                       </span>
                     </a>
                   </li>
@@ -216,7 +237,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faUserGear}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Simpel</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Simpel
+                      </span>
                     </a>
                   </li>
                   {/* <!-- Menu PerKaryawan --> */}
@@ -244,7 +267,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faCalendarDay}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Harian</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Harian
+                      </span>
                     </a>
                   </li>
                   {/* <!-- Menu Mingguan --> */}
@@ -272,7 +297,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faCalendar}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Bulanan</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Bulanan
+                      </span>
                     </a>
                   </li>
                 </ul>
@@ -316,7 +343,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faAddressCard}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Absensi</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Absensi
+                      </span>
                     </a>
                   </li>
                   {/* <!-- Menu Cuti --> */}
@@ -329,7 +358,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faCalendarDays}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Cuti</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Cuti
+                      </span>
                     </a>
                   </li>
                   {/* <!-- Menu Kehadiran --> */}
@@ -357,7 +388,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faBusinessTime}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Lembur</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Lembur
+                      </span>
                     </a>
                   </li>
                 </ul>
@@ -468,7 +501,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faChalkboardUser}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Admin</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Admin
+                      </span>
                     </a>
                   </li>
                   {/* <!-- Menu Organisasi --> */}
@@ -496,7 +531,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faBriefcase}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Jabatan</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Jabatan
+                      </span>
                     </a>
                   </li>
 
@@ -510,7 +547,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faBusinessTime}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Shift</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Shift
+                      </span>
                     </a>
                   </li>
 
@@ -524,7 +563,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faMapLocationDot}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Lokasi</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Lokasi
+                      </span>
                     </a>
                   </li>
                 </ul>
@@ -567,7 +608,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faUsers}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">User</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        User
+                      </span>
                     </a>
                   </li>
                   {/* <!-- Menu PerKaryawan --> */}
@@ -580,7 +623,9 @@ const Sidebar = () => {
                         className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
                         icon={faAddressCard}
                       />{" "}
-                      <span className="flex-1 ml-3 whitespace-nowrap">Absensi</span>
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Absensi
+                      </span>
                     </a>
                   </li>
                 </ul>

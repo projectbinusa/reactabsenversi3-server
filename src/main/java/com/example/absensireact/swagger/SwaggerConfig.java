@@ -48,7 +48,7 @@ public class SwaggerConfig {
     }
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "ABSENSI REACT API documentation V2",
+                "ABSENSI REACT API documentation V3",
                 "API documentation",
                 "1.0.0",
                 "",

@@ -15,6 +15,7 @@ import {
   faCube,
   faDatabase,
   faKey,
+  faLandmark,
   faMapLocationDot,
   faSchool,
   faSignal,
@@ -254,6 +255,21 @@ const Sidebar = () => {
                       />{" "}
                       <span className="flex-1 ml-3 whitespace-nowrap">
                         Perkaryawan
+                      </span>
+                    </a>
+                  </li>
+                   {/* <!-- Menu Perkelas --> */}
+                   <li>
+                    <a
+                      href="/admin/perkelas"
+                      className="flex items-center w-full p-2 text-blue-900 transition duration-75 rounded-lg pl-11 group hover:bg-blue-100 dark:text-white dark:hover:bg-blue-700"
+                    >
+                      <FontAwesomeIcon
+                        className="flex-shrink-0 w-5 h-5 text-blue-500 transition duration-75 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-white"
+                        icon={faLandmark}
+                      />{" "}
+                      <span className="flex-1 ml-3 whitespace-nowrap">
+                        Perkelas
                       </span>
                     </a>
                   </li>

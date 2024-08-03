@@ -88,6 +88,7 @@ import ForgotPassSup from "./pages/superadmin/ForgotpassSup";
 import KelasSiswa from "./pages/admin/masterdata/KelasSiswa";
 import AddKelas from "./pages/admin/add/AddKelas";
 import EditKelas from "./pages/admin/edit/EditKelas";
+import Perkelas from "./pages/admin/rekapan/Perkelas";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -166,6 +167,7 @@ function App() {
               <Route path="/admin/harian" component={Harian} exact />
               <Route path="/admin/mingguan" component={Mingguan} exact />
               <Route path="/admin/bulanan" component={Bulanan} exact />
+              <Route path="/admin/perkelas" component={Perkelas} exact />
               {/* data absensi */}
               <Route path="/admin/absensi" component={Absensi} exact />
               <Route path="/admin/cuti" component={Cuti} exact />

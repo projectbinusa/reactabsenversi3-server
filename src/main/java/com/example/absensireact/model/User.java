@@ -65,7 +65,7 @@ public User(){
 
 }
 
-    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, Jabatan jabatan, Shift shift, Admin admin, String role) {
+    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, String role) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -77,6 +77,7 @@ public User(){
         this.jabatan = jabatan;
         this.shift = shift;
         this.admin = admin;
+        this.kelas = kelas;
         this.role = role;
     }
 
@@ -170,6 +171,14 @@ public User(){
         this.admin = admin;
     }
 
+    public Kelas getKelas() {
+        return kelas;
+    }
+
+    public void setKelas(Kelas kelas) {
+        this.kelas = kelas;
+    }
+
     public String getRole() {
         return role;
     }
@@ -177,6 +186,4 @@ public User(){
     public void setRole(String role) {
         this.role = role;
     }
-
-
 }

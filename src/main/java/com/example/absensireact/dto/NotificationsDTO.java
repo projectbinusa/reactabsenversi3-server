@@ -9,10 +9,14 @@ import java.util.Date;
 public class NotificationsDTO {
 
     private Long id;
-
     private User user;
 
     private String message;
+    private String tempatAcara;
+
+    private String namaAcara;
+
+    private Date tanggalAcara;
 
     private Date createdAt;
 
@@ -46,5 +50,29 @@ public class NotificationsDTO {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTempatAcara() {
+        return tempatAcara;
+    }
+
+    public void setTempatAcara(String tempatAcara) {
+        this.tempatAcara = tempatAcara;
+    }
+
+    public String getNamaAcara() {
+        return namaAcara;
+    }
+
+    public void setNamaAcara(String namaAcara) {
+        this.namaAcara = namaAcara;
+    }
+
+    public Date getTanggalAcara() {
+        return tanggalAcara;
+    }
+
+    public void setTanggalAcara(Date tanggalAcara) {
+        this.tanggalAcara = tanggalAcara;
     }
 }

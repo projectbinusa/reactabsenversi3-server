@@ -39,4 +39,12 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
 
     @Query(value = "SELECT * FROM absensi WHERE user_id = :userId AND status_absen = :statusAbsen " , nativeQuery = true)
     List<Absensi> getByStatusAbsen (Long userId  , String statusAbsen);
+
+    @Query("SELECT a FROM Absensi a WHERE DAY(a.tanggalAbsen) = :day AND MONTH(a.tanggalAbsen) = :month AND YEAR(a.tanggalAbsen) = :year AND a.user.kelas.id = :kelasId")
+    List<Absensi> findByKelasIdAndDate(@Param("kelasId") Long kelasId, @Param("day") int day, @Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT a FROM Absensi a WHERE MONTH(a.tanggalAbsen) = :month AND YEAR(a.tanggalAbsen) = :year AND a.user.kelas.id = :kelasId")
+    List<Absensi> findByKelasIdAndBulan(@Param("kelasId") Long kelasId, @Param("month") int month, @Param("year") int year);
+
+
 }

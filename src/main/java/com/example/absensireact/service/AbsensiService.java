@@ -54,9 +54,7 @@ public interface  AbsensiService {
 
     List<Absensi> getAbsensiByUserId(Long userId);
 
-
-
-
+    List<Absensi> getAbsensiByKelas(Long kelasId);
 
 
 

@@ -8,6 +8,7 @@ public class AbsensiReactApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AbsensiReactApplication.class, args);
+		System.out.println("selesai");
 	}
 
 }

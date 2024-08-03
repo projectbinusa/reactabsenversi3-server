@@ -89,6 +89,22 @@ public class AbsensiController {
         }
         excelAbsensiMingguan.excelAbsensiMingguan(tanggalAwal, tanggalAkhir, response);
     }
+
+    @GetMapping("/absensi/export/mingguan/by-kelas")
+    public void excelMingguanPerKelas(
+            @RequestParam("tanggalAwal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAwal,
+            @RequestParam("tanggalAkhir") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAkhir,
+            @RequestParam("kelasId") Long kelasId,
+            HttpServletResponse response) throws IOException {
+        try {
+            excelAbsensiMingguan.excelMingguanPerKelas(tanggalAwal, tanggalAkhir, kelasId, response);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // handle exception
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/absensi/rekap-mingguan")
     public ResponseEntity<Map<String, List<Absensi>>> getAbsensiMingguan(
             @RequestParam("tanggalAwal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAwal,
@@ -96,6 +112,15 @@ public class AbsensiController {
         Map<String, List<Absensi>> absensiMingguan = absensiService.getAbsensiByMingguan(tanggalAwal, tanggalAkhir);
         return ResponseEntity.ok(absensiMingguan);
     }
+    @GetMapping("/absensi/rekap-mingguan-per-kelas")
+    public ResponseEntity<Map<String, List<Absensi>>> getAbsensiMingguanPerKelas(
+            @RequestParam("tanggalAwal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAwal,
+            @RequestParam("tanggalAkhir") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAkhir,
+            @RequestParam("kelasId") Long kelasId) {
+        Map<String, List<Absensi>> absensiMingguanPerKelas = absensiService.getAbsensiByMingguanPerKelas(tanggalAwal, tanggalAkhir, kelasId);
+        return ResponseEntity.ok(absensiMingguanPerKelas);
+    }
+
     @GetMapping("/absensi/rekap-perkaryawan/export")
     public ResponseEntity<?> exportAbsensiToExcel() {
         try {

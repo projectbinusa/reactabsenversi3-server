@@ -33,6 +33,7 @@ public class ExcelAbsensiMingguan {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd MMMM yyyy");
         return sdf.format(date);
     }
+
     public void excelAbsensiMingguan(Date tanggalAwal, Date tanggalAkhir, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Absensi-mingguan");
@@ -271,7 +272,6 @@ public class ExcelAbsensiMingguan {
         styleColorEarly.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
 
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(tanggal);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -407,4 +407,190 @@ public class ExcelAbsensiMingguan {
         workbook.close();
     }
 
+    public void excelMingguanPerKelas(Date tanggalAwal, Date tanggalAkhir, Long kelasId, HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Absensi-mingguan-per-kelas");
+        int rowNum = 0;
+
+        Font fontWhite = workbook.createFont();
+        fontWhite.setColor(IndexedColors.WHITE.getIndex());
+
+        // Cell styles
+        CellStyle styleHeader = workbook.createCellStyle();
+        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader.setBorderTop(BorderStyle.THIN);
+        styleHeader.setBorderRight(BorderStyle.THIN);
+        styleHeader.setBorderBottom(BorderStyle.THIN);
+        styleHeader.setBorderLeft(BorderStyle.THIN);
+
+        CellStyle styleTitle = workbook.createCellStyle();
+        styleTitle.setAlignment(HorizontalAlignment.CENTER);
+        styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        styleTitle.setFont(titleFont);
+
+        CellStyle styleNumber = workbook.createCellStyle();
+        styleNumber.setAlignment(HorizontalAlignment.CENTER);
+        styleNumber.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleNumber.setBorderTop(BorderStyle.THIN);
+        styleNumber.setBorderRight(BorderStyle.THIN);
+        styleNumber.setBorderBottom(BorderStyle.THIN);
+        styleNumber.setBorderLeft(BorderStyle.THIN);
+        styleNumber.setFont(fontWhite);
+
+        CellStyle styleCenterNumber = workbook.createCellStyle();
+        styleCenterNumber.setAlignment(HorizontalAlignment.CENTER);
+        styleCenterNumber.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleCenterNumber.setBorderTop(BorderStyle.THIN);
+        styleCenterNumber.setBorderRight(BorderStyle.THIN);
+        styleCenterNumber.setBorderBottom(BorderStyle.THIN);
+        styleCenterNumber.setBorderLeft(BorderStyle.THIN);
+
+        // Conditional formatting colors
+        CellStyle styleColorLate = workbook.createCellStyle();
+        styleColorLate.cloneStyleFrom(styleNumber);
+        styleColorLate.setFillForegroundColor(IndexedColors.RED.getIndex());
+        styleColorLate.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        CellStyle styleColorPermission = workbook.createCellStyle();
+        styleColorPermission.cloneStyleFrom(styleNumber);
+        styleColorPermission.setFillForegroundColor(IndexedColors.DARK_YELLOW.getIndex());
+        styleColorPermission.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        CellStyle styleColorEarly = workbook.createCellStyle();
+        styleColorEarly.cloneStyleFrom(styleNumber);
+        styleColorEarly.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+        styleColorEarly.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Retrieve data
+        List<Absensi> absensiList = absensiRepository.findByMingguanAndKelas(tanggalAwal, tanggalAkhir, kelasId);
+        System.out.println("Retrieved absensiList: " + absensiList); // Debug
+
+        Map<String, List<Absensi>> userAbsensiMap = new HashMap<>();
+
+        for (Absensi absensi : absensiList) {
+            String username = absensi.getUser().getUsername();
+            userAbsensiMap.computeIfAbsent(username, u -> new ArrayList<>()).add(absensi);
+        }
+
+        // Write data to sheet
+        String Kelas = absensiList.isEmpty() ? "Kelas Tidak Ditemukan" : String.valueOf(absensiList.get(0).getUser().getKelas());
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("Kelas: " + Kelas);
+        titleCell.setCellStyle(styleTitle);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
+
+        for (Map.Entry<String, List<Absensi>> userEntry : userAbsensiMap.entrySet()) {
+            String userName = userEntry.getKey();
+            List<Absensi> userAbsensi = userEntry.getValue();
+            String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
+
+            // Variables to count absences for each user
+            int userTotalLate = 0;
+            int userTotalPermission = 0;
+            int userTotalEarly = 0;
+
+            // Name and Position row
+            Row nameRow = sheet.createRow(rowNum++);
+            Cell nameCell = nameRow.createCell(0);
+            nameCell.setCellValue("Nama :  " + userName);
+            nameCell.setCellStyle(styleHeader);
+
+            Row positionRow = sheet.createRow(rowNum++);
+            Cell positionCell = positionRow.createCell(0);
+            positionCell.setCellValue("Jabatan :   " + position);
+            positionCell.setCellStyle(styleHeader);
+
+            // Header row
+            Row headerRow = sheet.createRow(rowNum++);
+            String[] headers = {"No", "Tanggal Absen", "Jam Masuk", "Jam Pulang", "Keterangan"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(styleHeader);
+            }
+
+            // Data rows
+            int userRowNum = 1;
+            for (Absensi absensi : userAbsensi) {
+                Row row = sheet.createRow(rowNum++);
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(userRowNum++);
+                cell0.setCellStyle(styleCenterNumber); // Use the centered number style
+
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(new SimpleDateFormat("dd MMM yyyy").format(absensi.getTanggalAbsen())); // Use the new date format
+                cell1.setCellStyle(styleNumber);
+
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue(absensi.getJamMasuk());
+                cell2.setCellStyle(styleNumber);
+
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(absensi.getJamPulang());
+                cell3.setCellStyle(styleNumber);
+
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(absensi.getStatusAbsen());
+                cell4.setCellStyle(styleNumber);
+
+                CellStyle styleColor = null;
+                switch (absensi.getStatusAbsen()) {
+                    case "Terlambat":
+                        styleColor = styleColorLate;
+                        userTotalLate++; // Increment late count
+                        break;
+                    case "Izin":
+                        styleColor = styleColorPermission;
+                        userTotalPermission++; // Increment permission count
+                        break;
+                    case "Lebih Awal":
+                        styleColor = styleColorEarly;
+                        userTotalEarly++; // Increment early count
+                        break;
+                }
+                if (styleColor != null) {
+                    for (int i = 0; i < headers.length; i++) {
+                        row.getCell(i).setCellStyle(styleColor);
+                    }
+                }
+            }
+
+            // Adding summary row for each user
+            Row lateRow = sheet.createRow(rowNum++);
+            Cell lateCell = lateRow.createCell(0);
+            lateCell.setCellValue("Terlambat: " + userTotalLate);
+            lateCell.setCellStyle(styleHeader);
+
+            Row permissionRow = sheet.createRow(rowNum++);
+            Cell permissionCell = permissionRow.createCell(0);
+            permissionCell.setCellValue("Izin: " + userTotalPermission);
+            permissionCell.setCellStyle(styleHeader);
+
+            Row earlyRow = sheet.createRow(rowNum++);
+            Cell earlyCell = earlyRow.createCell(0);
+            earlyCell.setCellValue("Lebih Awal: " + userTotalEarly);
+            earlyCell.setCellStyle(styleHeader);
+
+            // Add a blank row between each user's table for readability
+            rowNum++;
+        }
+
+        // Add a blank row between each class's table for readability
+        rowNum++;
+
+        // Adjust column width
+        for (int i = 0; i < 5; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=AbsensiMingguanPerKelas.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
+
+}

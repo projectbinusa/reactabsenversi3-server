@@ -140,6 +140,21 @@ public class AbsensiImpl implements AbsensiService {
         return weeklyAbsensiMap;
     }
 
+    @Override
+    public Map<String, List<Absensi>> getAbsensiByMingguanPerKelas(Date tanggalAwal, Date tanggalAkhir, Long kelasId) {
+        // Fetch data based on the provided dates and kelasId
+        List<Absensi> absensiList = absensiRepository.findByMingguanAndKelas(tanggalAwal, tanggalAkhir, kelasId);
+        Map<String, List<Absensi>> weeklyAbsensiMap = new HashMap<>();
+
+        for (Absensi absensi : absensiList) {
+            String weekRange = getWeekRange(absensi.getTanggalAbsen());
+            weeklyAbsensiMap.computeIfAbsent(weekRange, k -> new ArrayList<>()).add(absensi);
+        }
+
+        return weeklyAbsensiMap;
+    }
+
+
     private String getWeekRange(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

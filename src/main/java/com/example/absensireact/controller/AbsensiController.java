@@ -333,35 +333,21 @@ public class AbsensiController {
 
     @GetMapping("/absensi/export/bulanan/by-kelas")
     public void exportAbsensiBulananByKelas(
-            @RequestParam("tanggalAbsen") String tanggalAbsenStr,
+            @RequestParam("bulan") int bulan,
+            @RequestParam("tahun") int tahun,
             @RequestParam("kelasId") Long kelasId,
             HttpServletResponse response) {
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date tanggalAbsen = null;
         try {
-            tanggalAbsen = formatter.parse(tanggalAbsenStr);
-            logger.info("Parsed date: " + tanggalAbsen);
-        } catch (ParseException e) {
-            logger.severe("Failed to parse date: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(tanggalAbsen);
-        int month = calendar.get(Calendar.MONTH) + 1; // Month is 0-based in Calendar
-        int year = calendar.get(Calendar.YEAR);
-
-        try {
-            excelAbsensiBulanan.excelAbsensiBulananByKelas(month, year, kelasId, response);
+            // Call service method to get the data and export to Excel
+            excelAbsensiBulanan.excelAbsensiBulananByKelas(bulan, tahun, kelasId, response);
         } catch (IOException e) {
             logger.severe("Failed to export Excel: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/absensi/bulanan/kelas/{kelasId}")
+        @GetMapping("/absensi/bulanan/kelas/{kelasId}")
     public ResponseEntity<Map<String, List<Absensi>>> getAbsensiByBulananPerKelas(
             @PathVariable Long kelasId,
             @RequestParam int bulan,

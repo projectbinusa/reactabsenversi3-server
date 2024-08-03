@@ -568,7 +568,7 @@ public class ExcelAbsnesiBulanan {
 //        workbook.close();
 //    }
 
-    public void excelAbsensiBulananByKelas(int month, int year, Long kelasId, HttpServletResponse response) throws IOException {
+    public void excelAbsensiBulananByKelas(int bulan, int tahun, Long kelasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Absensi-Bulanan");
 
@@ -616,7 +616,7 @@ public class ExcelAbsnesiBulanan {
 
         CellStyle styleColorPermission = workbook.createCellStyle();
         styleColorPermission.cloneStyleFrom(styleNumber);
-        styleColorPermission.setFillForegroundColor(IndexedColors.DARK_YELLOW.getIndex());
+        styleColorPermission.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
         styleColorPermission.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         CellStyle styleColorEarly = workbook.createCellStyle();
@@ -625,13 +625,13 @@ public class ExcelAbsnesiBulanan {
         styleColorEarly.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         // Fetch data
-        List<Absensi> absensiList = absensiRepository.findByKelasIdAndBulan(kelasId, month, year);
+        List<Absensi> absensiList = absensiRepository.findByKelasIdAndBulan(kelasId, bulan, tahun);
 
         if (absensiList.isEmpty()) {
             // Handle case when there are no absences for the given month and year
             Row emptyRow = sheet.createRow(0);
             Cell emptyCell = emptyRow.createCell(0);
-            emptyCell.setCellValue("Tidak ada data absensi untuk bulan " + getMonthName(month) + " tahun " + year);
+            emptyCell.setCellValue("Tidak ada data absensi untuk bulan " + getMonthName(bulan) + " tahun " + tahun);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4)); // Merge cells for message
         } else {
             // Group by user
@@ -645,7 +645,7 @@ public class ExcelAbsnesiBulanan {
             // Title row
             Row titleRow = sheet.createRow(rowNum++);
             Cell titleCell = titleRow.createCell(0);
-            titleCell.setCellValue("DATA ABSENSI BULAN : " + getMonthName(month) + " - " + year);
+            titleCell.setCellValue("DATA ABSENSI BULAN : " + getMonthName(bulan) + " - " + tahun);
             titleCell.setCellStyle(styleTitle);
             sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
             rowNum++;
@@ -653,22 +653,20 @@ public class ExcelAbsnesiBulanan {
             for (Map.Entry<String, List<Absensi>> entry : userAbsensiMap.entrySet()) {
                 String userName = entry.getKey();
                 List<Absensi> userAbsensi = entry.getValue();
-                // String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
 
                 // Variables to count absences for each user
                 int userTotalLate = 0;
                 int userTotalPermission = 0;
                 int userTotalEarly = 0;
 
-                // Name and Position row
+                // Name row
                 Row nameRow = sheet.createRow(rowNum++);
                 Cell nameCell = nameRow.createCell(0);
-                nameCell.setCellValue("Nama :  " + userName);
+                nameCell.setCellValue("Nama: " + userName);
                 nameCell.setCellStyle(styleHeader);
 
                 Row positionRow = sheet.createRow(rowNum++);
                 Cell positionCell = positionRow.createCell(0);
-                // positionCell.setCellValue("Jabatan :   " + position);
                 positionCell.setCellStyle(styleHeader);
                 rowNum++;
 
@@ -687,7 +685,7 @@ public class ExcelAbsnesiBulanan {
                     Row row = sheet.createRow(rowNum++);
                     Cell cell0 = row.createCell(0);
                     cell0.setCellValue(userRowNum++);
-                    cell0.setCellStyle(styleCenterNumber); // Use the centered number style
+                    cell0.setCellStyle(styleCenterNumber);
 
                     Cell cell1 = row.createCell(1);
                     cell1.setCellValue(new SimpleDateFormat("yyyy-MM-dd").format(absensi.getTanggalAbsen()));
@@ -709,15 +707,15 @@ public class ExcelAbsnesiBulanan {
                     switch (absensi.getStatusAbsen()) {
                         case "Terlambat":
                             styleColor = styleColorLate;
-                            userTotalLate++; // Increment late count
+                            userTotalLate++;
                             break;
                         case "Izin":
                             styleColor = styleColorPermission;
-                            userTotalPermission++; // Increment permission count
+                            userTotalPermission++;
                             break;
                         case "Lebih Awal":
                             styleColor = styleColorEarly;
-                            userTotalEarly++; // Increment early count
+                            userTotalEarly++;
                             break;
                     }
                     if (styleColor != null) {
@@ -753,10 +751,11 @@ public class ExcelAbsnesiBulanan {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiBulanan_" + getMonthName(month) + "_" + year + ".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=AbsensiBulanan_" + getMonthName(bulan) + "_" + tahun + ".xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 
 
 

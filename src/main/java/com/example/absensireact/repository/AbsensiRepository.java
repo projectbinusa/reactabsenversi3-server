@@ -52,5 +52,7 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
             @Param("tanggalAkhir") Date tanggalAkhir,
             @Param("kelasId") Long kelasId);
 
+    @Query("SELECT a FROM Absensi a WHERE a.user.kelas.id = :kelasId AND FUNCTION('MONTH', a.tanggalAbsen) = :bulan AND FUNCTION('YEAR', a.tanggalAbsen) = :tahun")
+    List<Absensi> findByBulananAndKelas(@Param("bulan") int bulan, @Param("tahun") int tahun, @Param("kelasId") Long kelasId);
 
 }

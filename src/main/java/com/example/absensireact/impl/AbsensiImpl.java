@@ -25,6 +25,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -401,6 +402,25 @@ public class AbsensiImpl implements AbsensiService {
         }
 
         return absensiList;
+    }
+
+    @Override
+    public Map<String, List<Absensi>> getAbsensiByBulananPerKelas(int bulan, int tahun, Long kelasId) {
+        // Fetch data based on the provided month, year, and kelasId
+        List<Absensi> absensiList = absensiRepository.findByBulananAndKelas(bulan, tahun, kelasId);
+        Map<String, List<Absensi>> monthlyAbsensiMap = new HashMap<>();
+
+        for (Absensi absensi : absensiList) {
+            String monthKey = getMonthKey(absensi.getTanggalAbsen());
+            monthlyAbsensiMap.computeIfAbsent(monthKey, k -> new ArrayList<>()).add(absensi);
+        }
+
+        return monthlyAbsensiMap;
+    }
+
+    private String getMonthKey(Date tanggalAbsen) {
+        LocalDate date = new java.sql.Date(tanggalAbsen.getTime()).toLocalDate();
+        return date.getYear() + "-" + String.format("%02d", date.getMonthValue());
     }
 
 }

@@ -361,5 +361,14 @@ public class AbsensiController {
         }
     }
 
+    @GetMapping("/absensi/bulanan/kelas/{kelasId}")
+    public ResponseEntity<Map<String, List<Absensi>>> getAbsensiByBulananPerKelas(
+            @PathVariable Long kelasId,
+            @RequestParam int bulan,
+            @RequestParam int tahun) {
+
+        Map<String, List<Absensi>> absensiMap = absensiService.getAbsensiByBulananPerKelas(bulan, tahun, kelasId);
+        return ResponseEntity.ok(absensiMap);
+    }
 
 }

@@ -57,6 +57,6 @@ public interface  AbsensiService {
 
     List<Absensi> getAbsensiByKelas(Long kelasId);
 
-
+    Map<String, List<Absensi>> getAbsensiByBulananPerKelas(int bulan, int tahun, Long kelasId);
 
 }

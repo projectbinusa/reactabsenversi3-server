@@ -32,13 +32,21 @@ public class NotificationsController {
     }
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<?> createNotification(@PathVariable Long userId, @RequestParam String message) {
+    public ResponseEntity<?> createNotification(@PathVariable Long userId, @RequestBody Notifications message) {
         try {
             Notifications notification = notificationsService.tambahNotif(userId, message);
             return ResponseEntity.ok(notification);
         } catch (NotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    @PostMapping("/user/send/{idAdmin}")
+    public ResponseEntity<Notifications> sendNotificationToAllUsers(
+            @PathVariable Long idAdmin,
+            @RequestBody Notifications notifications) {
+
+        Notifications sentNotification = notificationsService.sendToAllUser(idAdmin, notifications);
+        return ResponseEntity.ok(sentNotification);
     }
 
     @PutMapping("/{id}")

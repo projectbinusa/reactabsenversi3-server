@@ -5,10 +5,13 @@ import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exel.AbsensiExportService;
 import com.example.absensireact.exel.ExcelAbsensiMingguan;
 import com.example.absensireact.exel.ExcelAbsnesiBulanan;
+import com.example.absensireact.exel.RekapanPresensiExcel;
 import com.example.absensireact.model.Absensi;
 import com.example.absensireact.repository.AbsensiRepository;
 import com.example.absensireact.service.AbsensiService;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,13 @@ public class AbsensiController {
 
     @Autowired
     private AbsensiExportService absensiExportService;
+
+    @Autowired
+    private RekapanPresensiExcel rekapanPresensiExcel;
+
+    @Autowired
+    private ExcelAbsnesiBulanan excelAbsnesiBulanan;
+
     private final AbsensiService absensiService;
 
     private final AbsensiRepository absensiRepository;
@@ -270,4 +280,61 @@ public class AbsensiController {
         absensiService.deleteAbsensi(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @GetMapping("/absensi/by-kelas/{kelasId}")
+    public ResponseEntity<List<Absensi>> getAbsensiByKelas(
+            @ApiParam(value = "ID of the class", required = true) @RequestParam("kelasId") Long kelasId
+    ) {
+        List<Absensi> absensiList = absensiService.getAbsensiByKelas(kelasId);
+        if (absensiList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(absensiList, HttpStatus.OK);
+    }
+
+    @GetMapping("/absensi/export/harian/by-kelas")
+    public void exportAbsensiHarianByKelas(
+            @RequestParam("tanggal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date tanggal,
+            @RequestParam("kelasId") Long kelasId,
+            HttpServletResponse response
+    ) {
+        try {
+            rekapanPresensiExcel.excelAbsensiHarianByKelas(tanggal, kelasId, response);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // handle exception
+        }
+    }
+
+    @GetMapping("/absensi/export/bulanan/by-kelas")
+    public void exportAbsensiBulananByKelas(
+            @RequestParam("tanggalAbsen") String tanggalAbsenStr,
+            @RequestParam("kelasId") Long kelasId,
+            HttpServletResponse response) {
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date tanggalAbsen = null;
+        try {
+            tanggalAbsen = formatter.parse(tanggalAbsenStr);
+            logger.info("Parsed date: " + tanggalAbsen);
+        } catch (ParseException e) {
+            logger.severe("Failed to parse date: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(tanggalAbsen);
+        int month = calendar.get(Calendar.MONTH) + 1; // Month is 0-based in Calendar
+        int year = calendar.get(Calendar.YEAR);
+
+        try {
+            excelAbsensiBulanan.excelAbsensiBulananByKelas(month, year, kelasId, response);
+        } catch (IOException e) {
+            logger.severe("Failed to export Excel: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

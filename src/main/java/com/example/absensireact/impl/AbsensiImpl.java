@@ -372,4 +372,20 @@ public class AbsensiImpl implements AbsensiService {
         return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
     }
 
+    @Override
+    public List<Absensi> getAbsensiByKelas(Long kelasId) {
+        List<User> users = userRepository.findByKelasId(kelasId);
+        if (users.isEmpty()) {
+            throw new NotFoundException("Tidak ada pengguna yang terkait dengan kelas dengan id: " + kelasId);
+        }
+
+        List<Absensi> absensiList = new ArrayList<>();
+        for (User user : users) {
+            List<Absensi> userAbsensi = absensiRepository.findByUser(user);
+            absensiList.addAll(userAbsensi);
+        }
+
+        return absensiList;
+    }
+
 }

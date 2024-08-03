@@ -1,10 +1,7 @@
 package com.example.absensireact.repository;
 
 
-import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.Jabatan;
-import com.example.absensireact.model.Shift;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -36,7 +33,6 @@ public interface UserRepository extends JpaRepository<User , Long> {
     @Query(value = "SELECT * FROM user WHERE username = :username", nativeQuery = true)
     Optional<User> findByUsername (String username);
 
-
-
+    List<User> findByKelasId(Long kelasId );
 
 }

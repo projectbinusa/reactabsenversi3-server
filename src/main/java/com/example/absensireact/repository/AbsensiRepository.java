@@ -5,6 +5,7 @@ import com.example.absensireact.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.threeten.bp.LocalDate;
 
 import java.util.Date;
 import java.util.List;
@@ -54,5 +55,8 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
 
     @Query("SELECT a FROM Absensi a WHERE a.user.kelas.id = :kelasId AND FUNCTION('MONTH', a.tanggalAbsen) = :bulan AND FUNCTION('YEAR', a.tanggalAbsen) = :tahun")
     List<Absensi> findByBulananAndKelas(@Param("bulan") int bulan, @Param("tahun") int tahun, @Param("kelasId") Long kelasId);
+
+    @Query("SELECT a FROM Absensi a WHERE a.user.kelas.id = :kelasId AND a.tanggalAbsen BETWEEN :startOfDay AND :endOfDay")
+    List<Absensi> findByTanggalAndKelas(@Param("startOfDay") Date startOfDay, @Param("endOfDay") Date endOfDay, @Param("kelasId") Long kelasId);
 
 }

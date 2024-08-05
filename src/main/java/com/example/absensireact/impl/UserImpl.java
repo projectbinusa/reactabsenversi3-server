@@ -754,4 +754,10 @@ public class UserImpl implements UserService {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
+
+    @Override
+    public List<User> getUsersByIdKelas(Long idKelas) {
+        return userRepository.findUsersByKelas(idKelas);
+    }
+
 }

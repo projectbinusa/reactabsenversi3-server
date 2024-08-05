@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -60,4 +61,9 @@ public interface UserService {
     void delete(Long id) throws IOException;
 
     void deleteUser(Long id);
+
+    List<User> getUsersByIdKelas(Long idKelas);
+
+
+
 }

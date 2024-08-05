@@ -207,4 +207,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user/by-kelas/{idKelas}")
+    public ResponseEntity<List<User>> getUserByIdKelas(@PathVariable Long idKelas) {
+        List<User> users = userImpl.getUsersByIdKelas(idKelas);
+        if (users.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(users);
+    }
+
+
 }

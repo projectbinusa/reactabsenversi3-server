@@ -1,14 +1,8 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Absensi;
-import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.Shift;
-import com.example.absensireact.model.User;
-import com.example.absensireact.repository.AbsensiRepository;
-import com.example.absensireact.repository.AdminRepository;
-import com.example.absensireact.repository.ShiftRepository;
-import com.example.absensireact.repository.UserRepository;
+import com.example.absensireact.model.*;
+import com.example.absensireact.repository.*;
 import com.example.absensireact.service.AbsensiService;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -43,13 +37,16 @@ public class AbsensiImpl implements AbsensiService {
     private final AdminRepository adminRepository;
     private final ShiftRepository shiftRepository;
 
+    private final OrangTuaRepository orangTuaRepository;
 
 
-    public AbsensiImpl(AbsensiRepository absensiRepository, UserRepository userRepository, AdminRepository adminRepository, ShiftRepository shiftRepository) throws IOException {
+
+    public AbsensiImpl(AbsensiRepository absensiRepository, UserRepository userRepository, AdminRepository adminRepository, ShiftRepository shiftRepository, OrangTuaRepository orangTuaRepository) throws IOException {
         this.absensiRepository = absensiRepository;
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.shiftRepository = shiftRepository;
+        this.orangTuaRepository = orangTuaRepository;
     }
 
 
@@ -447,6 +444,16 @@ public class AbsensiImpl implements AbsensiService {
         dailyAbsensiMap.put(dateKey, absensiList);
 
         return dailyAbsensiMap;
+    }
+
+    @Override
+    public List<Absensi> getAbsensiByOrangTua(Long orangTuaId) {
+        // Fetch the OrangTua entity
+        OrangTua orangTua = orangTuaRepository.findById(orangTuaId)
+                .orElseThrow(() -> new RuntimeException("OrangTua not found"));
+
+        // Fetch all Absensi entries where the associated user has the given orangTuaId
+        return absensiRepository.findByOrangTuaId(orangTuaId);
     }
 
 }

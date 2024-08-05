@@ -57,6 +57,10 @@ public class User {
    @JoinColumn(name = "idKelas")
    private Kelas kelas;
 
+   @OneToOne
+   @JoinColumn(name = "idOrangTua")
+   private OrangTua orangTua;
+
 
    @Column(name = "role")
    private String role;
@@ -65,7 +69,7 @@ public User(){
 
 }
 
-    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, String role) {
+    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, OrangTua orangTua, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, String role) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -77,6 +81,7 @@ public User(){
         this.jabatan = jabatan;
         this.shift = shift;
         this.admin = admin;
+        this.orangTua = orangTua;
         this.kelas = kelas;
         this.role = role;
     }
@@ -177,6 +182,14 @@ public User(){
 
     public void setKelas(Kelas kelas) {
         this.kelas = kelas;
+    }
+
+    public OrangTua getOrangTua() {
+        return orangTua;
+    }
+
+    public void setOrangTua(OrangTua orangTua) {
+        this.orangTua = orangTua;
     }
 
     public String getRole() {

@@ -476,10 +476,11 @@ public class ExcelAbsensiMingguan {
         }
 
         // Write data to sheet
-        String Kelas = absensiList.isEmpty() ? "Kelas Tidak Ditemukan" : String.valueOf(absensiList.get(0).getUser().getKelas());
+        String kelas = absensiList.isEmpty() ? "Kelas Tidak Ditemukan" : absensiList.get(0).getUser().getKelas().getNamaKelas();
+        System.out.println("Class name: " + kelas); // Debug
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("Kelas: " + Kelas);
+        titleCell.setCellValue("Data Presensi Kelas: " + kelas);
         titleCell.setCellStyle(styleTitle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
 
@@ -487,6 +488,7 @@ public class ExcelAbsensiMingguan {
             String userName = userEntry.getKey();
             List<Absensi> userAbsensi = userEntry.getValue();
             String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
+            System.out.println("Processing user: " + userName + " with position: " + position); // Debug
 
             // Variables to count absences for each user
             int userTotalLate = 0;
@@ -496,12 +498,12 @@ public class ExcelAbsensiMingguan {
             // Name and Position row
             Row nameRow = sheet.createRow(rowNum++);
             Cell nameCell = nameRow.createCell(0);
-            nameCell.setCellValue("Nama :  " + userName);
+            nameCell.setCellValue("Nama: " + userName);
             nameCell.setCellStyle(styleHeader);
 
             Row positionRow = sheet.createRow(rowNum++);
             Cell positionCell = positionRow.createCell(0);
-            positionCell.setCellValue("Jabatan :   " + position);
+            positionCell.setCellValue("Jabatan: " + position);
             positionCell.setCellStyle(styleHeader);
 
             // Header row
@@ -592,5 +594,6 @@ public class ExcelAbsensiMingguan {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 
 }

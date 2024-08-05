@@ -46,6 +46,7 @@ public class AbsensiController {
     @Autowired
     private ExcelAbsnesiBulanan excelAbsnesiBulanan;
 
+    @Autowired
     private final AbsensiService absensiService;
 
     private final AbsensiRepository absensiRepository;
@@ -368,6 +369,12 @@ public class AbsensiController {
 
         // Return the result
         return ResponseEntity.ok(absensiMap);
+    }
+
+    @GetMapping("/absensi/by-orang-tua/{orangTuaId}")
+    public ResponseEntity<List<Absensi>> getAbsensiByOrangTua(@PathVariable Long orangTuaId) {
+        List<Absensi> absensiList = absensiService.getAbsensiByOrangTua(orangTuaId);
+        return ResponseEntity.ok(absensiList);
     }
 
 }

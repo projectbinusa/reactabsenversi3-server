@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,4 +60,5 @@ public interface  AbsensiService {
 
     Map<String, List<Absensi>> getAbsensiByBulananPerKelas(int bulan, int tahun, Long kelasId);
 
+    Map<String, List<Absensi>> getAbsensiHarianByKelas(Date tanggal, Long kelasId);
 }

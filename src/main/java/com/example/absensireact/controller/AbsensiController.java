@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.threeten.bp.LocalDate;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
@@ -354,6 +355,18 @@ public class AbsensiController {
             @RequestParam int tahun) {
 
         Map<String, List<Absensi>> absensiMap = absensiService.getAbsensiByBulananPerKelas(bulan, tahun, kelasId);
+        return ResponseEntity.ok(absensiMap);
+    }
+
+    @GetMapping("/absensi/harian/by-kelas/{kelasId}")
+    public ResponseEntity<Map<String, List<Absensi>>> getAbsensiHarianByKelas(
+            @RequestParam("tanggal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date tanggal,
+            @PathVariable("kelasId") Long kelasId) {
+
+        // Call the service method to get attendance
+        Map<String, List<Absensi>> absensiMap = absensiService.getAbsensiHarianByKelas(tanggal, kelasId);
+
+        // Return the result
         return ResponseEntity.ok(absensiMap);
     }
 

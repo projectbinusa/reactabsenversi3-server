@@ -423,4 +423,30 @@ public class AbsensiImpl implements AbsensiService {
         return date.getYear() + "-" + String.format("%02d", date.getMonthValue());
     }
 
+    @Override
+    public Map<String, List<Absensi>> getAbsensiHarianByKelas(Date tanggal, Long kelasId) {
+        // Normalize date to start and end of the day
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(tanggal);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date startOfDay = calendar.getTime();
+
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        Date endOfDay = calendar.getTime();
+
+        // Fetch data based on the provided date and kelasId
+        List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+        Map<String, List<Absensi>> dailyAbsensiMap = new HashMap<>();
+
+        // Use the date as the key
+        String dateKey = startOfDay.toString();
+        dailyAbsensiMap.put(dateKey, absensiList);
+
+        return dailyAbsensiMap;
+    }
+
 }

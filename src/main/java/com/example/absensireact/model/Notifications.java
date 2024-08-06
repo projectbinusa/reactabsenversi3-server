@@ -18,6 +18,10 @@ public class Notifications {
     @JoinColumn(name = "userId")
     private User user;
 
+    @OneToOne
+    @JoinColumn(name = "adminId")
+    private Admin admin;
+
     @Lob
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
@@ -38,9 +42,10 @@ public class Notifications {
 
     }
 
-    public Notifications(Long id, User user, String message, String tempatAcara, String namaAcara, Date tanggalAcara, Date createdAt) {
+    public Notifications(Long id, User user, Admin admin, String message, String tempatAcara, String namaAcara, Date tanggalAcara, Date createdAt) {
         this.id = id;
         this.user = user;
+        this.admin = admin;
         this.message = message;
         this.tempatAcara = tempatAcara;
         this.namaAcara = namaAcara;
@@ -104,5 +109,13 @@ public class Notifications {
 
     public void setTanggalAcara(Date tanggalAcara) {
         this.tanggalAcara = tanggalAcara;
+    }
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
     }
 }

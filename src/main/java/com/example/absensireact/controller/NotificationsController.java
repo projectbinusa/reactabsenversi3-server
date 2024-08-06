@@ -21,7 +21,7 @@ public class NotificationsController {
         return notificationsService.getAllNotif();
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/getByUser/{userId}")
     public ResponseEntity<?> getNotificationsByUser(@PathVariable Long userId) {
         try {
             List<Notifications> notifications = notificationsService.getNotfiUser(userId);
@@ -31,10 +31,20 @@ public class NotificationsController {
         }
     }
 
-    @PostMapping("/user/{userId}")
-    public ResponseEntity<?> createNotification(@PathVariable Long userId, @RequestBody Notifications message) {
+    @GetMapping("/user/getByAdmin/{adminId}")
+    public ResponseEntity<?> getNotificationsByAdmin(@PathVariable Long adminId) {
         try {
-            Notifications notification = notificationsService.tambahNotif(userId, message);
+            List<Notifications> notifications = notificationsService.getNotfiAllByAdminId(adminId);
+            return ResponseEntity.ok(notifications);
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/user/sendByadmin/{adminId}")
+    public ResponseEntity<?> createNotification(@PathVariable Long adminId , @RequestParam Long userId , @RequestBody Notifications message) {
+        try {
+            Notifications notification = notificationsService.tambahNotif(adminId , userId, message);
             return ResponseEntity.ok(notification);
         } catch (NotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -49,7 +59,7 @@ public class NotificationsController {
         return ResponseEntity.ok(sentNotification);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/editbyId/{id}")
     public ResponseEntity<?> updateNotification(@PathVariable Long id, @RequestBody Notifications notifications) {
         try {
             Notifications updatedNotification = notificationsService.editNotifById(id, notifications);
@@ -59,7 +69,7 @@ public class NotificationsController {
         }
     }
 
-    @PutMapping("/user/{userId}")
+    @PutMapping("/editby/user/{userId}")
     public ResponseEntity<?> updateNotificationByUserId(@PathVariable Long userId, @RequestBody Notifications notifications) {
         try {
             Notifications updatedNotification = notificationsService.editNotifByUserId(userId, notifications);
@@ -69,7 +79,7 @@ public class NotificationsController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteNotification(@PathVariable Long id) {
         boolean success = notificationsService.deleteNotif(id);
         if (success) {

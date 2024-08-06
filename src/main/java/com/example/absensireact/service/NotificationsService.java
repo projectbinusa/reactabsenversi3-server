@@ -9,10 +9,13 @@ public interface NotificationsService {
 
     List<Notifications>getNotfiUser(Long userId);
 
+    List<Notifications>getNotfiAllByAdminId(Long adminId);
+
     Notifications sendToAllUser(Long idAdmin, Notifications notifications);
 
 
-    Notifications tambahNotif(Long userId, Notifications notifications);
+
+    Notifications tambahNotif(Long idAdmin, Long userId, Notifications notifications);
 
     Notifications editNotifById(Long id, Notifications notifications);
 

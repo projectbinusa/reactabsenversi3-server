@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
 import javax.persistence.EntityNotFoundException;
@@ -317,6 +318,19 @@ public class AbsensiController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(absensiList, HttpStatus.OK);
+    }
+
+    @GetMapping("/export/absensi/by-kelas/{kelasId}")
+    public void exportAbsensiByKelas(
+            @ApiParam(value = "ID of the class", required = true) @PathVariable("kelasId") Long kelasId,
+            HttpServletResponse response
+    ) {
+        try {
+            rekapanPresensiExcel.excelAbsensiByKelas(kelasId, response);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to export data");
+        }
     }
 
     @GetMapping("/absensi/export/harian/by-kelas")

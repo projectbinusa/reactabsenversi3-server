@@ -13,5 +13,7 @@ public interface NotificationsRepository extends JpaRepository<Notifications, Lo
 
     @Query(value = "SELECT * FROM notifications WHERE user_id = :userId" , nativeQuery = true)
     List<Notifications> findnotifByUserId (Long userId);
+    @Query(value = "SELECT * FROM notifications WHERE admin_id = :adminId" , nativeQuery = true)
+    List<Notifications> findnotifByAdmin (Long adminId);
 
 }

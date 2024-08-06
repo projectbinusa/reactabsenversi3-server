@@ -456,4 +456,9 @@ public class AbsensiImpl implements AbsensiService {
         return absensiRepository.findByOrangTuaId(orangTuaId);
     }
 
+    @Override
+    public List<Absensi> getStatusAbsenIzinByOrangTua(Long idOrangTua) {
+        return absensiRepository.getStatusAbsenIzinByOrangTua(idOrangTua);
+    }
+
 }

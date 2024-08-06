@@ -391,4 +391,9 @@ public class AbsensiController {
         return ResponseEntity.ok(absensiList);
     }
 
+    @GetMapping("/absensi/izin/by-orangTua/{idOrangTua}")
+    public List<Absensi> getStatusAbsenIzinByOrangTua(@PathVariable Long idOrangTua) {
+        return absensiService.getStatusAbsenIzinByOrangTua(idOrangTua);
+    }
+
 }

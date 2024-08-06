@@ -42,16 +42,27 @@ public class NotificationsImpl implements NotificationsService {
     }
 
     @Override
-    public Notifications sendToAllUser(Long idAdmin, Notifications notifications) {
-        Admin admin = adminRepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan : " + idAdmin));
+    public List<Notifications>getNotfiAllByAdminId(Long adminId){
+        Optional<Admin> adminoptional = adminRepository.findById(adminId);
+        if (adminoptional.isEmpty()) {
+            throw new NotFoundException("admin id tiak ditemukan dengan id :" + adminId);
+        }
+        return notificationsRepository.findnotifByAdmin(adminId);
+    }
 
-        List<User> users = userRepository.findByIdAdmin(idAdmin);
+    @Override
+    public Notifications sendToAllUser(Long adminId, Notifications notifications) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan : " + adminId));
+
+        List<User> users = userRepository.findByIdAdmin(adminId);
 
         if (users.isEmpty()) {
-            throw new NotFoundException("Tidak ada user yang terdaftar dengan id admin: " + idAdmin);
+            throw new NotFoundException("Tidak ada user yang terdaftar dengan id admin: " + adminId);
         }
         for (User user : users) {
+
+            notifications.setAdmin(admin);
             notifications.setMessage(notifications.getMessage());
             notifications.setUser(user);
             notifications.setNamaAcara(notifications.getNamaAcara());
@@ -64,13 +75,19 @@ public class NotificationsImpl implements NotificationsService {
     }
 
     @Override
-    public Notifications tambahNotif(Long userId, Notifications notifications){
+    public Notifications tambahNotif(Long adminId , Long userId, Notifications notifications){
+        Optional<Admin> adminOptional = adminRepository.findById(adminId);
+        if (adminOptional.isEmpty()) {
+            throw new NotFoundException("Admin id tidak ditemukan dengan id :" + adminId);
+        }
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("User id tidak ditemukan dengan id :" + userId);
         }
         User user = userOptional.get();
+        Admin admin = adminOptional.get();
         Date newDate = new Date();
+        notifications.setAdmin(admin);
         notifications.setMessage(notifications.getMessage());
         notifications.setUser(user);
         notifications.setNamaAcara(notifications.getNamaAcara());
@@ -81,19 +98,19 @@ public class NotificationsImpl implements NotificationsService {
     }
 
     @Override
-    public Notifications editNotifById(Long id, Notifications notifications){
+    public Notifications editNotifById(Long id, Notifications notificationsUpdate){
         Optional<Notifications> notifcationsOptional = notificationsRepository.findById(id);
         if (notifcationsOptional.isEmpty()) {
             throw new NotFoundException("Id Notif tidak ditemukan dengan id :" + id);
         }
-        Date newDate = new Date();
-        notifications.setMessage(notifications.getMessage());
-        notifications.setCreatedAt(newDate);
-        notifications.setUser(notifications.getUser());
-
-        return notificationsRepository.save(notifications);
+        Notifications notification = notifcationsOptional.get();
+        notification.setMessage(notificationsUpdate.getMessage());
+        notification.setTempatAcara(notificationsUpdate.getTempatAcara());
+        notification.setNamaAcara(notificationsUpdate.getNamaAcara());
+        return notificationsRepository.save(notification);
     }
 
+//    gagall
     @Override
     public Notifications editNotifByUserId(Long userId, Notifications notifications){
         Optional<User> userOptional = userRepository.findById(userId);

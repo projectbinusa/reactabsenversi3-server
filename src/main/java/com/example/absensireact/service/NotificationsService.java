@@ -3,11 +3,14 @@ package com.example.absensireact.service;
 import com.example.absensireact.model.Notifications;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationsService {
     List<Notifications> getAllNotif();
 
     List<Notifications>getNotfiUser(Long userId);
+
+    Optional<Notifications> getById(Long id);
 
     List<Notifications>getNotfiAllByAdminId(Long adminId);
 

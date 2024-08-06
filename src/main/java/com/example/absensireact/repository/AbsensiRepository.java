@@ -61,4 +61,15 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
 
     @Query("SELECT a FROM Absensi a WHERE a.user.id IN (SELECT u.id FROM User u WHERE u.orangTua.id = :orangTuaId)")
     List<Absensi> findByOrangTuaId(@Param("orangTuaId") Long orangTuaId);
+
+    @Query("SELECT a FROM Absensi a WHERE a.user.kelas.id = :kelasId")
+    List<Absensi> findAbsensiByKelasId(@Param("kelasId") Long kelasId);
+
+    @Query(value = "SELECT a.* FROM absensi a " +
+            "INNER JOIN user u ON a.user_id = u.id " +
+            "INNER JOIN orang_tua o ON u.id_orang_tua = o.id " +
+            "WHERE o.id = :idOrangTua AND a.status_absen = 'Izin'", nativeQuery = true)
+    List<Absensi> getStatusAbsenIzinByOrangTua(@Param("idOrangTua") Long idOrangTua);
+
+
 }

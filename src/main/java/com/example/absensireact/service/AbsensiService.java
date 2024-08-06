@@ -64,4 +64,7 @@ public interface  AbsensiService {
 
     List<Absensi> getAbsensiByOrangTua(Long orangTuaId);
 
+    List<Absensi> getStatusAbsenIzinByOrangTua(Long idOrangTua);
+
+
 }

@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
 import javax.persistence.EntityNotFoundException;
@@ -319,6 +320,19 @@ public class AbsensiController {
         return new ResponseEntity<>(absensiList, HttpStatus.OK);
     }
 
+    @GetMapping("/export/absensi/by-kelas/{kelasId}")
+    public void exportAbsensiByKelas(
+            @ApiParam(value = "ID of the class", required = true) @PathVariable("kelasId") Long kelasId,
+            HttpServletResponse response
+    ) {
+        try {
+            rekapanPresensiExcel.excelAbsensiByKelas(kelasId, response);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to export data");
+        }
+    }
+
     @GetMapping("/absensi/export/harian/by-kelas")
     public void exportAbsensiHarianByKelas(
             @RequestParam("tanggal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date tanggal,
@@ -375,6 +389,11 @@ public class AbsensiController {
     public ResponseEntity<List<Absensi>> getAbsensiByOrangTua(@PathVariable Long orangTuaId) {
         List<Absensi> absensiList = absensiService.getAbsensiByOrangTua(orangTuaId);
         return ResponseEntity.ok(absensiList);
+    }
+
+    @GetMapping("/absensi/izin/by-orangTua/{idOrangTua}")
+    public List<Absensi> getStatusAbsenIzinByOrangTua(@PathVariable Long idOrangTua) {
+        return absensiService.getStatusAbsenIzinByOrangTua(idOrangTua);
     }
 
 }

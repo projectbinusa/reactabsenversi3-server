@@ -31,6 +31,16 @@ public class NotificationsController {
         }
     }
 
+    @GetMapping("/user/getById/{id}")
+    public ResponseEntity<?> getNotificationsById(@PathVariable Long id) {
+        try {
+            Optional<Notifications> notifications = notificationsService.getById(id);
+            return ResponseEntity.ok(notifications);
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/user/getByAdmin/{adminId}")
     public ResponseEntity<?> getNotificationsByAdmin(@PathVariable Long adminId) {
         try {

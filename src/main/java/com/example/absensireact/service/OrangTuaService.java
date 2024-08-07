@@ -15,7 +15,7 @@ public interface OrangTuaService {
 
     OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua);
 
-    OrangTua tambahOrangTua(OrangTua orangTua);
+    OrangTua tambahOrangTua(Long idSuperAdmin, OrangTua orangTua);
 
     void deleteOrangTua(Long id);
 }

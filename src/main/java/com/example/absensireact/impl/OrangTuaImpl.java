@@ -1,9 +1,12 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
+import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.OrangTua;
+import com.example.absensireact.model.SuperAdmin;
 import com.example.absensireact.repository.OrangTuaRepository;
+import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.service.OrangTuaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +20,9 @@ public class OrangTuaImpl implements OrangTuaService {
 
     @Autowired
     private OrangTuaRepository orangTuaRepository;
+
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
 
     @Autowired
     PasswordEncoder encoder;
@@ -37,14 +43,19 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
     @Override
-    public OrangTua tambahOrangTua(OrangTua orangTua){
-        orangTua.setEmail(orangTua.getEmail());
-        orangTua.setNama(orangTua.getNama());
-        orangTua.setImageOrtu(orangTua.getImageOrtu());
-        orangTua.setRole("Wali Murid");
-        orangTua.setPassword(encoder.encode(orangTua.getPassword()));
-        orangTua.setSuperAdmin(orangTua.getSuperAdmin());
-        return orangTuaRepository.save(orangTua);
+    public OrangTua tambahOrangTua(Long idSuperAdmin, OrangTua orangTua) {
+        Optional<SuperAdmin> superAdminOptional = superAdminRepository.findById(idSuperAdmin);
+        if (superAdminOptional.isPresent()) {
+            SuperAdmin superAdmin = superAdminOptional.get();
+            orangTua.setSuperAdmin(superAdmin);
+            orangTua.setEmail(orangTua.getEmail());
+            orangTua.setNama(orangTua.getNama());
+            orangTua.setImageOrtu(orangTua.getImageOrtu());
+            orangTua.setRole("Wali Murid");
+            orangTua.setPassword(encoder.encode(orangTua.getPassword()));
+            return orangTuaRepository.save(orangTua);
+        }
+        throw new NotFoundException("SuperAdmin tidak ditemukan");
     }
 
     @Override

@@ -47,6 +47,11 @@ public class UserController {
     private AppConfig appConfig;
 
 
+    @PostMapping("/user/{id}/upload-photo")
+    public ResponseEntity<User> uploadPhoto(@PathVariable Long id, @RequestPart("image") MultipartFile image) throws IOException {
+        User user = userImpl.fotoUser(id, image);
+        return ResponseEntity.ok(user);
+    }
     @PostMapping("/user/validasi-code")
     public void requestPasswordReset(@RequestBody VerifyCode verifyCode) {
         try {

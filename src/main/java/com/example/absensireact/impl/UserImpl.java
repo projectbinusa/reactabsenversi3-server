@@ -24,13 +24,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.client.RestTemplate;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -38,7 +47,9 @@ import java.util.*;
 @Service
 public class UserImpl implements UserService {
 
-    static final String DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/absensireact.appspot.com/o/%s?alt=media";
+//    static final String DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/absensireact.appspot.com/o/%s?alt=media";
+
+    private static final String BASE_URL = "https://s3.lynk2.co/api/s3";
 
     @Autowired
     private UserRepository userRepository;
@@ -684,14 +695,7 @@ public class UserImpl implements UserService {
         return userRepository.findAll();
     }
 
-    @Override
-    public  User fotoUser(Long id, MultipartFile image) throws  IOException{
-        User exisUser = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
-        String file = uploadFoto(image , "user");
-        exisUser.setFotoUser(file);
-        return userRepository.save(exisUser);
-    }
+
     @Override
     public User edit(Long id, User user) {
         User existingUser = userRepository.findById(id)
@@ -705,16 +709,56 @@ public class UserImpl implements UserService {
 
     }
 
-        private String uploadFoto(MultipartFile multipartFile, String fileName) throws IOException {
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String folderPath = "user/";
-        String fullPath = folderPath + timestamp + "_" + fileName;
-        BlobId blobId = BlobId.of("absensireact.appspot.com", fullPath);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
-        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        storage.create(blobInfo, multipartFile.getBytes());
-        return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
+//    @Override
+//    public  User fotoUser(Long id, MultipartFile image) throws  IOException{
+//        User exisUser = userRepository.findById(id)
+//                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
+//        String file = uploadFoto(image , "user");
+//        exisUser.setFotoUser(file);
+//        return userRepository.save(exisUser);
+//    }
+//        private String uploadFoto(MultipartFile multipartFile, String fileName) throws IOException {
+//        String timestamp = String.valueOf(System.currentTimeMillis());
+//        String folderPath = "user/";
+//        String fullPath = folderPath + timestamp + "_" + fileName;
+//        BlobId blobId = BlobId.of("absensireact.appspot.com", fullPath);
+//        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
+//        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
+//        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+//        storage.create(blobInfo, multipartFile.getBytes());
+//        return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
+//    }
+
+    private String uploadFoto(MultipartFile multipartFile) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", multipartFile.getResource());
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response = restTemplate.exchange(BASE_URL, HttpMethod.POST, requestEntity, String.class);
+        String fileUrl = extractFileUrlFromResponse(response.getBody());
+        return fileUrl;
+    }
+
+    private String extractFileUrlFromResponse(String responseBody) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonResponse = mapper.readTree(responseBody);
+        JsonNode dataNode = jsonResponse.path("data");
+        String urlFile = dataNode.path("url_file").asText();
+
+        return urlFile;
+    }
+
+    @Override
+    public User fotoUser(Long id, MultipartFile image) throws IOException {
+        User exisUser = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
+        String fileUrl = uploadFoto(image);
+        exisUser.setFotoUser(fileUrl);
+        return userRepository.save(exisUser);
     }
 
 

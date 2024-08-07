@@ -9,6 +9,8 @@ public interface OrangTuaService {
 
     List<OrangTua> getAllOrangTua();
 
+    List<OrangTua> getAllBySuperAdmin(Long idSuperAdmin);
+
     Optional<OrangTua> getOrangTuaById(Long id);
 
     OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua);

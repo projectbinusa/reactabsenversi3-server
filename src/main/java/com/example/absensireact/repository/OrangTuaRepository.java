@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface OrangTuaRepository extends JpaRepository<OrangTua, Long> {
 
-    @Query(value = "SELECT * FROM orang_tua WHERE id_user = :idUser", nativeQuery = true)
-    List<OrangTua> findAllOrangTua(Long idUser);
+    @Query(value = "SELECT * FROM orang_tua WHERE id_super_admin = :idSuperAdmin", nativeQuery = true)
+    List<OrangTua> findAllBySuperAdmin(Long idSuperAdmin);
 
 }

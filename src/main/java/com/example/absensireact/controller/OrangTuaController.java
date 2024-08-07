@@ -36,10 +36,10 @@ public class OrangTuaController {
         return ResponseEntity.ok(orangtuaList);
     }
 
-    @PostMapping("/tambah")
-    public ResponseEntity<OrangTua> tambahOrangtua(@RequestBody OrangTua orangTua) {
+    @PostMapping("/tambah/{idSuperAdmin}")
+    public ResponseEntity<OrangTua> tambahOrangtua(@PathVariable Long idSuperAdmin, @RequestBody OrangTua orangTua) {
         orangTua.setId(null);
-        OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(orangTua);
+        OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(idSuperAdmin, orangTua);
         return new ResponseEntity<>(orangTuaBaru, HttpStatus.CREATED);
     }
 

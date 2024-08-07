@@ -1,48 +1,27 @@
-package com.example.absensireact.model;
+package com.example.absensireact.dto;
 
-import javax.persistence.*;
-
-@Table(name = "orang_tua")
-@Entity
-public class OrangTua {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OrangTuaDTO {
     private Long id;
-
-    @Column(name = "email")
     private String email;
-
-    @Column(name = "nama")
     private String nama;
-
-    @Column(name = "imageOrtu")
     private String imageOrtu;
-
-    @Column(name = "role")
     private String role;
-
-    @Column(name = "password", unique = true)
     private String password;
+    private Long userId;
 
-    @OneToOne
-    @JoinColumn(name = "idUser")
-    private User user;
-
-    public OrangTua() {
+    public OrangTuaDTO() {
     }
 
-    public OrangTua(Long id, String email, String nama, String imageOrtu, String role, String password, User user) {
+    public OrangTuaDTO(Long id, String email, String nama, String imageOrtu, String role, String password, Long userId) {
         this.id = id;
         this.email = email;
         this.nama = nama;
         this.imageOrtu = imageOrtu;
         this.role = role;
         this.password = password;
-        this.user = user;
+        this.userId = userId;
     }
 
-    // Getter dan Setter
     public Long getId() {
         return id;
     }
@@ -91,11 +70,11 @@ public class OrangTua {
         this.password = password;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

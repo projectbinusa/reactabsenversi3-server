@@ -1,7 +1,6 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.repository.OrangTuaRepository;
 import com.example.absensireact.service.OrangTuaService;
@@ -18,7 +17,7 @@ public class OrangTuaImpl implements OrangTuaService {
     private OrangTuaRepository orangTuaRepository;
 
     @Override
-    public List<OrangTua> getAllOrangTua(){
+    public List<OrangTua>getAllOrangTua(){
         return orangTuaRepository.findAll();
     }
 
@@ -28,36 +27,39 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
     @Override
-    public OrangTua tambahOrangTua(OrangTua orangTua) {
+    public List<OrangTua>getAllByIdAdmin(Long idAdmin){
+        return orangTuaRepository.findByIdAdmin(idAdmin);
+    }
+
+    @Override
+    public OrangTua tambahOrangTua(OrangTua orangTua){
         orangTua.setEmail(orangTua.getEmail());
         orangTua.setNama(orangTua.getNama());
         orangTua.setImageOrtu(orangTua.getImageOrtu());
         orangTua.setRole("Wali Murid");
         orangTua.setPassword(orangTua.getPassword());
         orangTua.setUser(orangTua.getUser());
-
         return orangTuaRepository.save(orangTua);
     }
 
-//    @Override
-//    public OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua){
-//        OrangTua orangTua = orangTuaRepository.findById(id)
-//                .orElseThrow(() -> new NotFoundException("id ortu tidak ditemukan : " + id));
-//        orangTua.setNama(updateOrangTua.getNama());
-//        orangTua.setEmail(updateOrangTua.getEmail());
-//        orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
-//        orangTua.setPassword(updateOrangTua.getPassword());
-//        if (updateOrangTua.getUser() != null){
-//            orangTua.setUser(updateOrangTua.getUser());
-//        }
-//        return orangTuaRepository.save(orangTua);
-//    }
+    @Override
+    public OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua){
+        OrangTua orangTua = orangTuaRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("id ortu tidak ditemukan : " + id));
+        orangTua.setNama(updateOrangTua.getNama());
+        orangTua.setEmail(updateOrangTua.getEmail());
+        orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
+        orangTua.setPassword(updateOrangTua.getPassword());
+        if (updateOrangTua.getUser() != null){
+            orangTua.setUser(updateOrangTua.getUser());
+        }
+        return orangTuaRepository.save(orangTua);
+    }
 
     @Override
     public void deleteOrangTua(Long id) {
         orangTuaRepository.deleteById(id);
     }
-
 
 
 }

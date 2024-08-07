@@ -1,6 +1,5 @@
 package com.example.absensireact.service;
 
-import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.OrangTua;
 
 import java.util.List;
@@ -12,9 +11,11 @@ public interface OrangTuaService {
 
     Optional<OrangTua> getOrangTuaById(Long id);
 
-    OrangTua tambahOrangTua(OrangTua orangTua);
+    List<OrangTua> getAllByIdAdmin(Long idAdmin);
 
-//    Kelas editOrangTuaById(Long id, OrangTua updateOrangTua);
+    OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua);
+
+    OrangTua tambahOrangTua(OrangTua orangTua);
 
     void deleteOrangTua(Long id);
 }

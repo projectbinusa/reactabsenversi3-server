@@ -16,4 +16,6 @@ public interface OrangTuaService {
     OrangTua tambahOrangTua(OrangTua orangTua);
 
     void deleteOrangTua(Long id);
+
+    List<OrangTua> getOrangTuaByIdSuperAdmin(Long superAdminId);
 }

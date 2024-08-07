@@ -46,4 +46,10 @@ public class OrangTuaController {
         orangTuaService.deleteOrangTua(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/getOrangTua/by-super-admin/{superAdminId}")
+    public List<OrangTua> getOrangTuaByIdSuperAdmin(@PathVariable Long superAdminId) {
+        return orangTuaService.getOrangTuaByIdSuperAdmin(superAdminId);
+    }
+
 }

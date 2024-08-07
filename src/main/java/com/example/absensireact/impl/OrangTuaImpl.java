@@ -56,5 +56,10 @@ public class OrangTuaImpl implements OrangTuaService {
         orangTuaRepository.deleteById(id);
     }
 
+    @Override
+    public List<OrangTua> getOrangTuaByIdSuperAdmin(Long superAdminId) {
+        return orangTuaRepository.findOrangTuaByIdSuperAdmin(superAdminId);
+    }
+
 
 }

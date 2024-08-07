@@ -26,28 +26,22 @@ public class OrangTua {
     private String password;
 
     @OneToOne
-    @JoinColumn(name = "idUser")
-    private User user;
-
-    @OneToOne
     @JoinColumn(name = "idSuperAdmin")
     private SuperAdmin superAdmin;
 
     public OrangTua() {
     }
 
-    public OrangTua(Long id, String email, String nama, String imageOrtu, String role, String password, User user, SuperAdmin superAdmin) {
+    public OrangTua(Long id, String email, String nama, String imageOrtu, String role, String password, SuperAdmin superAdmin) {
         this.id = id;
         this.email = email;
         this.nama = nama;
         this.imageOrtu = imageOrtu;
         this.role = role;
         this.password = password;
-        this.user = user;
         this.superAdmin = superAdmin;
     }
 
-    // Getter dan Setter
     public Long getId() {
         return id;
     }
@@ -94,14 +88,6 @@ public class OrangTua {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public SuperAdmin getSuperAdmin() {

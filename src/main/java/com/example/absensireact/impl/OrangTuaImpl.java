@@ -43,7 +43,6 @@ public class OrangTuaImpl implements OrangTuaService {
         orangTua.setImageOrtu(orangTua.getImageOrtu());
         orangTua.setRole("Wali Murid");
         orangTua.setPassword(encoder.encode(orangTua.getPassword()));
-        orangTua.setUser(orangTua.getUser());
         orangTua.setSuperAdmin(orangTua.getSuperAdmin());
         return orangTuaRepository.save(orangTua);
     }
@@ -56,9 +55,6 @@ public class OrangTuaImpl implements OrangTuaService {
         orangTua.setEmail(updateOrangTua.getEmail());
         orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
         orangTua.setPassword(encoder.encode(updateOrangTua.getPassword()));
-        if (updateOrangTua.getUser() != null){
-            orangTua.setUser(updateOrangTua.getUser());
-        }
         if (updateOrangTua.getSuperAdmin() != null){
             orangTua.setSuperAdmin(updateOrangTua.getSuperAdmin());
         }

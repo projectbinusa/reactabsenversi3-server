@@ -27,11 +27,6 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
     @Override
-    public List<OrangTua>getAllByIdAdmin(Long idAdmin){
-        return orangTuaRepository.findByIdAdmin(idAdmin);
-    }
-
-    @Override
     public OrangTua tambahOrangTua(OrangTua orangTua){
         orangTua.setEmail(orangTua.getEmail());
         orangTua.setNama(orangTua.getNama());

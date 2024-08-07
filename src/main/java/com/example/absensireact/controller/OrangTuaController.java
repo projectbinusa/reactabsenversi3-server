@@ -23,12 +23,6 @@ public class OrangTuaController {
         return ResponseEntity.ok(orangTuaService.getAllOrangTua());
     }
 
-    @GetMapping("/getALlByAdmin/{idAdmin}")
-    public ResponseEntity<List<OrangTua>> getALlByAdmin(@PathVariable Long idAdmin) {
-        List<OrangTua> kelasList =  orangTuaService.getAllByIdAdmin(idAdmin);
-        return ResponseEntity.ok(kelasList);
-    }
-
     @GetMapping("/getbyid/{id}")
     public ResponseEntity<OrangTua> getOrangTuaById(@PathVariable Long id) {
         Optional<OrangTua> orangTua = orangTuaService.getOrangTuaById(id);

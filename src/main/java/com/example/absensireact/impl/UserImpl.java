@@ -61,6 +61,9 @@ public class UserImpl implements UserService {
     private AdminRepository adminRepository;
 
     @Autowired
+    private SuperAdminRepository superAdminRepository;
+
+    @Autowired
     private JabatanRepository jabatanRepository;
 
     @Autowired
@@ -361,7 +364,7 @@ public class UserImpl implements UserService {
                     "                                <p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-size: 12px; line-height: 16.8px;\">Jika Anda tidak memerlukan penyetelan ulang, abaikan pesan ini.</span></p>\n" +
                     "                                <p style=\"line-height: 140%; font-size: 14px;\">&nbsp;</p>\n" +
                     "                              </div>\n"
-                                                    +" <a href=\"http://localhost:3000/\" style=\"background-color: #3498db; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block;\">\n" +
+                    +" <a href=\"http://localhost:3000/\" style=\"background-color: #3498db; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block;\">\n" +
                     "                                           Reset Password\n" +
                     "                                  </a>\n"+
 
@@ -567,6 +570,13 @@ public class UserImpl implements UserService {
         return userList;
     }
     @Override
+    public List<User> getAllBySuperAdmin(Long idSuperAdmin) {
+        SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
+                .orElseThrow(() -> new NotFoundException("id Super Admin tidak ditemukan: " + idSuperAdmin));
+        List<User> userList = userRepository.findByIdSuperAdmin(idSuperAdmin);
+        return userList;
+    }
+    @Override
     public List<User> getAllByShift(Long idShift) {
         Optional<Shift> shiftOptional = shiftRepository.findById(idShift);
         if (shiftOptional.isEmpty()) {
@@ -675,7 +685,7 @@ public class UserImpl implements UserService {
         } else {
             throw new NotFoundException("Id Admin tidak ditemukan");
         }
-}
+    }
 
 
 
@@ -772,17 +782,17 @@ public class UserImpl implements UserService {
 
 
     @Override
-   public void delete(Long id) throws IOException {
-    Optional<User> userOptional = userRepository.findById(id);
-    if (userOptional.isPresent()) {
-        User user = userOptional.get();
-        String fotoUrl = user.getFotoUser();
-        String fileName = fotoUrl.substring(fotoUrl.indexOf("/o/") + 3, fotoUrl.indexOf("?alt=media"));
-        deleteFoto(fileName);
-    } else {
-        throw new NotFoundException("User not found with id: " + id);
+    public void delete(Long id) throws IOException {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String fotoUrl = user.getFotoUser();
+            String fileName = fotoUrl.substring(fotoUrl.indexOf("/o/") + 3, fotoUrl.indexOf("?alt=media"));
+            deleteFoto(fileName);
+        } else {
+            throw new NotFoundException("User not found with id: " + id);
+        }
     }
-}
 
     @Override
     public void deleteUser(Long id) {

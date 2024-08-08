@@ -13,63 +13,66 @@ import java.util.Locale;
 @Table
 public class User {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-   @Column(name = "email")
-   private String email;
+    @Column(name = "email")
+    private String email;
 
-   @Column(name = "password" , unique = true)
-   private String password;
+    @Column(name = "password" , unique = true)
+    private String password;
 
-   @Column(name = "username")
-   private  String username;
+    @Column(name = "username")
+    private  String username;
 
-   @Column(name = "fotoUser")
-   private String fotoUser;
+    @Column(name = "fotoUser")
+    private String fotoUser;
 
-   @Column(name = "startKerja")
-   private String startKerja;
-
-
-
-   @Column(name = "statusKerja")
-   private String statusKerja;
-
-   @ManyToOne
-   @JoinColumn(name = "idOrganisasi")
-   private Organisasi organisasi;
-
-   @ManyToOne
-   @JoinColumn(name = "idJabatan")
-   private Jabatan jabatan;
-
-   @ManyToOne
-   @JoinColumn(name = "idShift")
-   private Shift shift;
-
-   @ManyToOne
-   @JoinColumn(name = "idAdmin")
-   private Admin admin;
-
-   @ManyToOne
-   @JoinColumn(name = "idKelas")
-   private Kelas kelas;
-
-   @OneToOne
-   @JoinColumn(name = "idOrangTua")
-   private OrangTua orangTua;
+    @Column(name = "startKerja")
+    private String startKerja;
 
 
-   @Column(name = "role")
-   private String role;
 
-public User(){
+    @Column(name = "statusKerja")
+    private String statusKerja;
 
-}
+    @ManyToOne
+    @JoinColumn(name = "idOrganisasi")
+    private Organisasi organisasi;
 
-    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, OrangTua orangTua, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, String role) {
+    @ManyToOne
+    @JoinColumn(name = "idJabatan")
+    private Jabatan jabatan;
+
+    @ManyToOne
+    @JoinColumn(name = "idShift")
+    private Shift shift;
+
+    @ManyToOne
+    @JoinColumn(name = "idAdmin")
+    private Admin admin;
+
+    @ManyToOne
+    @JoinColumn(name = "idKelas")
+    private Kelas kelas;
+
+    @OneToOne
+    @JoinColumn(name = "idOrangTua")
+    private OrangTua orangTua;
+
+    @ManyToOne
+    @JoinColumn(name = "idSuperAdmin")
+    private SuperAdmin superAdmin;
+
+    @Column(name = "role")
+    private String role;
+
+    public User(){
+
+    }
+
+    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, OrangTua orangTua, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -83,6 +86,7 @@ public User(){
         this.admin = admin;
         this.orangTua = orangTua;
         this.kelas = kelas;
+        this.superAdmin = superAdmin;
         this.role = role;
     }
 
@@ -182,6 +186,14 @@ public User(){
 
     public void setKelas(Kelas kelas) {
         this.kelas = kelas;
+    }
+
+    public SuperAdmin getSuperAdmin() {
+        return superAdmin;
+    }
+
+    public void setSuperAdmin(SuperAdmin superAdmin) {
+        this.superAdmin = superAdmin;
     }
 
     public OrangTua getOrangTua() {

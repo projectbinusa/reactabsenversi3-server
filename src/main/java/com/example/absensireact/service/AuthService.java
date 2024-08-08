@@ -2,16 +2,11 @@ package com.example.absensireact.service;
 
 
 
-import com.example.absensireact.detail.AdminDetail;
-import com.example.absensireact.detail.CustomUserDetails;
-import com.example.absensireact.detail.SuperAdminDetail;
-import com.example.absensireact.detail.UserDetail;
+import com.example.absensireact.detail.*;
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.LoginRequest;
-import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.*;
 import com.example.absensireact.repository.AdminRepository;
+import com.example.absensireact.repository.OrangTuaRepository;
 import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.securityNew.JwtTokenUtil;
@@ -46,6 +41,9 @@ public class AuthService  {
     SuperAdminRepository superAdminRepository;
 
     @Autowired
+    OrangTuaRepository orangTuaRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
 
@@ -65,7 +63,12 @@ public class AuthService  {
             return SuperAdminDetail.buildSuperAdmin(superAdminOptional.get());
         }
 
-        throw new UsernameNotFoundException("User not found with username: " + username);
+        Optional<OrangTua> orangTuaOptional = orangTuaRepository.findByEmail(username);
+        if (orangTuaOptional.isPresent()) {
+            return OrangTuaDetail.buildOrangTua(orangTuaOptional.get());
+        }
+
+        throw new UsernameNotFoundException("User not found with username3: " + username);
     }
 
 

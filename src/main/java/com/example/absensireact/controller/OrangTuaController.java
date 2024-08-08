@@ -43,11 +43,14 @@ public class OrangTuaController {
         return new ResponseEntity<>(orangTuaBaru, HttpStatus.CREATED);
     }
 
-    @PutMapping("/editOrtuById/{id}")
-    public ResponseEntity<OrangTua> editOrangTua(@PathVariable("id") Long id, @RequestBody OrangTua orangTua) {
-        OrangTua updateOrangtua = orangTuaService.editOrangTuaById(id, orangTua);
+    @PutMapping("/editOrtuById/{id}/{idSuperAdmin}")
+    public ResponseEntity<OrangTua> editOrangTua(@PathVariable("id") Long id,
+                                                 @PathVariable("idSuperAdmin") Long idSuperAdmin,
+                                                 @RequestBody OrangTua orangTua) {
+        OrangTua updateOrangtua = orangTuaService.editOrangTuaById(id, idSuperAdmin, orangTua);
         return ResponseEntity.ok(updateOrangtua);
     }
+
 
     @DeleteMapping("/deleteOrangTua/{id}")
     public ResponseEntity<Void> deleteOrangTua(@PathVariable Long id) throws IOException {

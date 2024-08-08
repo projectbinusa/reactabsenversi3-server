@@ -38,4 +38,6 @@ public interface SuperAdminService {
     SuperAdmin ubahUsernamedanemail(Long id, SuperAdmin updateadmin);
 
     SuperAdmin uploadImage(Long id, MultipartFile image) throws IOException;
+
+    SuperAdmin fotoSuperadmin(Long id, MultipartFile image) throws IOException;
 }

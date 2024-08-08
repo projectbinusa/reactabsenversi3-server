@@ -59,18 +59,23 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
     @Override
-    public OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua){
+    public OrangTua editOrangTuaById(Long id, Long idSuperAdmin, OrangTua updateOrangTua) {
         OrangTua orangTua = orangTuaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("id ortu tidak ditemukan : " + id));
+
+        SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
+                .orElseThrow(() -> new NotFoundException("SuperAdmin dengan id: " + idSuperAdmin + " tidak ditemukan"));
+
         orangTua.setNama(updateOrangTua.getNama());
         orangTua.setEmail(updateOrangTua.getEmail());
         orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
         orangTua.setPassword(encoder.encode(updateOrangTua.getPassword()));
-        if (updateOrangTua.getSuperAdmin() != null){
-            orangTua.setSuperAdmin(updateOrangTua.getSuperAdmin());
-        }
+        orangTua.setSuperAdmin(superAdmin);
+
         return orangTuaRepository.save(orangTua);
     }
+
+
 
     @Override
     public void deleteOrangTua(Long id) {

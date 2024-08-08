@@ -13,7 +13,7 @@ public interface OrangTuaService {
 
     Optional<OrangTua> getOrangTuaById(Long id);
 
-    OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua);
+    OrangTua editOrangTuaById(Long id,Long idSuperAdmin, OrangTua updateOrangTua);
 
     OrangTua tambahOrangTua(Long idSuperAdmin, OrangTua orangTua);
 

@@ -2,9 +2,11 @@ package com.example.absensireact.detail;
 
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
+import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.SuperAdmin;
 import com.example.absensireact.model.User;
 import com.example.absensireact.repository.AdminRepository;
+import com.example.absensireact.repository.OrangTuaRepository;
 import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.securityNew.JwtTokenUtil;
@@ -32,6 +34,9 @@ public class CustomUserDetails  implements UserDetailsService {
     @Autowired
     SuperAdminRepository superAdminRepository;
 
+    @Autowired
+    OrangTuaRepository orangTuaRepository;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -53,7 +58,13 @@ public class CustomUserDetails  implements UserDetailsService {
             return SuperAdminDetail.buildSuperAdmin(superAdmin);
         }
 
-        throw new UsernameNotFoundException("User Not Found with username: " + username);
+        Optional<OrangTua> orangTuaOptional = orangTuaRepository.findByUsername(username);
+        if (orangTuaOptional.isPresent()) {
+            OrangTua orangTua = orangTuaOptional.get();
+            return OrangTuaDetail.buildOrangTua(orangTua);
+        }
+
+        throw new UsernameNotFoundException("User Not Found with username2: " + username);
     }
 
 

@@ -1,17 +1,12 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.detail.AdminDetail;
+import com.example.absensireact.detail.OrangTuaDetail;
 import com.example.absensireact.detail.SuperAdminDetail;
 import com.example.absensireact.detail.UserDetail;
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.model.Token;
-import com.example.absensireact.model.User;
-import com.example.absensireact.repository.AdminRepository;
-import com.example.absensireact.repository.SuperAdminRepository;
-import com.example.absensireact.repository.TokenRepository;
-import com.example.absensireact.repository.UserRepository;
+import com.example.absensireact.model.*;
+import com.example.absensireact.repository.*;
 import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +42,9 @@ public class TokenImpl implements TokenService {
     @Autowired
     private SuperAdminRepository superAdminRepository;
 
+    @Autowired
+    private OrangTuaRepository orangTuaRepository;
+
     @Value("${security.oauth2.authorization.jwt.expires-in}")
     private long tokenValidityInSeconds;
 
@@ -77,7 +75,12 @@ public class TokenImpl implements TokenService {
             return SuperAdminDetail.buildSuperAdmin(superAdminOptional.get());
         }
 
-        throw new UsernameNotFoundException("User not found with username: " + username);
+        Optional<OrangTua> orangTuaOptional = orangTuaRepository.findByUsername(username);
+        if (orangTuaOptional.isPresent()) {
+            return OrangTuaDetail.buildOrangTua(orangTuaOptional.get());
+        }
+
+        throw new UsernameNotFoundException("User not found with username1: " + username);
     }
 
 

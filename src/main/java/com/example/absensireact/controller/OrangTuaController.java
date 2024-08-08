@@ -1,6 +1,5 @@
 package com.example.absensireact.controller;
 
-import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.service.OrangTuaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +29,10 @@ public class OrangTuaController {
         return orangTua.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/getALlBySuperAdmin/{idSuperAdmin}")
-    public ResponseEntity<List<OrangTua>> getALlBySuperAdmin(@PathVariable Long idSuperAdmin) {
-        List<OrangTua> orangtuaList =  orangTuaService.getAllBySuperAdmin(idSuperAdmin);
-        return ResponseEntity.ok(orangtuaList);
-    }
-
-    @PostMapping("/tambah/{idSuperAdmin}")
-    public ResponseEntity<OrangTua> tambahOrangtua(@PathVariable Long idSuperAdmin, @RequestBody OrangTua orangTua) {
-        orangTua.setId(null);
-        OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(idSuperAdmin, orangTua);
-        return new ResponseEntity<>(orangTuaBaru, HttpStatus.CREATED);
+    @PostMapping("/tambah")
+    public ResponseEntity<OrangTua> tambahOrangtua(@RequestBody OrangTua orangTua) {
+        OrangTua OrangtuaBaru = orangTuaService.tambahOrangTua(orangTua);
+        return new ResponseEntity<>(OrangtuaBaru, HttpStatus.CREATED);
     }
 
     @PutMapping("/editOrtuById/{id}")
@@ -54,4 +46,10 @@ public class OrangTuaController {
         orangTuaService.deleteOrangTua(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/getOrangTua/by-super-admin/{superAdminId}")
+    public List<OrangTua> getOrangTuaByIdSuperAdmin(@PathVariable Long superAdminId) {
+        return orangTuaService.getOrangTuaByIdSuperAdmin(superAdminId);
+    }
+
 }

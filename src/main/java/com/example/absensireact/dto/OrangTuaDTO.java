@@ -7,19 +7,19 @@ public class OrangTuaDTO {
     private String imageOrtu;
     private String role;
     private String password;
-    private Long superAdminId;
+    private Long userId;
 
     public OrangTuaDTO() {
     }
 
-    public OrangTuaDTO(Long id, String email, String nama, String imageOrtu, String role, String password, Long superAdminId) {
+    public OrangTuaDTO(Long id, String email, String nama, String imageOrtu, String role, String password, Long userId) {
         this.id = id;
         this.email = email;
         this.nama = nama;
         this.imageOrtu = imageOrtu;
         this.role = role;
         this.password = password;
-        this.superAdminId = superAdminId;
+        this.userId = userId;
     }
 
     public Long getId() {
@@ -70,11 +70,11 @@ public class OrangTuaDTO {
         this.password = password;
     }
 
-    public Long getSuperAdminId() {
-        return superAdminId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setSuperAdminId(Long superAdminId) {
-        this.superAdminId = superAdminId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

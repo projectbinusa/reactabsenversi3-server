@@ -9,13 +9,13 @@ public interface OrangTuaService {
 
     List<OrangTua> getAllOrangTua();
 
-    List<OrangTua> getAllBySuperAdmin(Long idSuperAdmin);
-
     Optional<OrangTua> getOrangTuaById(Long id);
 
     OrangTua editOrangTuaById(Long id, OrangTua updateOrangTua);
 
-    OrangTua tambahOrangTua(Long idSuperAdmin, OrangTua orangTua);
+    OrangTua tambahOrangTua(OrangTua orangTua);
 
     void deleteOrangTua(Long id);
+
+    List<OrangTua> getOrangTuaByIdSuperAdmin(Long superAdminId);
 }

@@ -33,6 +33,8 @@ public interface UserService {
 
     List<User> getAllByAdmin(Long idAdmin);
 
+    List<User> getAllBySuperAdmin(Long idSuperAdmin);
+
     List<User> getAllByShift(Long idShift);
 
     User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, User user);

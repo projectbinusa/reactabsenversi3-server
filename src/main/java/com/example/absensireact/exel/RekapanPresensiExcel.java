@@ -35,7 +35,7 @@ public class RekapanPresensiExcel {
 
     public void excelAbsensiHarianByKelas(Date tanggal, Long kelasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-harian");
+        Sheet sheet = workbook.createSheet("Presensi-harian");
 
         Font fontWhite = workbook.createFont();
         fontWhite.setColor(IndexedColors.WHITE.getIndex());
@@ -107,7 +107,7 @@ public class RekapanPresensiExcel {
         // Title row
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("DATA ABSENSI HARIAN : " + day + " " + getMonthName(month) + " " + year);
+        titleCell.setCellValue("DATA PRESENSI HARIAN : " + day + " " + getMonthName(month) + " " + year);
         titleCell.setCellStyle(styleTitle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
         rowNum++;
@@ -217,14 +217,14 @@ public class RekapanPresensiExcel {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiHarian.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiHarian.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
 
     public void excelAbsensiByKelas(Long kelasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-harian");
+        Sheet sheet = workbook.createSheet("Presensi-harian");
 
         Font fontWhite = workbook.createFont();
         fontWhite.setColor(IndexedColors.WHITE.getIndex());
@@ -406,7 +406,7 @@ public class RekapanPresensiExcel {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiHarian.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiPerkelas.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

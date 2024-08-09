@@ -79,7 +79,7 @@ public class SuperAdminController {
 
     @GetMapping("/superadmin/getAll")
     public ResponseEntity<List<SuperAdmin>> getAllSuperAdmin() {
-        List<SuperAdmin> superAdmins = (List<SuperAdmin>) superAdminService.getAllSuperAdmin();
+        List<SuperAdmin> superAdmins = superAdminService.getAllSuperAdmin();
         return ResponseEntity.ok(superAdmins);
     }
 

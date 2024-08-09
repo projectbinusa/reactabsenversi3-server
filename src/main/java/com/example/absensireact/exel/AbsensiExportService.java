@@ -67,7 +67,7 @@ public class AbsensiExportService {
 //
     public void excelAbsensiRekapanPerkaryawan(Long userId , HttpServletResponse response) throws IOException {
     Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("Rekap-Perkaryawan");
+    Sheet sheet = workbook.createSheet("Rekap-Persiswa");
 
     Font fontWhite = workbook.createFont();
     fontWhite.setColor(IndexedColors.WHITE.getIndex());
@@ -128,7 +128,7 @@ public class AbsensiExportService {
         // Handle case when there are no absences for the given month and year
         Row emptyRow = sheet.createRow(0);
         Cell emptyCell = emptyRow.createCell(0);
-        emptyCell.setCellValue("Tidak ada data absensi untuk user ini  ");
+        emptyCell.setCellValue("Tidak ada data presensi untuk user ini  ");
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4)); // Merge cells for message
     } else {
         // Group by user
@@ -142,7 +142,7 @@ public class AbsensiExportService {
         // Title row
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("DATA REKAPAN PERKARYAWAN : ");
+        titleCell.setCellValue("DATA REKAPAN PERSISWA : ");
         titleCell.setCellStyle(styleTitle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
         rowNum++;
@@ -250,7 +250,7 @@ public class AbsensiExportService {
     }
 
     response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    response.setHeader("Content-Disposition", "attachment; filename=RekpaPerkaryawan.xlsx");
+    response.setHeader("Content-Disposition", "attachment; filename=RekapPersiswa.xlsx");
     workbook.write(response.getOutputStream());
     workbook.close();
 }

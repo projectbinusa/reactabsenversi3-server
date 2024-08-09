@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/admin/profile")
+@CrossOrigin(origins = "*")
 public class ProfileAdminController {
 
     @Autowired

@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/lokasi")
+@CrossOrigin(origins = "*")
 public class LokasiController {
 
     @Autowired

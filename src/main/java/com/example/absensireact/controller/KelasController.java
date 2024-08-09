@@ -18,6 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/kelas")
+@CrossOrigin(origins = "*")
 public class KelasController {
 
     @Autowired

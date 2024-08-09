@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orang-tua")
+@CrossOrigin(origins = "*")
 public class OrangTuaController {
 
     @Autowired

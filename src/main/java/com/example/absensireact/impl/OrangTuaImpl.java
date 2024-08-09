@@ -1,5 +1,7 @@
 package com.example.absensireact.impl;
 
+import com.example.absensireact.dto.PasswordDTO;
+import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
 import com.example.absensireact.repository.OrangTuaRepository;
@@ -107,6 +109,26 @@ public class OrangTuaImpl implements OrangTuaService {
         String fileUrl = extractFileUrlFromResponse(response.getBody());
         return fileUrl;
     }
+
+    @Override
+    public OrangTua putPasswordOrangTua(PasswordDTO passwordDTO, Long id) {
+        OrangTua update = orangTuaRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Id Not Found"));
+
+        boolean isOldPasswordCorrect = encoder.matches(passwordDTO.getOld_password(), update.getPassword());
+
+        if (!isOldPasswordCorrect) {
+            throw new NotFoundException("Password lama tidak sesuai");
+        }
+
+        if (passwordDTO.getNew_password().equals(passwordDTO.getConfirm_new_password())) {
+            update.setPassword(encoder.encode(passwordDTO.getNew_password()));
+            return orangTuaRepository.save(update);
+        } else {
+            throw new BadRequestException("Password tidak sesuai");
+        }
+    }
+
 
     private String extractFileUrlFromResponse(String responseBody) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

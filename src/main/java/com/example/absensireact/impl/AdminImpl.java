@@ -166,15 +166,18 @@ public class AdminImpl implements AdminService {
     }
 
     @Override
-    public Admin edit(Long id, Admin admin) {
-
+    public Admin edit(Long id, Long idSuperAdmin, Admin admin) {
         Admin existingUser = adminRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Admin tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan : " + id));
 
+        SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
+                .orElseThrow(() -> new NotFoundException("SuperAdmin dengan id: " + idSuperAdmin + " tidak ditemukan"));
         existingUser.setUsername(admin.getUsername());
         existingUser.setEmail(admin.getEmail());
+        existingUser.setSuperAdmin(superAdmin);
         return adminRepository.save(existingUser);
     }
+
 
     @Override
     public Admin uploadImage(Long id, MultipartFile image) throws IOException {

@@ -36,7 +36,7 @@ public class ExcelAbsensiMingguan {
 
     public void excelAbsensiMingguan(Date tanggalAwal, Date tanggalAkhir, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-mingguan");
+        Sheet sheet = workbook.createSheet("Presensi-mingguan");
         int rowNum = 0;
 
         Font fontWhite = workbook.createFont();
@@ -101,7 +101,7 @@ public class ExcelAbsensiMingguan {
         // Title row
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("DATA ABSENSI MINGGUAN : " + formatDate(tanggalAwal) + " - " + formatDate(tanggalAkhir));
+        titleCell.setCellValue("DATA PRESENSI MINGGUAN : " + formatDate(tanggalAwal) + " - " + formatDate(tanggalAkhir));
         titleCell.setCellStyle(styleTitle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
 
@@ -207,14 +207,14 @@ public class ExcelAbsensiMingguan {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiMingguan.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiMingguan.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
 
     public void excelAbsensiHarian(Date tanggal, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-harian");
+        Sheet sheet = workbook.createSheet("Presensi-harian");
 
 
         Font fontWhite = workbook.createFont();
@@ -291,7 +291,7 @@ public class ExcelAbsensiMingguan {
         // Title row
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("DATA ABSENSI HARIAN : " + day + " " + getMonthName(month) + " " + year);
+        titleCell.setCellValue("DATA PRESENSI HARIAN : " + day + " " + getMonthName(month) + " " + year);
         titleCell.setCellStyle(styleTitle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
         rowNum++;
@@ -402,14 +402,14 @@ public class ExcelAbsensiMingguan {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiHarian.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiHarian.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
 
     public void excelMingguanPerKelas(Date tanggalAwal, Date tanggalAkhir, Long kelasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-mingguan-per-kelas");
+        Sheet sheet = workbook.createSheet("Presensi-mingguan-per-kelas");
         int rowNum = 0;
 
         Font fontWhite = workbook.createFont();
@@ -590,7 +590,7 @@ public class ExcelAbsensiMingguan {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiMingguanPerKelas.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiMingguanPerKelas.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

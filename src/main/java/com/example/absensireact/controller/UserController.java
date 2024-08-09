@@ -88,9 +88,9 @@ public class UserController {
     }
 
     @PostMapping("/user/tambahkaryawan/{idAdmin}")
-    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idOrangTua, @RequestParam Long idJabatan, @RequestParam Long idShift) {
+    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idOrangTua, @RequestParam Long idJabatan, @RequestParam Long idShift, @RequestParam Long idKelas) {
         try {
-            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua);
+            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua, idKelas);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -182,9 +182,10 @@ public class UserController {
                                          @RequestParam(required = false) Long idJabatan,
                                          @RequestParam(required = false) Long idShift,
                                          @RequestParam(required = false) Long idOrangTua,
+                                         @RequestParam(required = false) Long idKelas,
                                          @RequestBody User updatedUser) {
         try {
-            User editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, idOrangTua, updatedUser);
+            User editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, idOrangTua, idKelas, updatedUser);
             return ResponseEntity.ok(editedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

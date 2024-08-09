@@ -95,8 +95,6 @@ public class Admin {
         this.role = role;
     }
 
-
-
     public SuperAdmin getSuperAdmin() {
         return superAdmin;
     }

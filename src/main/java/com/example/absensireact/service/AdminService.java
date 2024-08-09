@@ -31,11 +31,9 @@ public interface AdminService {
 
     List<Admin> getAll();
 
-    Admin edit(Long id, Admin admin);
+    Admin edit(Long id, Long idSuperAdmin, Admin admin);
 
     Admin uploadImage (Long id, MultipartFile image ) throws IOException;
-
-
 
     Admin ubahUsernamedanemail(Long id, Admin updateadmin);
 

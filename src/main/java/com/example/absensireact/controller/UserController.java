@@ -88,9 +88,9 @@ public class UserController {
     }
 
     @PostMapping("/user/tambahkaryawan/{idAdmin}")
-    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idJabatan, @RequestParam Long idShift) {
+    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idOrangTua, @RequestParam Long idJabatan, @RequestParam Long idShift) {
         try {
-            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift);
+            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -170,7 +170,7 @@ public class UserController {
     @PutMapping("/user/editBYSuper/{id}")
     public ResponseEntity<User> editUserBySuper(@PathVariable Long id,@RequestParam Long idJabatan , @RequestParam Long idShift ,@RequestBody  User user ) {
         try {
-            User updatedUser = userImpl.EditUserBySuper(id,idJabatan, idShift ,user );
+            User updatedUser = userImpl.EditUserBySuper(id,idJabatan, idShift, user );
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -181,9 +181,10 @@ public class UserController {
     public ResponseEntity<User> editUser(@PathVariable("id") Long id,
                                          @RequestParam(required = false) Long idJabatan,
                                          @RequestParam(required = false) Long idShift,
+                                         @RequestParam(required = false) Long idOrangTua,
                                          @RequestBody User updatedUser) {
         try {
-            User editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, updatedUser);
+            User editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, idOrangTua, updatedUser);
             return ResponseEntity.ok(editedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

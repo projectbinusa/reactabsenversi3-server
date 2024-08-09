@@ -102,11 +102,14 @@ public class AdminController {
     public CommonResponse<Admin> putPassword(@RequestBody PasswordDTO password, @PathVariable Long id ) {
         return ResponseHelper.ok(adminService.putPasswordAdmin(password , id));
     }
-    @PutMapping("/admin/edit/{id}")
-    public ResponseEntity<Admin> updateAdmin(@PathVariable Long id, @RequestBody Admin admin) {
-        Admin updatedAdmin = adminService.edit(id, admin);
-        return new ResponseEntity<>(updatedAdmin, HttpStatus.OK);
+    @PutMapping("/admin/edit/{id}/{idSuperAdmin}")
+    public ResponseEntity<Admin> editAdmin(@PathVariable("id") Long id,
+                                           @PathVariable("idSuperAdmin") Long idSuperAdmin,
+                                           @RequestBody Admin existingUser) {
+        Admin admin = adminService.edit(id, idSuperAdmin, existingUser);
+        return ResponseEntity.ok(admin);
     }
+
 
     @PutMapping("/admin/edit-email-username/{id}")
     public ResponseEntity<Admin> editemailusername(@PathVariable Long id, @RequestBody Admin updateAdmin) {

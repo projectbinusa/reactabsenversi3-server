@@ -70,6 +70,9 @@ public class UserImpl implements UserService {
     private ShiftRepository shiftRepository;
 
     @Autowired
+    private OrangTuaRepository orangTuaRepository;
+
+    @Autowired
     private ResetPasswordRepository resetPasswordRepository;
 
     @Autowired
@@ -593,7 +596,7 @@ public class UserImpl implements UserService {
 
 
     @Override
-    public User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, User updatedUser) {
+    public User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, User updatedUser) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan");
@@ -603,6 +606,8 @@ public class UserImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("id jabatan tidak ditemukan")));
         user.setShift(shiftRepository.findById(idShift)
                 .orElseThrow(() -> new NotFoundException("id shift tidak ditemukan")));
+        user.setOrangTua(orangTuaRepository.findById(idOrangTua)
+                .orElseThrow(() -> new NotFoundException("id orang tua tidak ditemukan")));
         if (updatedUser.getUsername() != null) {
             user.setUsername(updatedUser.getUsername());
         }
@@ -662,7 +667,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idShift) {
+    public User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idOrangTua, Long idJabatan, Long idShift) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             Admin admin = adminOptional.get();
@@ -677,6 +682,8 @@ public class UserImpl implements UserService {
                     .orElseThrow(() -> new NotFoundException("Jabatan tidak ditemukan")));
             user.setShift(shiftRepository.findById(idShift)
                     .orElseThrow(() -> new NotFoundException("Shift tidak ditemukan")));
+            user.setOrangTua(orangTuaRepository.findById(idOrangTua)
+                    .orElseThrow(() -> new NotFoundException("id Orang Tua tidak ditemukan : " + idOrangTua)));
             user.setStartKerja(new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(new Date()));
             user.setStatusKerja("aktif");
             user.setAdmin(admin);

@@ -43,7 +43,7 @@ public class OrangTuaController {
 
     @GetMapping("/getALlBySuperAdmin/{idAdmin}")
     public ResponseEntity<List<OrangTua>> getALlBySuperAdmin(@PathVariable Long idAdmin) {
-        List<OrangTua> orangtuaList =  orangTuaService.getAllBySuperAdmin(idAdmin);
+        List<OrangTua> orangtuaList =  orangTuaService.getAllByAdmin(idAdmin);
         return ResponseEntity.ok(orangtuaList);
     }
 

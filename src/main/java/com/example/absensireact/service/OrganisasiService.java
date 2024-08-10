@@ -28,6 +28,8 @@ public interface OrganisasiService {
 
     void saveOrganisasiImage(Long idAdmin, Long organisasiId, MultipartFile image) throws IOException;
 
+    Organisasi uploadImage(Long id, MultipartFile image) throws IOException;
+
     Organisasi UbahDataOrgannisasi(Long idAdmin, Organisasi organisasi, MultipartFile image) throws IOException;
 
     Organisasi EditByid(Long id,Long idAdmin ,  Organisasi organisasi, MultipartFile image) throws IOException;

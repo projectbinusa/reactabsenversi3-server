@@ -1,6 +1,9 @@
 package com.example.absensireact.controller;
 
+import com.example.absensireact.dto.PasswordDTO;
+import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
+import com.example.absensireact.exception.ResponseHelper;
 import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.SuperAdmin;
@@ -18,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orang-tua")
+@CrossOrigin(origins = "*")
 public class OrangTuaController {
 
     @Autowired
@@ -58,6 +62,11 @@ public class OrangTuaController {
         return ResponseEntity.ok(updateOrangtua);
     }
 
+
+    @PutMapping(path = "/edit-password/{id}")
+    public CommonResponse<OrangTua> putPassword(@RequestBody PasswordDTO password, @PathVariable Long id ) {
+        return ResponseHelper.ok(orangTuaService.putPasswordOrangTua(password , id));
+    }
 
     @DeleteMapping("/deleteOrangTua/{id}")
     public ResponseEntity<Void> deleteOrangTua(@PathVariable Long id) throws IOException {

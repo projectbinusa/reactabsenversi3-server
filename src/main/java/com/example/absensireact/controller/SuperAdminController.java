@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class SuperAdminController {
@@ -79,7 +79,7 @@ public class SuperAdminController {
 
     @GetMapping("/superadmin/getAll")
     public ResponseEntity<List<SuperAdmin>> getAllSuperAdmin() {
-        List<SuperAdmin> superAdmins = (List<SuperAdmin>) superAdminService.getAllSuperAdmin();
+        List<SuperAdmin> superAdmins = superAdminService.getAllSuperAdmin();
         return ResponseEntity.ok(superAdmins);
     }
 

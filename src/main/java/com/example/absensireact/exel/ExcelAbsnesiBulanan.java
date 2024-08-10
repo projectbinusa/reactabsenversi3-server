@@ -33,7 +33,7 @@ public class ExcelAbsnesiBulanan {
 
     public void excelAbsensiBulanan(int month, int year, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-Bulanan");
+        Sheet sheet = workbook.createSheet("Presensi-Bulanan");
 
         Font fontWhite = workbook.createFont();
         fontWhite.setColor(IndexedColors.WHITE.getIndex()); // Set font color to white
@@ -94,7 +94,7 @@ public class ExcelAbsnesiBulanan {
             // Handle case when there are no absences for the given month and year
             Row emptyRow = sheet.createRow(0);
             Cell emptyCell = emptyRow.createCell(0);
-            emptyCell.setCellValue("Tidak ada data absensi untuk bulan " + getMonthName(month) + " tahun " + year);
+            emptyCell.setCellValue("Tidak ada data presensi untuk bulan " + getMonthName(month) + " tahun " + year);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4)); // Merge cells for message
         } else {
             // Group by user
@@ -108,7 +108,7 @@ public class ExcelAbsnesiBulanan {
             // Title row
             Row titleRow = sheet.createRow(rowNum++);
             Cell titleCell = titleRow.createCell(0);
-            titleCell.setCellValue("DATA ABSENSI BULAN : " + getMonthName(month) + " - " + year);
+            titleCell.setCellValue("DATA PRESENSI BULAN : " + getMonthName(month) + " - " + year);
             titleCell.setCellStyle(styleTitle);
             sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
             rowNum++;
@@ -216,7 +216,7 @@ public class ExcelAbsnesiBulanan {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiBulanan_" + getMonthName(month) + "_" + year + ".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiBulanan_" + getMonthName(month) + "_" + year + ".xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -224,7 +224,7 @@ public class ExcelAbsnesiBulanan {
 
     public void excelAbsensiBulananSimpel(int month, int year, HttpServletResponse response) throws IOException, ParseException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-Simpel");
+        Sheet sheet = workbook.createSheet("Presensi-Simpel");
 
         // Cell styles
         CellStyle styleHeader = workbook.createCellStyle();
@@ -288,7 +288,7 @@ public class ExcelAbsnesiBulanan {
             // Handle case when there are no absences for the given month and year
             Row emptyRow = sheet.createRow(0);
             Cell emptyCell = emptyRow.createCell(0);
-            emptyCell.setCellValue("Tidak ada data absensi simpel untuk bulan " + getMonthName(month) + "-" + year);
+            emptyCell.setCellValue("Tidak ada data presensi simpel untuk bulan " + getMonthName(month) + "-" + year);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6)); // Merge cells for message
         } else {
             int rowNum = 0;
@@ -296,7 +296,7 @@ public class ExcelAbsnesiBulanan {
             // Title row
             Row titleRow = sheet.createRow(rowNum++);
             Cell titleCell = titleRow.createCell(0);
-            titleCell.setCellValue("DATA ABSENSI SIMPEL : " + getMonthName(month));
+            titleCell.setCellValue("DATA PRESENSI SIMPEL : " + getMonthName(month));
             titleCell.setCellStyle(styleTitle);
             sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 6)); // Merging cells for title
             rowNum++;
@@ -373,7 +373,7 @@ public class ExcelAbsnesiBulanan {
 
         // Write the output to response
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=Absensi_Simpel_" + getMonthName(month) + "_" + year + ".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=Presensi_Simpel_" + getMonthName(month) + "_" + year + ".xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -570,7 +570,7 @@ public class ExcelAbsnesiBulanan {
 
     public void excelAbsensiBulananByKelas(int bulan, int tahun, Long kelasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Absensi-Bulanan");
+        Sheet sheet = workbook.createSheet("Presensi-Bulanan");
 
         Font fontWhite = workbook.createFont();
         fontWhite.setColor(IndexedColors.WHITE.getIndex()); // Set font color to white
@@ -631,7 +631,7 @@ public class ExcelAbsnesiBulanan {
             // Handle case when there are no absences for the given month and year
             Row emptyRow = sheet.createRow(0);
             Cell emptyCell = emptyRow.createCell(0);
-            emptyCell.setCellValue("Tidak ada data absensi untuk bulan " + getMonthName(bulan) + " tahun " + tahun);
+            emptyCell.setCellValue("Tidak ada data presensi untuk bulan " + getMonthName(bulan) + " tahun " + tahun);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4)); // Merge cells for message
         } else {
             // Group by user
@@ -645,7 +645,7 @@ public class ExcelAbsnesiBulanan {
             // Title row
             Row titleRow = sheet.createRow(rowNum++);
             Cell titleCell = titleRow.createCell(0);
-            titleCell.setCellValue("DATA ABSENSI BULAN : " + getMonthName(bulan) + " - " + tahun);
+            titleCell.setCellValue("DATA PRESENSI BULAN : " + getMonthName(bulan) + " - " + tahun);
             titleCell.setCellStyle(styleTitle);
             sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4)); // Merging cells for title
             rowNum++;
@@ -751,7 +751,7 @@ public class ExcelAbsnesiBulanan {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=AbsensiBulanan_" + getMonthName(bulan) + "_" + tahun + ".xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=PresensiBulanan" + getMonthName(bulan) + "_" + tahun + ".xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

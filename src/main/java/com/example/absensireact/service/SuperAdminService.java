@@ -4,6 +4,7 @@ import com.example.absensireact.dto.ForGotPass;
 import com.example.absensireact.dto.PasswordDTO;
 import com.example.absensireact.dto.ResetPassDTO;
 import com.example.absensireact.dto.VerifyCode;
+import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.Reset_Password;
 import com.example.absensireact.model.SuperAdmin;
 import com.example.absensireact.model.User;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public interface SuperAdminService {
@@ -20,7 +22,7 @@ public interface SuperAdminService {
 
     ForGotPass sendEmail(ForGotPass forGotPass) throws MessagingException;
 
-    SuperAdmin getAllSuperAdmin();
+    List<SuperAdmin> getAllSuperAdmin();
 
     Optional<SuperAdmin> getSuperadminbyId(Long id);
 

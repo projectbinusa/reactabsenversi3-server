@@ -23,11 +23,11 @@ public class AppConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("X-Requested-With", "auth-tgh" ,"Content-Type", "Origin", "Authorization", "Accept", "Client-Security-Token", "Accept-Encoding")
                 .exposedHeaders("Access-Control-Allow-Origin")
-                .allowCredentials(true)
+//                .allowCredentials(true)
                 .maxAge(3600);
     }
 }

@@ -9,6 +9,7 @@ import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
 import com.example.absensireact.model.Admin;
+import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.User;
 import com.example.absensireact.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class AdminController {
@@ -83,14 +84,15 @@ public class AdminController {
     @PutMapping("/admin/ubah-foto/{id}")
     public ResponseEntity<?>EditFotoAdmin(@PathVariable Long id , @RequestPart MultipartFile image  ){
         try {
-            Admin updatedAdmin = adminService.uploadImage(id, image );
-            return new ResponseEntity<>(updatedAdmin, HttpStatus.OK);
+            Admin updateAdmin = adminService.uploadImage(id, image );
+            return new ResponseEntity<>(updateAdmin, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+
     @GetMapping("/admin/get-all-by-super/{idSuperAdmin}")
     public ResponseEntity<List<Admin>> getAllAdminsbysuperadmin(@PathVariable Long idSuperAdmin) {
         List<Admin> admins = adminService.getAllBySuperAdmin(idSuperAdmin);
@@ -102,11 +104,14 @@ public class AdminController {
     public CommonResponse<Admin> putPassword(@RequestBody PasswordDTO password, @PathVariable Long id ) {
         return ResponseHelper.ok(adminService.putPasswordAdmin(password , id));
     }
-    @PutMapping("/admin/edit/{id}")
-    public ResponseEntity<Admin> updateAdmin(@PathVariable Long id, @RequestBody Admin admin) {
-        Admin updatedAdmin = adminService.edit(id, admin);
-        return new ResponseEntity<>(updatedAdmin, HttpStatus.OK);
+    @PutMapping("/admin/edit/{id}/{idSuperAdmin}")
+    public ResponseEntity<Admin> editAdmin(@PathVariable("id") Long id,
+                                           @PathVariable("idSuperAdmin") Long idSuperAdmin,
+                                           @RequestBody Admin existingUser) {
+        Admin admin = adminService.edit(id, idSuperAdmin, existingUser);
+        return ResponseEntity.ok(admin);
     }
+
 
     @PutMapping("/admin/edit-email-username/{id}")
     public ResponseEntity<Admin> editemailusername(@PathVariable Long id, @RequestBody Admin updateAdmin) {

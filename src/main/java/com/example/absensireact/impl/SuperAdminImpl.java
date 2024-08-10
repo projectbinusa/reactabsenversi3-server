@@ -6,6 +6,7 @@ import com.example.absensireact.dto.ResetPassDTO;
 import com.example.absensireact.dto.VerifyCode;
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
+import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.Reset_Password;
 import com.example.absensireact.model.SuperAdmin;
 import com.example.absensireact.repository.GetVerification;
@@ -34,6 +35,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -474,8 +476,8 @@ public class SuperAdminImpl implements SuperAdminService {
     }
 
     @Override
-    public SuperAdmin getAllSuperAdmin(){
-        return (SuperAdmin) superAdminRepository.findAll();
+    public List<SuperAdmin> getAllSuperAdmin(){
+        return superAdminRepository.findAll();
     }
 
     @Override

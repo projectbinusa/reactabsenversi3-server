@@ -37,7 +37,7 @@ public interface UserService {
 
     List<User> getAllByShift(Long idShift);
 
-    User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, User user);
+    User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, User user);
 
     User putPassword(PasswordDTO passwordDTO, Long id);
 
@@ -46,7 +46,7 @@ public interface UserService {
 
     User EditUserBySuper(Long id, Long idJabatan, Long idShift, User updateUser);
 
-    User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idShift);
+    User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idOrangTua, Long idShift, Long idKelas);
 
     List<User> GetAllKaryawanByIdAdmin(Long idAdmin);
 

@@ -9,26 +9,31 @@ import com.example.absensireact.repository.OrganisasiRepository;
 import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.service.OrganisasiService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class OrganisasiImpl implements OrganisasiService {
-    static final String DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/absensireact.appspot.com/o/%s?alt=media";
+//    static final String DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/absensireact.appspot.com/o/%s?alt=media";
+
+    private static final String BASE_URL = "https://s3.lynk2.co/api/s3/organisasi";
 
     private final OrganisasiRepository organisasiRepository;
     private final UserRepository userRepository;
@@ -152,21 +157,44 @@ public class OrganisasiImpl implements OrganisasiService {
         }
 
         Organisasi organisasi = organisasiOptional.get();
-        String file = uploadFoto(image, "_organisasi_" + idAdmin);
+        String file = uploadFoto(image);
         organisasi.setFotoOrganisasi(file);
         organisasiRepository.save(organisasi);
     }
 
-    private String uploadFoto(MultipartFile multipartFile, String fileName) throws IOException {
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String folderPath = "organisasi/";
-        String fullPath = folderPath + timestamp + "_" + fileName;
-        BlobId blobId = BlobId.of("absensireact.appspot.com", fullPath);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
-        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        storage.create(blobInfo, multipartFile.getBytes());
-        return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
+    @Override
+    public Organisasi uploadImage(Long id, MultipartFile image) throws IOException {
+        Optional<Organisasi> organisasiOptional = organisasiRepository.findById(id);
+        if (organisasiOptional.isEmpty()) {
+            throw new NotFoundException("Id organisasi tidak ditemukan");
+        }
+        String fileUrl = uploadFoto(image);
+        Organisasi organisasi = organisasiOptional.get();
+        organisasi.setFotoOrganisasi(fileUrl);
+        return organisasiRepository.save(organisasi);
+    }
+
+    private String uploadFoto(MultipartFile multipartFile) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", multipartFile.getResource());
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response = restTemplate.exchange(BASE_URL, HttpMethod.POST, requestEntity, String.class);
+        String fileUrl = extractFileUrlFromResponse(response.getBody());
+        return fileUrl;
+    }
+
+    private String extractFileUrlFromResponse(String responseBody) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonResponse = mapper.readTree(responseBody);
+        JsonNode dataNode = jsonResponse.path("data");
+        String urlFile = dataNode.path("url_file").asText();
+
+        return urlFile;
     }
 
 
@@ -209,7 +237,7 @@ public class OrganisasiImpl implements OrganisasiService {
         }
 
         if (image != null && !image.isEmpty()) {
-            String imageUrl = uploadFoto(image, "_organisasi_" + idAdmin);
+            String imageUrl = uploadFoto(image);
             organisasi.setFotoOrganisasi(imageUrl);
         } else {
             organisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());
@@ -244,7 +272,7 @@ public class OrganisasiImpl implements OrganisasiService {
         }
 
         if (image != null && !image.isEmpty()) {
-            String imageUrl = uploadFoto(image, "organisasi" + id);
+            String imageUrl = uploadFoto(image);
             organisasi.setFotoOrganisasi(imageUrl);
         } else {
             organisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());

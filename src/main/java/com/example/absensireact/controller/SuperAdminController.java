@@ -15,13 +15,18 @@ import com.example.absensireact.model.User;
 import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.service.SuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +45,23 @@ public class SuperAdminController {
 
     public SuperAdminController(SuperAdminService superAdminService) {
         this.superAdminService = superAdminService;
+    }
+
+    @GetMapping("/superadmin/import/template")
+    public ResponseEntity<Resource> downloadImportTemplate() {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ExportSuperAdmin.generateAdminImportTemplate(outputStream);
+            ByteArrayResource resource = new ByteArrayResource(outputStream.toByteArray());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=AdminImportTemplate.xlsx")
+                    .contentLength(resource.contentLength())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
 

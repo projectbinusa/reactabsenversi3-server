@@ -9,12 +9,16 @@ package com.example.absensireact.exel;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+ import org.springframework.security.crypto.password.PasswordEncoder;
+ import org.springframework.stereotype.Service;
  import org.springframework.web.multipart.MultipartFile;
 
  import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
+ import java.io.File;
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.OutputStream;
+ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +33,8 @@ public class ExportSuperAdmin {
     @Autowired
     private SuperAdminRepository superAdminRepository;
 
+    @Autowired
+    PasswordEncoder encoder;
 
     public void excelAdmin(Long superadminId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
@@ -118,15 +124,21 @@ public class ExportSuperAdmin {
             if (row != null) {
                 Admin admin = new Admin();
 
-                Cell emailCell = row.getCell(1);
-                Cell usernameCell = row.getCell(2);
+                Cell emailCell = row.getCell(0);
+                Cell usernameCell = row.getCell(1);
+                Cell passwordCell = row.getCell(2);
 
                 if (emailCell != null) {
-                    admin.setEmail(emailCell.getStringCellValue());
+                    admin.setEmail(getCellValue(emailCell));
                 }
 
                 if (usernameCell != null) {
-                    admin.setUsername(usernameCell.getStringCellValue());
+                    admin.setUsername(getCellValue(usernameCell));
+                }
+
+                if (passwordCell != null) {
+                    String encodedPassword = encoder.encode(getCellValue(passwordCell));
+                    admin.setPassword(encodedPassword);
                 }
 
                 admin.setRole("ADMIN");
@@ -137,6 +149,52 @@ public class ExportSuperAdmin {
         }
 
         adminRepository.saveAll(adminList);
+        workbook.close();
+    }
+
+    private String getCellValue(Cell cell) {
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
+        }
+    }
+
+
+    public static void generateAdminImportTemplate(OutputStream outputStream) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Template Import Admin");
+
+        // Create header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Email", "Wali Murid", "Password"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+
+            // Apply header style
+            CellStyle style = workbook.createCellStyle();
+            style.setAlignment(HorizontalAlignment.CENTER);
+            Font font = workbook.createFont();
+            font.setBold(true);
+            style.setFont(font);
+            cell.setCellStyle(style);
+        }
+
+        // Adjust column width
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Write the output to the provided OutputStream
+        workbook.write(outputStream);
         workbook.close();
     }
 

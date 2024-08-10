@@ -672,7 +672,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idOrangTua, Long idJabatan, Long idShift, Long idKelas) {
+    public User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idOrangTua, Long idJabatan, Long idShift) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             Admin admin = adminOptional.get();
@@ -688,9 +688,7 @@ public class UserImpl implements UserService {
             user.setShift(shiftRepository.findById(idShift)
                     .orElseThrow(() -> new NotFoundException("Shift tidak ditemukan")));
             user.setOrangTua(orangTuaRepository.findById(idOrangTua)
-                    .orElseThrow(() -> new NotFoundException("id Orang Tua tidak ditemukan : " + idKelas)));
-            user.setKelas(kelasRepository.findById(idKelas)
-                    .orElseThrow(() -> new NotFoundException("id Kelas tidak ditemukan : " + idKelas)));
+                    .orElseThrow(() -> new NotFoundException("id Orang Tua tidak ditemukan : " + idOrangTua)));
             user.setStartKerja(new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(new Date()));
             user.setStatusKerja("aktif");
             user.setAdmin(admin);

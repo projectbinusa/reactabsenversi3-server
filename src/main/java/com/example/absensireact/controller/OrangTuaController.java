@@ -41,24 +41,24 @@ public class OrangTuaController {
         return orangTua.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/getALlBySuperAdmin/{idSuperAdmin}")
-    public ResponseEntity<List<OrangTua>> getALlBySuperAdmin(@PathVariable Long idSuperAdmin) {
-        List<OrangTua> orangtuaList =  orangTuaService.getAllBySuperAdmin(idSuperAdmin);
+    @GetMapping("/getALlBySuperAdmin/{idAdmin}")
+    public ResponseEntity<List<OrangTua>> getALlBySuperAdmin(@PathVariable Long idAdmin) {
+        List<OrangTua> orangtuaList =  orangTuaService.getAllBySuperAdmin(idAdmin);
         return ResponseEntity.ok(orangtuaList);
     }
 
-    @PostMapping("/tambah/{idSuperAdmin}")
-    public ResponseEntity<OrangTua> tambahOrangtua(@PathVariable Long idSuperAdmin, @RequestBody OrangTua orangTua) {
+    @PostMapping("/tambah/{idAdmin}")
+    public ResponseEntity<OrangTua> tambahOrangtua(@PathVariable Long idAdmin, @RequestBody OrangTua orangTua) {
         orangTua.setId(null);
-        OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(idSuperAdmin, orangTua);
+        OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(idAdmin, orangTua);
         return new ResponseEntity<>(orangTuaBaru, HttpStatus.CREATED);
     }
 
-    @PutMapping("/editOrtuById/{id}/{idSuperAdmin}")
+    @PutMapping("/editOrtuById/{id}/{idAdmin}")
     public ResponseEntity<OrangTua> editOrangTua(@PathVariable("id") Long id,
-                                                 @PathVariable("idSuperAdmin") Long idSuperAdmin,
+                                                 @PathVariable("idAdmin") Long idAdmin,
                                                  @RequestBody OrangTua orangTua) {
-        OrangTua updateOrangtua = orangTuaService.editOrangTuaById(id, idSuperAdmin, orangTua);
+        OrangTua updateOrangtua = orangTuaService.editOrangTuaById(id, idAdmin, orangTua);
         return ResponseEntity.ok(updateOrangtua);
     }
 

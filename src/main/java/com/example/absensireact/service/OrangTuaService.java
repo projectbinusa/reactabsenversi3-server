@@ -14,13 +14,13 @@ public interface OrangTuaService {
 
     List<OrangTua> getAllOrangTua();
 
-    List<OrangTua> getAllBySuperAdmin(Long idSuperAdmin);
+    List<OrangTua> getAllByAdmin(Long idAdmin);
 
     Optional<OrangTua> getOrangTuaById(Long id);
 
-    OrangTua editOrangTuaById(Long id,Long idSuperAdmin, OrangTua updateOrangTua);
+    OrangTua editOrangTuaById(Long id,Long idAdmin, OrangTua updateOrangTua);
 
-    OrangTua tambahOrangTua(Long idSuperAdmin, OrangTua orangTua);
+    OrangTua tambahOrangTua(Long idAdmin, OrangTua orangTua);
 
     OrangTua putPasswordOrangTua(PasswordDTO passwordDTO, Long id);
 

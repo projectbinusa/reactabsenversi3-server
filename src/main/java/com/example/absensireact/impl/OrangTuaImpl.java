@@ -4,8 +4,8 @@ import com.example.absensireact.dto.PasswordDTO;
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
+import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.OrangTuaRepository;
-import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.service.OrangTuaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +31,7 @@ public class OrangTuaImpl implements OrangTuaService {
     private OrangTuaRepository orangTuaRepository;
 
     @Autowired
-    private SuperAdminRepository superAdminRepository;
+    private AdminRepository adminrepository;
 
     @Autowired
     PasswordEncoder encoder;
@@ -47,16 +47,16 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
     @Override
-    public List<OrangTua>getAllBySuperAdmin(Long idSuperAdmin){
-        return orangTuaRepository.findAllBySuperAdmin(idSuperAdmin);
+    public List<OrangTua>getAllByAdmin(Long idAdmin){
+        return orangTuaRepository.findAllByAdmin(idAdmin);
     }
 
     @Override
-    public OrangTua tambahOrangTua(Long idSuperAdmin, OrangTua orangTua) {
-        Optional<SuperAdmin> superAdminOptional = superAdminRepository.findById(idSuperAdmin);
-        if (superAdminOptional.isPresent()) {
-            SuperAdmin superAdmin = superAdminOptional.get();
-            orangTua.setSuperAdmin(superAdmin);
+    public OrangTua tambahOrangTua(Long idAdmin, OrangTua orangTua) {
+        Optional<Admin> adminOptional = adminrepository.findById(idAdmin);
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            orangTua.setAdmin(admin);
             orangTua.setEmail(orangTua.getEmail());
             orangTua.setNama(orangTua.getNama());
             orangTua.setImageOrtu(orangTua.getImageOrtu());
@@ -64,22 +64,22 @@ public class OrangTuaImpl implements OrangTuaService {
             orangTua.setPassword(encoder.encode(orangTua.getPassword()));
             return orangTuaRepository.save(orangTua);
         }
-        throw new NotFoundException("SuperAdmin tidak ditemukan");
+        throw new NotFoundException("Admin tidak ditemukan");
     }
 
     @Override
-    public OrangTua editOrangTuaById(Long id, Long idSuperAdmin, OrangTua updateOrangTua) {
+    public OrangTua editOrangTuaById(Long id, Long idAdmin, OrangTua updateOrangTua) {
         OrangTua orangTua = orangTuaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("id ortu tidak ditemukan : " + id));
 
-        SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
-                .orElseThrow(() -> new NotFoundException("SuperAdmin dengan id: " + idSuperAdmin + " tidak ditemukan"));
-
+        Admin admin = adminrepository.findById(idAdmin)
+                .orElseThrow(() -> new NotFoundException("Admin dengan id: " + idAdmin + " tidak ditemukan"));
+        orangTua.setAdmin(admin);
         orangTua.setNama(updateOrangTua.getNama());
         orangTua.setEmail(updateOrangTua.getEmail());
         orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
         orangTua.setPassword(encoder.encode(updateOrangTua.getPassword()));
-        orangTua.setSuperAdmin(superAdmin);
+        orangTua.setAdmin(admin);
 
         return orangTuaRepository.save(orangTua);
     }

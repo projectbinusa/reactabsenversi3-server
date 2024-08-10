@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface OrangTuaRepository extends JpaRepository<OrangTua, Long> {
 
-    @Query(value = "SELECT * FROM orang_tua WHERE id_super_admin = :idSuperAdmin", nativeQuery = true)
-    List<OrangTua> findAllBySuperAdmin(Long idSuperAdmin);
+    @Query(value = "SELECT * FROM orang_tua WHERE id_admin = :idAdmin", nativeQuery = true)
+    List<OrangTua> findAllByAdmin(Long idAdmin);
 
     @Query(value = "SELECT * FROM orang_tua WHERE email = :email", nativeQuery = true)
     Optional<OrangTua> findByEmail (String email);

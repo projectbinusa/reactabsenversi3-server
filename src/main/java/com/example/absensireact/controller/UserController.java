@@ -88,9 +88,9 @@ public class UserController {
     }
 
     @PostMapping("/user/tambahkaryawan/{idAdmin}")
-    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idOrangTua, @RequestParam Long idJabatan, @RequestParam Long idShift, @RequestParam Long idKelas) {
+    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idOrangTua, @RequestParam Long idJabatan, @RequestParam Long idShift) {
         try {
-            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua, idKelas);
+            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

@@ -8,16 +8,20 @@ import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
+import com.example.absensireact.exel.ExportSuperAdmin;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.SuperAdmin;
 import com.example.absensireact.model.User;
+import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.service.SuperAdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -28,9 +32,31 @@ import java.util.Optional;
 public class SuperAdminController {
     private final SuperAdminService superAdminService;
 
+    @Autowired
+    private ExportSuperAdmin exportSuperAdmin;
+
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
 
     public SuperAdminController(SuperAdminService superAdminService) {
         this.superAdminService = superAdminService;
+    }
+
+
+    @GetMapping("/superadmin/admin/export")
+    public void exportAdmin (@RequestParam Long superadminId ,  HttpServletResponse response) throws IOException {
+        exportSuperAdmin.excelAdmin(superadminId , response);
+    }
+    @PostMapping("/superadmin/import/{superadminId}")
+    public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long superadminId) {
+        return superAdminRepository.findById(superadminId).map(superAdmin -> {
+            try {
+                exportSuperAdmin.importAdmin(file, superAdmin);
+                return ResponseEntity.ok("Admin data imported successfully");
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to import admin data");
+            }
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
     }
 
 

@@ -10,6 +10,7 @@ import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
+import com.example.absensireact.exel.ExcelDataSiswa;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.model.User;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +44,9 @@ public class UserController {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private ExcelDataSiswa excelDataSiswa;
 
     @Autowired
     private AppConfig appConfig;
@@ -231,6 +236,17 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/user/export-data-siswa/{idAdmin}")
+    public ResponseEntity<Void> exportDataSiswa(@PathVariable Long idAdmin, HttpServletResponse response) {
+        try {
+            excelDataSiswa.exportDataSiswa(idAdmin, response);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
     }
 
 

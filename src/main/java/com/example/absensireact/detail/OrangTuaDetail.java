@@ -1,6 +1,6 @@
 package com.example.absensireact.detail;
+import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.OrangTua;
-import com.example.absensireact.model.SuperAdmin;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,12 +55,12 @@ public class OrangTuaDetail implements UserDetails {
     private  String username;
     private  String image_ortu;
 
-    private SuperAdmin orangTua;
+    private Admin orangTua;
 
     private String role;
 
 
-    public OrangTuaDetail(Long id, String email, String password, String username, String image_ortu, SuperAdmin orangTua, String role) {
+    public OrangTuaDetail(Long id, String email, String password, String username, String image_ortu, Admin orangTua, String role) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -77,7 +77,7 @@ public class OrangTuaDetail implements UserDetails {
                 orangtua.getPassword(),
                 orangtua.getNama(),
                 orangtua.getImageOrtu(),
-                orangtua.getSuperAdmin(),
+                orangtua.getAdmin(),
                 "Wali Murid"
         );
     }
@@ -129,11 +129,11 @@ public class OrangTuaDetail implements UserDetails {
         this.image_ortu = image_ortu;
     }
 
-    public SuperAdmin getOrangTua() {
+    public Admin getOrangTua() {
         return orangTua;
     }
 
-    public void setOrangTua(SuperAdmin orangTua) {
+    public void setOrangTua(Admin orangTua) {
         this.orangTua = orangTua;
     }
 

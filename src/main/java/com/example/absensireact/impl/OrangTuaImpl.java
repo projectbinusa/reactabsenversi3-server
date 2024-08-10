@@ -25,7 +25,7 @@ import java.util.Optional;
 @Service
 public class OrangTuaImpl implements OrangTuaService {
 
-    private static final String BASE_URL = "https://s3.lynk2.co/api/s3/superadmin";
+    private static final String BASE_URL = "https://s3.lynk2.co/api/s3/orang_tua";
 
     @Autowired
     private OrangTuaRepository orangTuaRepository;

@@ -1,6 +1,7 @@
 package com.example.absensireact.controller;
 
 import com.example.absensireact.exception.NotFoundException;
+import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.service.OrganisasiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -114,5 +115,17 @@ public class OrganisasiController {
     public ResponseEntity<Void> deleteOrganisasi(@PathVariable Long id) throws IOException {
         organisasiService.deleteOrganisasi(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/organisasi/ubah-foto/{id}")
+    public ResponseEntity<?>EditFotoOrganisasi(@PathVariable Long id , @RequestPart MultipartFile image  ){
+        try {
+            Organisasi updateOrganisasi = organisasiService.uploadImage(id, image );
+            return new ResponseEntity<>(updateOrganisasi, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 }

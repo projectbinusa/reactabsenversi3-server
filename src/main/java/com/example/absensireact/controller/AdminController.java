@@ -9,6 +9,7 @@ import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
 import com.example.absensireact.model.Admin;
+import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.User;
 import com.example.absensireact.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,14 +84,15 @@ public class AdminController {
     @PutMapping("/admin/ubah-foto/{id}")
     public ResponseEntity<?>EditFotoAdmin(@PathVariable Long id , @RequestPart MultipartFile image  ){
         try {
-            Admin updatedAdmin = adminService.uploadImage(id, image );
-            return new ResponseEntity<>(updatedAdmin, HttpStatus.OK);
+            Admin updateAdmin = adminService.uploadImage(id, image );
+            return new ResponseEntity<>(updateAdmin, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+
     @GetMapping("/admin/get-all-by-super/{idSuperAdmin}")
     public ResponseEntity<List<Admin>> getAllAdminsbysuperadmin(@PathVariable Long idSuperAdmin) {
         List<Admin> admins = adminService.getAllBySuperAdmin(idSuperAdmin);

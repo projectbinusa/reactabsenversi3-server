@@ -18,7 +18,7 @@ public class ExcelOrtu {
     @Autowired
     private OrangTuaService orangTuaService;
 
-    public void excelOrangTua(HttpServletResponse response) throws IOException {
+    public void excelOrangTua(Long idAdmin, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Data Orang Tua");
 
@@ -46,7 +46,7 @@ public class ExcelOrtu {
         styleCenter.setBorderLeft(BorderStyle.THIN);
 
         // Fetch data from service
-        List<OrangTua> orangTuaList = orangTuaService.getAllOrangTua();
+        List<OrangTua> orangTuaList = orangTuaService.getAllByAdmin(idAdmin);
 
         int rowNum = 0;
 
@@ -59,7 +59,7 @@ public class ExcelOrtu {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Email", "Nama"};
+        String[] headers = {"No", "Email", "Nama Wali Murid"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -87,6 +87,42 @@ public class ExcelOrtu {
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=DataOrangTua.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    public void templateExcelWaliMurid(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Template Excel Wali Murid");
+
+        // Font and cell styles
+        CellStyle styleHeader = workbook.createCellStyle();
+        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader.setBorderTop(BorderStyle.THIN);
+        styleHeader.setBorderRight(BorderStyle.THIN);
+        styleHeader.setBorderBottom(BorderStyle.THIN);
+        styleHeader.setBorderLeft(BorderStyle.THIN);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        styleHeader.setFont(headerFont);
+
+        // Header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"No", "Email", "Nama Wali Murid", "Password"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styleHeader);
+        }
+
+        // Adjust column width
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=HeaderOnly.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

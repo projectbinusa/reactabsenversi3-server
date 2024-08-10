@@ -2,6 +2,7 @@ package com.example.absensireact.exel;
 
  import com.example.absensireact.exception.NotFoundException;
  import com.example.absensireact.model.Admin;
+ import com.example.absensireact.model.OrangTua;
  import com.example.absensireact.model.SuperAdmin;
  import com.example.absensireact.repository.AdminRepository;
  import com.example.absensireact.repository.SuperAdminRepository;
@@ -14,15 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  import org.springframework.web.multipart.MultipartFile;
 
  import javax.servlet.http.HttpServletResponse;
- import java.io.File;
- import java.io.FileOutputStream;
- import java.io.IOException;
- import java.io.OutputStream;
+ import java.io.*;
  import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+ import java.util.*;
 
 @Service
 public class ExportSuperAdmin {
@@ -78,7 +73,7 @@ public class ExportSuperAdmin {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Email", "Username"};
+        String[] headers = {"No", "Email", "Nama Admin"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -114,42 +109,63 @@ public class ExportSuperAdmin {
     }
 
 
-    public void importAdmin(MultipartFile file, SuperAdmin superAdmin) throws IOException {
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
-        Sheet sheet = workbook.getSheetAt(0);
-
+    public void importAdmin(MultipartFile file, Long superAdminId) throws IOException {
         List<Admin> adminList = new ArrayList<>();
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {  // Start from row 1 to skip headers
-            Row row = sheet.getRow(i);
-            if (row != null) {
-                Admin admin = new Admin();
 
-                Cell emailCell = row.getCell(0);
-                Cell usernameCell = row.getCell(1);
-                Cell passwordCell = row.getCell(2);
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
 
-                if (emailCell != null) {
-                    admin.setEmail(getCellValue(emailCell));
+            // Iterate through rows and columns
+            Iterator<Row> rowIterator = sheet.iterator();
+            int rowNum = 0;
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                // Skip the title and header rows
+                if (rowNum++ < 1) {
+                    continue;
                 }
 
-                if (usernameCell != null) {
-                    admin.setUsername(getCellValue(usernameCell));
+                // Log to check row data
+                System.out.println("Processing row " + rowNum);
+
+                Cell emailCell = row.getCell(1);
+                Cell namaCell = row.getCell(2);
+                Cell passwordCell = row.getCell(3);
+
+                if (emailCell == null || namaCell == null || passwordCell == null) {
+                    System.out.println("Skipping row " + rowNum + " due to missing data.");
+                    continue;
                 }
 
-                if (passwordCell != null) {
-                    String encodedPassword = encoder.encode(getCellValue(passwordCell));
-                    admin.setPassword(encodedPassword);
+                Optional<SuperAdmin> adminOptional = superAdminRepository.findById(superAdminId);
+                if (adminOptional.isEmpty()) {
+                    System.out.println("Admin with id " + superAdminId + " not found.");
+                    continue;
                 }
 
-                admin.setRole("ADMIN");
-                admin.setSuperAdmin(superAdmin);
+                SuperAdmin superAdmin = adminOptional.get();
+                Admin superAdminn = new Admin();
+                superAdminn.setSuperAdmin(superAdmin);
+                superAdminn.setEmail(emailCell.getStringCellValue());
+                superAdminn.setUsername(namaCell.getStringCellValue());
+                String encodedPassword = encoder.encode(passwordCell.getStringCellValue());
+                superAdminn.setPassword(encodedPassword);
 
-                adminList.add(admin);
+                superAdminn.setRole("ADMIN");
+
+                adminList.add(superAdminn);
             }
+            workbook.close();
         }
 
-        adminRepository.saveAll(adminList);
-        workbook.close();
+        if (!adminList.isEmpty()) {
+            adminRepository.saveAll(adminList);
+            System.out.println("Saving " + adminList.size() + " records to database.");
+        } else {
+            System.out.println("No records to save.");
+        }
     }
 
     private String getCellValue(Cell cell) {
@@ -168,24 +184,29 @@ public class ExportSuperAdmin {
     }
 
 
-    public static void generateAdminImportTemplate(OutputStream outputStream) throws IOException {
+    public void generateAdminImportTemplate(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Template Import Admin");
+        Sheet sheet = workbook.createSheet("Template Excel Admin");
 
-        // Create header row
+        // Font and cell styles
+        CellStyle styleHeader = workbook.createCellStyle();
+        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader.setBorderTop(BorderStyle.THIN);
+        styleHeader.setBorderRight(BorderStyle.THIN);
+        styleHeader.setBorderBottom(BorderStyle.THIN);
+        styleHeader.setBorderLeft(BorderStyle.THIN);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        styleHeader.setFont(headerFont);
+
+        // Header row
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"Email", "Wali Murid", "Password"};
+        String[] headers = {"No", "Email", "Nama Admin", "Password"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
-
-            // Apply header style
-            CellStyle style = workbook.createCellStyle();
-            style.setAlignment(HorizontalAlignment.CENTER);
-            Font font = workbook.createFont();
-            font.setBold(true);
-            style.setFont(font);
-            cell.setCellStyle(style);
+            cell.setCellStyle(styleHeader);
         }
 
         // Adjust column width
@@ -193,11 +214,10 @@ public class ExportSuperAdmin {
             sheet.autoSizeColumn(i);
         }
 
-        // Write the output to the provided OutputStream
-        workbook.write(outputStream);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=HeaderOnly.xlsx");
+        workbook.write(response.getOutputStream());
         workbook.close();
     }
-
-
 
 }

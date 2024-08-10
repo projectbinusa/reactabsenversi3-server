@@ -59,7 +59,7 @@ public class ExcelDataSiswa {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Username", "Email", "Start Kerja", "Status Kerja"};
+        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -93,6 +93,42 @@ public class ExcelDataSiswa {
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=DataSiswa.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    public void templateExcelSiswa(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Template Excel Siswa");
+
+        // Font and cell styles
+        CellStyle styleHeader = workbook.createCellStyle();
+        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader.setBorderTop(BorderStyle.THIN);
+        styleHeader.setBorderRight(BorderStyle.THIN);
+        styleHeader.setBorderBottom(BorderStyle.THIN);
+        styleHeader.setBorderLeft(BorderStyle.THIN);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        styleHeader.setFont(headerFont);
+
+        // Header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"No", "Email", "Nama Siswa", "Password", "idJabatan", "idOrangTua", "idShift", "idOrganisasi"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styleHeader);
+        }
+
+        // Adjust column width
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=HeaderOnly.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

@@ -4,10 +4,7 @@ import com.example.absensireact.dto.PasswordDTO;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
-import com.example.absensireact.model.Kelas;
-import com.example.absensireact.model.OrangTua;
-import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.*;
 import com.example.absensireact.service.OrangTuaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +29,7 @@ public class OrangTuaController {
     com.example.absensireact.excel.ExcelOrtu excelOrtu;
 
     @Autowired
-    private com.example.absensireact.excel.ImportOrtu importOrtu;
+    private com.example.absensireact.exel.ImportOrtu importOrtu;
 
     @Autowired
     private OrangTuaService orangTuaService;
@@ -100,19 +97,26 @@ public class OrangTuaController {
     }
 
 
-    @GetMapping("/export/data-orang-tua")
-    public void exportOrangTua(HttpServletResponse response) throws IOException {
-        excelOrtu.excelOrangTua(response);
+    @GetMapping("/export/data-orang-tua/{idAdmin}")
+    public void exportOrangTua(@PathVariable Long idAdmin,HttpServletResponse response) throws IOException {
+        excelOrtu.excelOrangTua(idAdmin, response);
     }
 
-    @PostMapping("/import/data-orang-tua")
-    public ResponseEntity<String> importOrangTua(@RequestParam("file") MultipartFile file) {
+    @GetMapping("/download/template-orang-tua")
+    public void templateExcelWaliMurid(HttpServletResponse response) throws IOException {
+        excelOrtu.templateExcelWaliMurid(response);
+    }
+
+    @PostMapping("/import/data-orang-tua/{adminId}")
+    public ResponseEntity<String> importOrangTua(@PathVariable Long adminId, @RequestPart("file") MultipartFile file) {
         try {
-            importOrtu.importOrangTua(file);
+            importOrtu.importOrangTua(adminId, file);
             return ResponseEntity.ok("Import berhasil!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
         }
     }
+
+
 
 }

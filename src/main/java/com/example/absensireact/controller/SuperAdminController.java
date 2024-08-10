@@ -48,19 +48,13 @@ public class SuperAdminController {
     }
 
     @GetMapping("/superadmin/import/template")
-    public ResponseEntity<Resource> downloadImportTemplate() {
+    public ResponseEntity<Void> downloadImportTemplate(HttpServletResponse response) {
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ExportSuperAdmin.generateAdminImportTemplate(outputStream);
-            ByteArrayResource resource = new ByteArrayResource(outputStream.toByteArray());
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=AdminImportTemplate.xlsx")
-                    .contentLength(resource.contentLength())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
+            exportSuperAdmin.generateAdminImportTemplate(response);
+            return ResponseEntity.ok().build();
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
         }
     }
 
@@ -71,14 +65,14 @@ public class SuperAdminController {
     }
     @PostMapping("/superadmin/import/{superadminId}")
     public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long superadminId) {
-        return superAdminRepository.findById(superadminId).map(superAdmin -> {
+//        return superAdminRepository.findById(superadminId).map(superAdmin -> {
             try {
-                exportSuperAdmin.importAdmin(file, superAdmin);
+                exportSuperAdmin.importAdmin(file, superadminId);
                 return ResponseEntity.ok("Admin data imported successfully");
             } catch (IOException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to import admin data");
             }
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
+//        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
     }
 
 

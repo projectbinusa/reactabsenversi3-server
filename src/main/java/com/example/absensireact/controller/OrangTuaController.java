@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,12 @@ public class OrangTuaController {
 
     @Autowired
     OrangTuaService orangTuaImpl;
+
+    @Autowired
+    com.example.absensireact.excel.ExcelOrtu excelOrtu;
+
+    @Autowired
+    private com.example.absensireact.excel.ImportOrtu importOrtu;
 
     @Autowired
     private OrangTuaService orangTuaService;
@@ -91,4 +98,21 @@ public class OrangTuaController {
         OrangTua orangTua = orangTuaImpl.ubahUsernamedanemail(id , updateOrangTua );
         return new ResponseEntity<>(orangTua, HttpStatus.OK);
     }
+
+
+    @GetMapping("/export/data-orang-tua")
+    public void exportOrangTua(HttpServletResponse response) throws IOException {
+        excelOrtu.excelOrangTua(response);
+    }
+
+    @PostMapping("/import/data-orang-tua")
+    public ResponseEntity<String> importOrangTua(@RequestParam("file") MultipartFile file) {
+        try {
+            importOrtu.importOrangTua(file);
+            return ResponseEntity.ok("Import berhasil!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data.");
+        }
+    }
+
 }

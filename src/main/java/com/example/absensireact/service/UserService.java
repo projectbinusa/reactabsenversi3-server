@@ -46,7 +46,7 @@ public interface UserService {
 
     User EditUserBySuper(Long id, Long idJabatan, Long idShift, User updateUser);
 
-    User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idOrangTua, Long idShift, Long idKelas);
+    User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idOrangTua, Long idShift);
 
     List<User> GetAllKaryawanByIdAdmin(Long idAdmin);
 

@@ -1,8 +1,12 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
+import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Kelas;
+import com.example.absensireact.model.Organisasi;
+import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.KelasRepository;
+import com.example.absensireact.repository.OrganisasiRepository;
 import com.example.absensireact.service.KelasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,12 @@ public class KelasImpl implements KelasService {
 
     @Autowired
     private KelasRepository kelasRepository;
+    
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private OrganisasiRepository organisasiRepository;
 
     @Override
     public List<Kelas>getAllKelas(){
@@ -47,10 +57,18 @@ public class KelasImpl implements KelasService {
     }
 
     @Override
-    public Kelas tambahKelas(Kelas kelas){
+    public Kelas tambahKelas(Kelas kelas, Long idOrgnasisai, Long idAdmin){
+        Organisasi organisasi = organisasiRepository.findById(idAdmin)
+                        .orElseThrow(() -> new NotFoundException("organisasi tidak ditemukan"));
+        Admin admin = adminRepository.findById(idAdmin)
+                        .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan"));
+
+        kelas.setOrganisasi(organisasi);
+        kelas.setAdmin(admin);
         kelas.setNamaKelas(kelas.getNamaKelas());
-        kelas.setOrganisasi(kelas.getOrganisasi());
-        return kelasRepository.save(kelas);
+
+         return kelasRepository.save(kelas);
+
     }
 
     @Override

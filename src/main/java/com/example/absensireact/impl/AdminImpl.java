@@ -628,22 +628,7 @@ public Map<String, Boolean> delete(Long id) {
                     "</body>\n" +
                     "\n" +
                     "</html>");
-            if (superAdminRepository.existsByEmail(forGotPass.getEmail())) {
-                SuperAdmin superadmin = superAdminRepository.findByEmail(forGotPass.getEmail()).get();
-
-                if (getVerification.findByEmail(forGotPass.getEmail()).isPresent()) {
-                    Reset_Password pass = getVerification.findByEmail(forGotPass.getEmail()).orElseThrow(() -> new NotFoundException("Email not found"));
-                    pass.setEmail(forGotPass.getEmail());
-                    pass.setCode(code);
-                    getVerification.save(pass);
-                    superAdminRepository.save(superadmin);
-                } else {
-                    Reset_Password pass = new Reset_Password();
-                    pass.setEmail(forGotPass.getEmail());
-                    pass.setCode(code);
-                    getVerification.save(pass);
-                }
-              }  else if (adminRepository.existsByEmail(forGotPass.getEmail())) {
+            if (adminRepository.existsByEmail(forGotPass.getEmail())) {
                  Admin admin = adminRepository.findByEmail(forGotPass.getEmail()).get();
 
                 if (getVerification.findByEmail(forGotPass.getEmail()).isPresent()) {
@@ -652,22 +637,6 @@ public Map<String, Boolean> delete(Long id) {
                     pass.setCode(code);
                     getVerification.save(pass);
                     adminRepository.save(admin);
-                } else {
-                    Reset_Password pass = new Reset_Password();
-                    pass.setEmail(forGotPass.getEmail());
-                    pass.setCode(code);
-                    getVerification.save(pass);
-                }
-            } else if
-            (userRepository.existsByEmail(forGotPass.getEmail())) {
-                User user = userRepository.findByEmail(forGotPass.getEmail()).get();
-
-                if (getVerification.findByEmail(forGotPass.getEmail()).isPresent()) {
-                    Reset_Password pass = getVerification.findByEmail(forGotPass.getEmail()).orElseThrow(() -> new NotFoundException("Email not found"));
-                    pass.setEmail(forGotPass.getEmail());
-                    pass.setCode(code);
-                    getVerification.save(pass);
-                    userRepository.save(user);
                 } else {
                     Reset_Password pass = new Reset_Password();
                     pass.setEmail(forGotPass.getEmail());

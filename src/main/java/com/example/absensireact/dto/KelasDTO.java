@@ -1,10 +1,15 @@
 package com.example.absensireact.dto;
 
+import com.example.absensireact.model.Admin;
+import com.example.absensireact.model.Organisasi;
+
 public class KelasDTO {
 
     private Long id;
     private String namaKelas;
-    private Long organisasiId;
+    private Organisasi organisasiId;
+
+    private Admin admin;
 
     public Long getId() {
         return id;
@@ -22,11 +27,19 @@ public class KelasDTO {
         this.namaKelas = namaKelas;
     }
 
-    public Long getOrganisasiId() {
+    public Organisasi getOrganisasiId() {
         return organisasiId;
     }
 
-    public void setOrganisasiId(Long organisasiId) {
+    public void setOrganisasiId(Organisasi organisasiId) {
         this.organisasiId = organisasiId;
+    }
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.absensireact.service;
 
 
+import com.example.absensireact.dto.KelasDTO;
 import com.example.absensireact.model.Kelas;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,10 @@ public interface KelasService {
 
     Kelas editKelasById(Long id, Kelas updateKelas);
 
-    Kelas tambahKelas(Kelas kelas);
+
+
+
+    Kelas tambahKelas(Kelas kelas, Long idOrgnasisai, Long idAdmin);
 
     void deleteKelas(Long id);
 }

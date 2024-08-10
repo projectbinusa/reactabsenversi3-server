@@ -598,7 +598,7 @@ public Map<String, Boolean> delete(Long id) {
                     "\n" +
                     "</html>");
             if (adminRepository.existsByEmail(forGotPass.getEmail())) {
-                Admin admin = adminRepository.findByEmail(forGotPass.getEmail()).get();
+                 Admin admin = adminRepository.findByEmail(forGotPass.getEmail()).get();
 
                 if (getVerification.findByEmail(forGotPass.getEmail()).isPresent()) {
                     Reset_Password pass = getVerification.findByEmail(forGotPass.getEmail()).orElseThrow(() -> new NotFoundException("Email not found"));

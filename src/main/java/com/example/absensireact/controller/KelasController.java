@@ -54,8 +54,8 @@ public class KelasController {
     }
 
     @PostMapping("/tambah")
-    public ResponseEntity<Kelas> tambahKelas(@RequestBody Kelas kelas) {
-        Kelas kelasBaru = kelasService.tambahKelas(kelas);
+    public ResponseEntity<Kelas> tambahKelas(@RequestBody Kelas kelas , @RequestParam Long idOrganisasi , @RequestParam Long idAdmin) {
+        Kelas kelasBaru = kelasService.tambahKelas(kelas , idOrganisasi , idAdmin);
         return new ResponseEntity<>(kelasBaru, HttpStatus.CREATED);
     }
 

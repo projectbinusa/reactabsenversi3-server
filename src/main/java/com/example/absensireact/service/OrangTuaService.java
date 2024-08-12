@@ -2,8 +2,6 @@ package com.example.absensireact.service;
 
 import com.example.absensireact.dto.PasswordDTO;
 import com.example.absensireact.model.OrangTua;
-import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,7 +16,7 @@ public interface OrangTuaService {
 
     Optional<OrangTua> getOrangTuaById(Long id);
 
-    OrangTua editOrangTuaById(Long id,Long idAdmin, OrangTua updateOrangTua);
+    OrangTua editOrangTuaById(Long id, Long idAdmin, OrangTua updateOrangTua);
 
     OrangTua tambahOrangTua(Long idAdmin, OrangTua orangTua);
 

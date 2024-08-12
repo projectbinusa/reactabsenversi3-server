@@ -4,6 +4,7 @@ import com.example.absensireact.dto.PasswordDTO;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
+import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.*;
 import com.example.absensireact.service.OrangTuaService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,7 +3,6 @@ package com.example.absensireact.service;
 
 
 import com.example.absensireact.detail.*;
-import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.OrangTuaRepository;
@@ -11,12 +10,8 @@ import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.securityNew.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

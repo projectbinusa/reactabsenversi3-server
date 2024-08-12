@@ -1,13 +1,7 @@
 package com.example.absensireact.model;
 
 
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
-
 import javax.persistence.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 @Entity
 @Table
@@ -72,7 +66,7 @@ public class User {
 
     }
 
-    public User(Long id, String email, String password, String username, String fotoUser, String startKerja,   String statusKerja, Organisasi organisasi, OrangTua orangTua, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
+    public User(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, OrangTua orangTua, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
         this.id = id;
         this.email = email;
         this.password = password;

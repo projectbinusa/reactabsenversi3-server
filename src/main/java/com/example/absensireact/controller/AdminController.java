@@ -8,7 +8,9 @@ import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
+import com.example.absensireact.exel.ExcelDataAdmin;
 import com.example.absensireact.model.Admin;
+import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,42 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private AdminRepository adminRepository;
+
+
+    @Autowired
+    private ExcelDataAdmin excelDataAdmin;
+
+    //organisasi
+    @PostMapping("/admin/import/{idAdmin}")
+    public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long idAdmin) {
+        return adminRepository.findById(idAdmin).map(admin -> {
+            try {
+                excelDataAdmin.importOrganisasi(file, admin);
+                return ResponseEntity.ok("Admin data imported successfully");
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to import admin data");
+            }
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
+    }
+    @GetMapping("/admin/organisasi/templateOrganisasi")
+    public void downloadImportTemplateOrganisasi(HttpServletResponse response) {
+        try {
+            excelDataAdmin.downloadTemplateImportOrganisasi(response);
+        } catch (IOException e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            try {
+                response.getWriter().write("Error occurred while generating template");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
+    @GetMapping("/admin/organisasi/export")
+    public void exportOrganisasi (@RequestParam Long idAdmin ,  HttpServletResponse response) throws IOException {
+        excelDataAdmin.exportOrganisasi(idAdmin , response);
+    }
 
     @PostMapping("/admin/validasi-code")
     public void requestPasswordReset(@RequestBody VerifyCode verifyCode) {

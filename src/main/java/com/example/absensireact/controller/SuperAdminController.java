@@ -8,6 +8,7 @@ import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
+import com.example.absensireact.exel.ExcelDataAdmin;
 import com.example.absensireact.exel.ExportSuperAdmin;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.SuperAdmin;
@@ -41,30 +42,15 @@ public class SuperAdminController {
     private ExportSuperAdmin exportSuperAdmin;
 
     @Autowired
+    private ExcelDataAdmin excelDataAdmin;
+
+    @Autowired
     private SuperAdminRepository superAdminRepository;
 
     public SuperAdminController(SuperAdminService superAdminService) {
         this.superAdminService = superAdminService;
     }
-    //organisasi
 
-    @GetMapping("/superadmin/organisasi/templateOrganisasi")
-    public void downloadImportTemplateOrganisasi(HttpServletResponse response) {
-        try {
-            ExportSuperAdmin.downloadTemplateImportOrganisasi(response);
-        } catch (IOException e) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            try {
-                response.getWriter().write("Error occurred while generating template");
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        }
-    }
-    @GetMapping("/superadmin/organisasi/export")
-    public void exportOrganisasi (@RequestParam Long superadminId ,  HttpServletResponse response) throws IOException {
-        exportSuperAdmin.exportOrganisasi(superadminId , response);
-    }
     //    admin
     @GetMapping("/superadmin/import/template")
     public ResponseEntity<Resource> downloadImportTemplate() {

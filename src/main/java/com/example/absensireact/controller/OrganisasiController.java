@@ -1,10 +1,8 @@
 package com.example.absensireact.controller;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.service.OrganisasiService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

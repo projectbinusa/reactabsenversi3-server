@@ -46,7 +46,26 @@ public class SuperAdminController {
     public SuperAdminController(SuperAdminService superAdminService) {
         this.superAdminService = superAdminService;
     }
+    //organisasi
 
+    @GetMapping("/superadmin/organisasi/templateOrganisasi")
+    public void downloadImportTemplateOrganisasi(HttpServletResponse response) {
+        try {
+            ExportSuperAdmin.downloadTemplateImportOrganisasi(response);
+        } catch (IOException e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            try {
+                response.getWriter().write("Error occurred while generating template");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
+    @GetMapping("/superadmin/organisasi/export")
+    public void exportOrganisasi (@RequestParam Long superadminId ,  HttpServletResponse response) throws IOException {
+        exportSuperAdmin.exportOrganisasi(superadminId , response);
+    }
+    //    admin
     @GetMapping("/superadmin/import/template")
     public ResponseEntity<Resource> downloadImportTemplate() {
         try {
@@ -69,6 +88,7 @@ public class SuperAdminController {
     public void exportAdmin (@RequestParam Long superadminId ,  HttpServletResponse response) throws IOException {
         exportSuperAdmin.excelAdmin(superadminId , response);
     }
+
     @PostMapping("/superadmin/import/{superadminId}")
     public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long superadminId) {
         return superAdminRepository.findById(superadminId).map(superAdmin -> {

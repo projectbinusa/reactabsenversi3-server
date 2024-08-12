@@ -2,20 +2,18 @@ package com.example.absensireact.dto;
 
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Jabatan;
+import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.Organisasi;
+import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.Shift;
-
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import com.example.absensireact.model.SuperAdmin;
 
 public class UserDTO {
     private Long id;
 
     private String email;
     private String password;
-    private  String username;
+    private String username;
     private String fotoUser;
     private String startKerja;
     private String lamaKerja;
@@ -24,6 +22,9 @@ public class UserDTO {
     private Jabatan jabatan;
     private Shift shift;
     private Admin admin;
+    private Kelas kelas;
+    private OrangTua orangTua;
+    private SuperAdmin superAdmin;
 
     private String role;
 
@@ -121,6 +122,30 @@ public class UserDTO {
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
+    }
+
+    public Kelas getKelas() {
+        return kelas;
+    }
+
+    public void setKelas(Kelas kelas) {
+        this.kelas = kelas;
+    }
+
+    public OrangTua getOrangTua() {
+        return orangTua;
+    }
+
+    public void setOrangTua(OrangTua orangTua) {
+        this.orangTua = orangTua;
+    }
+
+    public SuperAdmin getSuperAdmin() {
+        return superAdmin;
+    }
+
+    public void setSuperAdmin(SuperAdmin superAdmin) {
+        this.superAdmin = superAdmin;
     }
 
     public String getRole() {

@@ -1,10 +1,7 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.config.AppConfig;
-import com.example.absensireact.dto.ForGotPass;
-import com.example.absensireact.dto.PasswordDTO;
-import com.example.absensireact.dto.ResetPassDTO;
-import com.example.absensireact.dto.VerifyCode;
+import com.example.absensireact.dto.*;
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
@@ -599,7 +596,7 @@ public class UserImpl implements UserService {
 
 
     @Override
-    public User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, User updatedUser) {
+    public User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan");
@@ -613,10 +610,9 @@ public class UserImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("id orang tua tidak ditemukan")));
         user.setKelas(kelasRepository.findById(idKelas)
                 .orElseThrow(() -> new NotFoundException("id Kelas tidak ditemukan")));
-        if (updatedUser.getUsername() != null) {
-            user.setUsername(updatedUser.getUsername());
+        if (updatedUserDTO.getUsername() != null) {
+            user.setUsername(updatedUserDTO.getUsername());
         }
-
 
         return userRepository.save(user);
     }
@@ -672,15 +668,16 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User Tambahkaryawan(User user, Long idAdmin, Long idOrganisasi, Long idOrangTua, Long idJabatan, Long idShift) {
+    public User Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idShift, Long idOrangTua) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             Admin admin = adminOptional.get();
-            user.setPassword(encoder.encode(user.getPassword()));
+            User user = new User();
+            user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setRole("USER");
 
-            user.setEmail(user.getEmail());
-            user.setUsername(user.getUsername());
+            user.setEmail(userDTO.getEmail());
+            user.setUsername(userDTO.getUsername());
             user.setOrganisasi(organisasiRepository.findById(idOrganisasi)
                     .orElseThrow(() -> new NotFoundException("Organisasi tidak ditemukan")));
             user.setJabatan(jabatanRepository.findById(idJabatan)
@@ -698,8 +695,6 @@ public class UserImpl implements UserService {
             throw new NotFoundException("Id Admin tidak ditemukan");
         }
     }
-
-
 
     @Override
     public List<User> GetAllKaryawanByIdAdmin(Long idAdmin){

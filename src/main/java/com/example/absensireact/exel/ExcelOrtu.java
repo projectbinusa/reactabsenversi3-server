@@ -109,7 +109,7 @@ public class ExcelOrtu {
 
         // Header row
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"No", "Email", "Nama Wali Murid", "Password"};
+        String[] headers = {"No", "Nama Wali Murid", "Email", "Password"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);

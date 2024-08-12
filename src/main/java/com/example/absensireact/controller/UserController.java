@@ -11,6 +11,7 @@ import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exception.ResponseHelper;
 import com.example.absensireact.exel.ExcelDataSiswa;
+import com.example.absensireact.exel.ImportSiswa;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.model.User;
@@ -44,6 +45,9 @@ public class UserController {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private ImportSiswa importSiswa;
 
     @Autowired
     private ExcelDataSiswa excelDataSiswa;
@@ -246,6 +250,28 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/download/template-excel-siswa")
+    public ResponseEntity<Void> templateExcelSiswa(HttpServletResponse response) {
+        try {
+            excelDataSiswa.templateExcelSiswa(response);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+//    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
+    @PostMapping("/import/data-siswa/admin/{adminId}")
+    public ResponseEntity<String> importOrangTua(@PathVariable Long adminId, @RequestPart("file") MultipartFile file) {
+        try {
+            importSiswa.importUser(adminId, file);
+            return ResponseEntity.ok("Import berhasil!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
         }
     }
 

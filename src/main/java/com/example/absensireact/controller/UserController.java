@@ -2,10 +2,7 @@ package com.example.absensireact.controller;
 
 
 import com.example.absensireact.config.AppConfig;
-import com.example.absensireact.dto.ForGotPass;
-import com.example.absensireact.dto.PasswordDTO;
-import com.example.absensireact.dto.ResetPassDTO;
-import com.example.absensireact.dto.VerifyCode;
+import com.example.absensireact.dto.*;
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.CommonResponse;
 import com.example.absensireact.exception.NotFoundException;
@@ -97,9 +94,15 @@ public class UserController {
     }
 
     @PostMapping("/user/tambahkaryawan/{idAdmin}")
-    public ResponseEntity<User> tambahKaryawan(@RequestBody User user, @PathVariable Long idAdmin, @RequestParam Long idOrganisasi, @RequestParam Long idOrangTua, @RequestParam Long idJabatan, @RequestParam Long idShift) {
+    public ResponseEntity<User> tambahKaryawan(
+            @RequestBody UserDTO userDTO,
+            @PathVariable Long idAdmin,
+            @RequestParam Long idOrganisasi,
+            @RequestParam Long idOrangTua,
+            @RequestParam Long idJabatan,
+            @RequestParam Long idShift) {
         try {
-            User savedUser = userImpl.Tambahkaryawan(user, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua);
+            User savedUser = userImpl.Tambahkaryawan(userDTO, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -187,14 +190,15 @@ public class UserController {
     }
 
     @PutMapping("/user/edit-kar/{id}")
-    public ResponseEntity<User> editUser(@PathVariable("id") Long id,
-                                         @RequestParam(required = false) Long idJabatan,
-                                         @RequestParam(required = false) Long idShift,
-                                         @RequestParam(required = false) Long idOrangTua,
-                                         @RequestParam(required = false) Long idKelas,
-                                         @RequestBody User updatedUser) {
+    public ResponseEntity<User> editUser(
+            @PathVariable("id") Long id,
+            @RequestParam(required = false) Long idJabatan,
+            @RequestParam(required = false) Long idShift,
+            @RequestParam(required = false) Long idOrangTua,
+            @RequestParam(required = false) Long idKelas,
+            @RequestBody UserDTO updatedUserDTO) {
         try {
-            User editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, idOrangTua, idKelas, updatedUser);
+            User editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, idOrangTua, idKelas, updatedUserDTO);
             return ResponseEntity.ok(editedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

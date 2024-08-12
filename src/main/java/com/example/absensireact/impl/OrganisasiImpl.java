@@ -257,27 +257,34 @@ public class OrganisasiImpl implements OrganisasiService {
 
     @Override
     public Organisasi EditByid(Long id, Long idAdmin, Organisasi organisasi, MultipartFile image) throws IOException {
+        // Mencari organisasi yang ada berdasarkan ID
         Organisasi existingOrganisasi = organisasiRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Organisasi dengan id " + id + " tidak ditemukan"));
 
+        // Mencari admin berdasarkan ID
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isEmpty()) {
             throw new NotFoundException("Id admin tidak ditemukan");
         }
 
+        // Jika foto organisasi yang ada tidak kosong, hapus foto lama
         if (existingOrganisasi.getFotoOrganisasi() != null && !existingOrganisasi.getFotoOrganisasi().isEmpty()) {
             String currentFotoUrl = existingOrganisasi.getFotoOrganisasi();
-            String fileName = currentFotoUrl.substring(currentFotoUrl.indexOf("/o/") + 3, currentFotoUrl.indexOf("?alt=media"));
+            String fileName = currentFotoUrl.substring(currentFotoUrl.lastIndexOf("/") + 1);
             deleteFoto(fileName);
         }
 
+        // Jika ada foto baru yang diunggah, simpan URL foto baru
         if (image != null && !image.isEmpty()) {
             String imageUrl = uploadFoto(image);
-            organisasi.setFotoOrganisasi(imageUrl);
-        } else {
-            organisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());
+            existingOrganisasi.setFotoOrganisasi(imageUrl);
+        }
+        // Tetap mempertahankan foto yang ada jika tidak ada foto baru
+        else {
+            existingOrganisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());
         }
 
+        // Set nilai-nilai baru pada organisasi yang ada
         Admin admin = adminOptional.get();
         existingOrganisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
         existingOrganisasi.setAlamat(organisasi.getAlamat());
@@ -288,8 +295,10 @@ public class OrganisasiImpl implements OrganisasiService {
         existingOrganisasi.setEmailOrganisasi(organisasi.getEmailOrganisasi());
         existingOrganisasi.setAdmin(admin);
 
+        // Menyimpan perubahan ke dalam database
         return organisasiRepository.save(existingOrganisasi);
     }
+
 
     @Override
     public void deleteOrganisasi(Long id) throws IOException {

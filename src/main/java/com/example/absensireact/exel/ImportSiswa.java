@@ -1,5 +1,6 @@
 package com.example.absensireact.exel;
 
+import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
 import com.example.absensireact.repository.*;
 import org.apache.poi.ss.usermodel.*;
@@ -41,116 +42,99 @@ public class ImportSiswa {
     @Autowired
     PasswordEncoder encoder;
 
-    @Transactional
-    public void importUser(Long adminId, MultipartFile file) throws IOException {
-        List<User> userList = new ArrayList<>();
+//    @Transactional
+    public void importUser(MultipartFile file, Admin admin) throws IOException {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
 
-        // Read Excel file
-        try (InputStream inputStream = file.getInputStream()) {
-            Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-
-            // Iterate through rows and columns
-            Iterator<Row> rowIterator = sheet.iterator();
-            int rowNum = 0;
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                // Skip the title and header rows
-                if (rowNum++ < 1) {
-                    continue;
-                }
-
-                // Log to check row data
-                System.out.println("Processing row " + rowNum);
-
-                Cell namaCell = row.getCell(1); // Nama
-                Cell emailCell = row.getCell(2); // Email
-                Cell passwordCell = row.getCell(3); // Password
-                Cell idJabatanCell = row.getCell(4); // idJabatan
-                Cell idOrangTuaCell = row.getCell(5); // idOrangTua
-                Cell idShiftCell = row.getCell(6); // idShift
-                Cell idOrganisasiCell = row.getCell(7); // idOrganisasi
-
-                // Check for missing data
-                if (emailCell == null || namaCell == null || passwordCell == null ||
-                        idJabatanCell == null || idOrangTuaCell == null || idShiftCell == null || idOrganisasiCell == null) {
-                    System.out.println("Skipping row " + rowNum + " due to missing data.");
-                    continue;
-                }
-
-                // Extract and convert values
-                Long idJabatan = getLongCellValue(idJabatanCell);
-                Long idOrangTua = getLongCellValue(idOrangTuaCell);
-                Long idShift = getLongCellValue(idShiftCell);
-                Long idOrganisasi = getLongCellValue(idOrganisasiCell);
-
-                // Validate ID values
-                if (idJabatan == null || idOrangTua == null || idShift == null || idOrganisasi == null) {
-                    System.out.println("Skipping row " + rowNum + " due to invalid ID values.");
-                    continue;
-                }
-
-                // Retrieve entities
-                Optional<Jabatan> jabatanOptional = jabatanRepository.findById(idJabatan);
-                Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(idOrangTua);
-                Optional<Shift> shiftOptional = shiftRepository.findById(idShift);
-                Optional<Organisasi> organisasiOptional = organisasiRepository.findById(idOrganisasi);
-
-                if (jabatanOptional.isEmpty() || orangTuaOptional.isEmpty() || shiftOptional.isEmpty() || organisasiOptional.isEmpty()) {
-                    System.out.println("One or more related entities not found.");
-                    continue;
-                }
-
-                // Create and populate user
-                Jabatan jabatan = jabatanOptional.get();
-                OrangTua orangTua = orangTuaOptional.get();
-                Shift shift = shiftOptional.get();
-                Organisasi organisasi = organisasiOptional.get();
-
+        List<User> UserList = new ArrayList<>();
+        for (int i = 3; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
                 User user = new User();
-                user.setAdmin(adminRepository.findById(adminId).orElse(null)); // Assuming Admin is optional
-                user.setJabatan(jabatan);
-                user.setOrangTua(orangTua);
-                user.setOrganisasi(organisasi);
-                user.setShift(shift);
-                user.setEmail(emailCell.getStringCellValue());
-                user.setUsername(namaCell.getStringCellValue());
-                String encodedPassword = encoder.encode(passwordCell.getStringCellValue());
-                user.setPassword(encodedPassword);
 
-                user.setRole("USER");
+                Cell namaUserCell = row.getCell(1);
+                Cell emailCell = row.getCell(2);
+                Cell passwordCell = row.getCell(3);
+                Cell jabatanCell = row.getCell(4);
+                Cell orangTuaCell = row.getCell(5);
+                Cell shiftCell = row.getCell(6);
+                Cell organisasiCell = row.getCell(7);
 
-                userList.add(user);
-            }
-            workbook.close();
-        }
+//                if (namaUserCell != null) {
+//                    user.setUsername(getCellValue(namaUserCell));
+//                }
 
-        if (!userList.isEmpty()) {
-            siswaRepository.saveAll(userList);
-            System.out.println("Saving " + userList.size() + " records to database.");
-        } else {
-            System.out.println("No records to save.");
-        }
-    }
+                if (organisasiCell != null || jabatanCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
+                    String namaOrganisasi = getCellValue(organisasiCell);
+                    String namaShift = getCellValue(shiftCell);
+                    String namaJabatan = getCellValue(jabatanCell);
+                    String namaOrangtua = getCellValue(orangTuaCell);
+                    Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
+                            .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
+                    Shift shift = shiftRepository.findByShift(namaShift)
+                            .orElseThrow(() -> new NotFoundException("waktu pembelajaran dengan nama " + namaShift + " tidak ditemukan"));
+                    Jabatan jabatan = jabatanRepository.findByNamaStatus(namaJabatan)
+                            .orElseThrow(() -> new NotFoundException("status dengan nama " + namaJabatan + " tidak ditemukan"));
+                    OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangtua)
+                            .orElseThrow(() -> new NotFoundException("wali murid dengan nama " + namaOrangtua + " tidak ditemukan"));
+                    user.setOrganisasi(organisasi);
+                    user.setJabatan(jabatan);
+                    user.setShift(shift);
+                    user.setOrangTua(orangTua);
+                    user.setUsername(getCellValue(namaUserCell));
+                    user.setEmail(getCellValue(emailCell));
+                    String encodedPassword = encoder.encode(passwordCell.getStringCellValue());
+                    user.setPassword(encodedPassword);
+                    System.out.println("ID Organisasi, jabatan, shift, orangtua yang di-set: " + organisasi.getId());
 
-    private Long getLongCellValue(Cell cell) {
-        if (cell == null) {
-            return null;
-        }
-        switch (cell.getCellType()) {
-            case NUMERIC:
-                return (long) cell.getNumericCellValue();
-            case STRING:
-                try {
-                    return Long.parseLong(cell.getStringCellValue());
-                } catch (NumberFormatException e) {
-                    System.out.println("Error parsing numeric value from string: " + e.getMessage());
-                    return null;
+                } else {
+                    System.out.println("tidak ada");
                 }
+
+//                user.setUsername(namaUserCell);
+                user.setAdmin(admin);
+                UserList.add(user);
+            }
+        }
+
+        siswaRepository.saveAll(UserList);
+        workbook.close();
+    }
+
+    private String getCellValue(Cell cell) {
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((int)cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
             default:
-                return null;
+                return "";
         }
     }
+
+//    private Long getLongCellValue(Cell cell) {
+//        if (cell == null) {
+//            return null;
+//        }
+//        switch (cell.getCellType()) {
+//            case NUMERIC:
+//                return (long) cell.getNumericCellValue();
+//            case STRING:
+//                try {
+//                    return Long.parseLong(cell.getStringCellValue());
+//                } catch (NumberFormatException e) {
+//                    System.out.println("Error parsing numeric value from string: " + e.getMessage());
+//                    return null;
+//                }
+//            default:
+//                return null;
+//        }
+//    }
 
 }
 

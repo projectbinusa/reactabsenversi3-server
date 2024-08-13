@@ -40,4 +40,9 @@ public interface UserRepository extends JpaRepository<User , Long> {
 
     List<User> findByKelasId(Long kelasId );
 
+//    @Query(value = "SELECT * FROM user WHERE nama_organisasi = :namaOrganisasi" , nativeQuery = true)
+//    Optional<Organisasi> findByNamaOrganisasi(String namaOrganisasi);
+
+
+
 }

@@ -372,7 +372,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"Nama Kelas","Organisasi"};
+        String[] headers = {"No", "Nama Kelas","Organisasi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);

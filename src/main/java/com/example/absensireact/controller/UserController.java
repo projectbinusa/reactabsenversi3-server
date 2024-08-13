@@ -270,13 +270,15 @@ public class UserController {
 
 //    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
     @PostMapping("/import/data-siswa/admin/{adminId}")
-    public ResponseEntity<String> importOrangTua(@PathVariable Long adminId, @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<String> importUser(@RequestPart("file") MultipartFile file, @PathVariable Long adminId) {
+        return adminRepository.findById(adminId).map(admin -> {
         try {
-            importSiswa.importUser(adminId, file);
+            importSiswa.importUser(file, admin);
             return ResponseEntity.ok("Import berhasil!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
         }
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
     }
 
 

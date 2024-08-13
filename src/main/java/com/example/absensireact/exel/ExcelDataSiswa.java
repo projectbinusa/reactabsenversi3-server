@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 @Component
@@ -33,8 +34,14 @@ public class ExcelDataSiswa {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
+
+        // Set background color to the header style
+        styleHeader.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
         styleHeader.setFont(headerFont);
 
         CellStyle styleCenter = workbook.createCellStyle();
@@ -46,7 +53,7 @@ public class ExcelDataSiswa {
         styleCenter.setBorderLeft(BorderStyle.THIN);
 
         // Fetch data from service
-        List<User> siswaList = userService.getAll();
+        List<User> siswaList = userService.getAllByAdmin(idAdmin);
 
         int rowNum = 0;
 
@@ -54,7 +61,7 @@ public class ExcelDataSiswa {
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA SISWA");
-        titleCell.setCellStyle(styleHeader);
+//        titleCell.setCellStyle(styleHeader);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4));
 
         // Header row
@@ -97,11 +104,18 @@ public class ExcelDataSiswa {
         workbook.close();
     }
 
-    public void templateExcelSiswa(HttpServletResponse response) throws IOException {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Template Excel Siswa");
 
-        // Font and cell styles
+    public static void templateExcelSiswa(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Template Siswa");
+
+        CellStyle styleTitle = workbook.createCellStyle();
+        styleTitle.setAlignment(HorizontalAlignment.CENTER);
+        styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        styleTitle.setFont(titleFont);
+
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -109,13 +123,21 @@ public class ExcelDataSiswa {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        styleHeader.setFont(headerFont);
+
+        int rowNum = 0;
+
+        // Title row
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA Siswa");
+        titleCell.setCellStyle(styleTitle);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for title
+        rowNum++;
 
         // Header row
-        Row headerRow = sheet.createRow(0);
-        String[] headers = {"No", "Nama Siswa", "Email", "Password", "idJabatan", "idOrangTua", "idShift", "idOrganisasi"};        for (int i = 0; i < headers.length; i++) {
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"No", "Nama Siswa","Email", "Password", "Status", "Nama Wali Murid", "Nama Waktu Pembelajaran", "Nama Organisasi"};
+        for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styleHeader);
@@ -128,7 +150,11 @@ public class ExcelDataSiswa {
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=TemplateSiswa.xlsx");
-        workbook.write(response.getOutputStream());
+
+        try (OutputStream outputStream = response.getOutputStream()) {
+            workbook.write(outputStream);
+        }
+
         workbook.close();
     }
 }

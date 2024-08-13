@@ -16,4 +16,5 @@ public interface KelasRepository extends JpaRepository<Kelas ,Long> {
 
     @Query(value = "SELECT * FROM kelas WHERE id_admin = :idAdmin", nativeQuery = true)
     List<Kelas> findByIdAdmin(Long idAdmin);
+
 }

@@ -54,9 +54,17 @@ public class ExportSuperAdmin {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Font for header
+        Font headerFont = workbook.createFont();
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerFont.setBold(true);
+        styleHeader.setFont(headerFont);
 
         CellStyle styleTitle = workbook.createCellStyle();
-        styleTitle.setAlignment(HorizontalAlignment.CENTER);
+        styleTitle.setAlignment(HorizontalAlignment.LEFT); // Set title alignment to left
         styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
         Font titleFont = workbook.createFont();
         titleFont.setBold(true);
@@ -97,7 +105,7 @@ public class ExportSuperAdmin {
             Row row = sheet.createRow(rowNum++);
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(userRowNum++);
-            cell0.setCellStyle(styleCenterNumber); // Use the centered number style
+            cell0.setCellStyle(styleCenterNumber);
 
             Cell cell1 = row.createCell(1);
             cell1.setCellValue(admin.getEmail());
@@ -113,8 +121,11 @@ public class ExportSuperAdmin {
             sheet.autoSizeColumn(i);
         }
 
+        // Prepare response
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=ExportAdmin.xlsx");
+
+        // Write to response
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -241,6 +252,10 @@ public class ExportSuperAdmin {
         Sheet sheet = workbook.createSheet("Template Excel Admin");
 
         // Font and cell styles
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex()); // Set text color to white
+
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -248,9 +263,9 @@ public class ExportSuperAdmin {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
         styleHeader.setFont(headerFont);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex()); // Set background color to light blue
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         // Header row
         Row headerRow = sheet.createRow(0);
@@ -266,6 +281,7 @@ public class ExportSuperAdmin {
             sheet.autoSizeColumn(i);
         }
 
+        // Set response headers and write workbook to output stream
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=Template-Import.xlsx");
         workbook.write(response.getOutputStream());

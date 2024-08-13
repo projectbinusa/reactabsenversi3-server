@@ -2,9 +2,6 @@ package com.example.absensireact.exel;
 
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.OrangTua;
-import com.example.absensireact.model.Organisasi;
-import com.example.absensireact.model.SuperAdmin;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
 import com.example.absensireact.repository.SuperAdminRepository;
@@ -19,12 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ExportSuperAdmin {
@@ -123,12 +117,12 @@ public class ExportSuperAdmin {
 
 
 
-    public void importAdmin(MultipartFile file, SuperAdmin superAdmin) throws IOException {
+    public void importAdmin(MultipartFile file, Long superAdminId) throws IOException {
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);  // Mengambil sheet pertama
 
         List<Admin> adminList = new ArrayList<>();
-        for (int i = 3; i <= sheet.getLastRowNum(); i++) {  // Mulai dari baris ke-1 untuk melewati header
+        for (int i = 3; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row != null) {
                 Admin admin = new Admin();
@@ -152,7 +146,8 @@ public class ExportSuperAdmin {
                  }
 
                 admin.setRole("ADMIN");
-                admin.setSuperAdmin(superAdmin);
+                admin.setSuperAdmin(superAdminRepository.findById(superAdminId)
+                        .orElseThrow(() -> new NotFoundException("id super admin tidak ditemukan")));
 
                 adminList.add(admin);
             }
@@ -184,6 +179,8 @@ public class ExportSuperAdmin {
         Workbook workbook = new XSSFWorkbook();
 
         Sheet sheet = workbook.createSheet("Template Import Admin");
+
+        // Title style
         CellStyle styleTitle = workbook.createCellStyle();
         styleTitle.setAlignment(HorizontalAlignment.CENTER);
         styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -191,6 +188,7 @@ public class ExportSuperAdmin {
         titleFont.setBold(true);
         styleTitle.setFont(titleFont);
 
+        // Header style
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -206,23 +204,16 @@ public class ExportSuperAdmin {
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA ADMIN");
         titleCell.setCellStyle(styleTitle);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for title
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 3)); // Merging cells for title
         rowNum++;
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Email", "Username"};
+        String[] headers = {"No", "Email", "Username", "Password"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styleHeader);
-
-            CellStyle style = workbook.createCellStyle();
-            style.setAlignment(HorizontalAlignment.CENTER);
-            Font font = workbook.createFont();
-            font.setBold(true);
-            style.setFont(font);
-            cell.setCellStyle(style);
         }
 
         for (int i = 0; i < headers.length; i++) {
@@ -232,7 +223,6 @@ public class ExportSuperAdmin {
         workbook.write(outputStream);
         workbook.close();
     }
-
 
 
 

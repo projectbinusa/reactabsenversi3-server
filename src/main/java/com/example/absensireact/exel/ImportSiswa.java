@@ -63,8 +63,8 @@ public class ImportSiswa {
                 // Log to check row data
                 System.out.println("Processing row " + rowNum);
 
-                Cell emailCell = row.getCell(2); // Email
                 Cell namaCell = row.getCell(1); // Nama
+                Cell emailCell = row.getCell(2); // Email
                 Cell passwordCell = row.getCell(3); // Password
                 Cell idJabatanCell = row.getCell(4); // idJabatan
                 Cell idOrangTuaCell = row.getCell(5); // idOrangTua

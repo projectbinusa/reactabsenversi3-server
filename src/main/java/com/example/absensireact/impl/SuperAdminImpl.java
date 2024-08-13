@@ -334,7 +334,7 @@ public class SuperAdminImpl implements SuperAdminService {
                     "                                <p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-size: 12px; line-height: 16.8px;\">Jika Anda tidak memerlukan penyetelan ulang, abaikan pesan ini.</span></p>\n" +
                     "                                <p style=\"line-height: 140%; font-size: 14px;\">&nbsp;</p>\n" +
                     "                              </div>\n"
-                    +" <a href=\"http://localhost:3000/\" style=\"background-color: #3498db; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block;\">\n" +
+                    +" <a href=\"http://localhost:3000/reset-password-sup/" + code + "\" style=\"background-color: #3498db; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block;\">\n" +
                     "                                           Reset Password\n" +
                     "                                  </a>\n"+
 
@@ -345,7 +345,7 @@ public class SuperAdminImpl implements SuperAdminService {
                     "                            <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:32px 46px ;font-family:arial,helvetica,sans-serif;\" align=\"left\">\n" +
                     "\n" +
                     "                              <div class=\"v-color v-text-align v-line-height\" style=\"color: #34495e; line-height: 140%; text-align: left; word-wrap: break-word;\">\n" +
-                    "                                <p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-family: Montserrat, sans-serif; font-size: 14px; line-height: 19.6px;\"><span style=\"font-size: 20px; line-height: 28px;\"><strong>Berikut code verifikasi akun byrtagihan.com Anda: " + code + "</strong></span></span>\n" +
+                    "                                <p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-family: Montserrat, sans-serif; font-size: 14px; line-height: 19.6px;\"><span style=\"font-size: 20px; line-height: 28px;\"><strong>Berikut code verifikasi akun presensi.com Anda: " + code + "</strong></span></span>\n" +
                     "                                </p>\n" +
                     "                              </div>\n" +
                     "\n" +

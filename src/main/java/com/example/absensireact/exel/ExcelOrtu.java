@@ -33,8 +33,11 @@ public class ExcelOrtu {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
         styleHeader.setFont(headerFont);
 
         CellStyle styleCenter = workbook.createCellStyle();
@@ -54,8 +57,11 @@ public class ExcelOrtu {
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA ORANG TUA");
-        titleCell.setCellStyle(styleHeader);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2));
+        CellStyle styleTitle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        styleTitle.setFont(titleFont);
+        titleCell.setCellStyle(styleTitle);
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
@@ -91,11 +97,12 @@ public class ExcelOrtu {
         workbook.close();
     }
 
+
     public void templateExcelWaliMurid(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Template Excel Wali Murid");
 
-        // Font and cell styles
+        // Font and cell styles for header
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -103,8 +110,12 @@ public class ExcelOrtu {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
         styleHeader.setFont(headerFont);
 
         // Header row
@@ -121,9 +132,11 @@ public class ExcelOrtu {
             sheet.autoSizeColumn(i);
         }
 
+        // Set response headers and write workbook
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=HeaderOnly.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplateExcelWaliMurid.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 }

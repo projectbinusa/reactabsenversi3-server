@@ -19,4 +19,7 @@ public interface ShiftRepository extends JpaRepository<Shift , Long> {
 
     @Query(value = "SELECT * FROM shift WHERE id_admin = :idAdmin" , nativeQuery = true)
     List<Shift> getByIdAdmin (Long idAdmin);
+
+    @Query(value = "SELECT * FROM shift WHERE nama_shift = :namaShift" , nativeQuery = true)
+    Optional<Shift> findByShift(String namaShift);
 }

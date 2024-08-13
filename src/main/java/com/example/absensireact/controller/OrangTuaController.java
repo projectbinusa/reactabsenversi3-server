@@ -27,7 +27,7 @@ public class OrangTuaController {
     OrangTuaService orangTuaImpl;
 
     @Autowired
-    com.example.absensireact.excel.ExcelOrtu excelOrtu;
+    com.example.absensireact.exel.ExcelOrtu excelOrtu;
 
     @Autowired
     private com.example.absensireact.exel.ImportOrtu importOrtu;

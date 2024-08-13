@@ -115,8 +115,7 @@ public class ExcelDataSiswa {
 
         // Header row
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"No", "Nama Siswa", "Email",  "Password", "idJabatan", "idOrangTua", "idShift", "idOrganisasi"};
-        for (int i = 0; i < headers.length; i++) {
+        String[] headers = {"No", "Nama Siswa", "Email", "Password", "idJabatan", "idOrangTua", "idShift", "idOrganisasi"};        for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styleHeader);

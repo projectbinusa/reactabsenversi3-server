@@ -29,6 +29,7 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,16 +53,17 @@ public class SuperAdminController {
     }
 
     //    admin
-//    @GetMapping("/superadmin/import/template")
-//    public ResponseEntity<Void> downloadImportTemplate(HttpServletResponse response) {
-//        try {
-//            exportSuperAdmin.generateAdminImportTemplate(response);
-//            return ResponseEntity.ok().build();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).build();
-//        }
-//    }
+    @GetMapping("/superadmin/admin/template")
+    public void downloadImportTemplate(HttpServletResponse response) {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplateAdmin.xlsx");
+
+        try (OutputStream out = response.getOutputStream()) {
+            ExportSuperAdmin.generateAdminImportTemplate(out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @GetMapping("/superadmin/admin/export")
@@ -69,17 +71,17 @@ public class SuperAdminController {
         exportSuperAdmin.excelAdmin(superadminId , response);
     }
 
-//    @PostMapping("/superadmin/import/{superadminId}")
-//    public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long superadminId) {
-//        return superAdminRepository.findById(superadminId).map(superAdmin -> {
-//            try {
-//                exportSuperAdmin.importAdmin(file, superadminId);
-//                return ResponseEntity.ok("Admin data imported successfully");
-//            } catch (IOException e) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to import admin data");
-//            }
-//      }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
-//    }
+    @PostMapping("/superadmin/import/{superadminId}")
+    public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long superadminId) {
+        return superAdminRepository.findById(superadminId).map(superAdmin -> {
+            try {
+                exportSuperAdmin.importAdmin(file, superadminId);
+                return ResponseEntity.ok("Admin data imported successfully");
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to import admin data");
+            }
+      }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
+    }
 
 
     @PostMapping("/superadmin/validasi-code")

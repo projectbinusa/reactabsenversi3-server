@@ -39,8 +39,44 @@ public class AdminController {
     @Autowired
     private ExcelDataAdmin excelDataAdmin;
 
+
+//    Kelas
+
+    @PostMapping("/admin/importKelas/{idAdmin}")
+    public ResponseEntity<String> importKelasData(@RequestPart("file") MultipartFile file, @PathVariable Long idAdmin) {
+        return adminRepository.findById(idAdmin).map(admin -> {
+            try {
+                excelDataAdmin.importKelas(file, admin);
+                return ResponseEntity.ok("Admin data imported successfully");
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to import admin data");
+            }
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
+    }
+    @GetMapping("/admin/kelas/templateKelas")
+    public void downloadImportTemplateKelas(HttpServletResponse response) {
+        try {
+            ExcelDataAdmin.downloadTemplateImportKelas(response);
+        } catch (IOException e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            try {
+                response.getWriter().write("Error occurred while generating template");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
+
+    @GetMapping("/admin/kelas/export")
+    public void exportKelas (@RequestParam Long idAdmin ,  HttpServletResponse response) throws IOException {
+        excelDataAdmin.exportKelas(idAdmin , response);
+    }
+
+
+
+
     //organisasi
-    @PostMapping("/admin/import/{idAdmin}")
+    @PostMapping("/admin/importOrganisasi/{idAdmin}")
     public ResponseEntity<String> importAdminData(@RequestPart("file") MultipartFile file, @PathVariable Long idAdmin) {
         return adminRepository.findById(idAdmin).map(admin -> {
             try {
@@ -54,7 +90,7 @@ public class AdminController {
     @GetMapping("/admin/organisasi/templateOrganisasi")
     public void downloadImportTemplateOrganisasi(HttpServletResponse response) {
         try {
-            excelDataAdmin.downloadTemplateImportOrganisasi(response);
+            ExcelDataAdmin.downloadTemplateImportOrganisasi(response);
         } catch (IOException e) {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             try {

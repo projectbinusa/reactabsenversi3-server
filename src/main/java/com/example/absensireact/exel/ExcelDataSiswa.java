@@ -115,7 +115,7 @@ public class ExcelDataSiswa {
 
         // Header row
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"No", "Email", "Nama Siswa", "Password", "idJabatan", "idOrangTua", "idShift", "idOrganisasi"};
+        String[] headers = {"No", "Nama Siswa", "Email",  "Password", "idJabatan", "idOrangTua", "idShift", "idOrganisasi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -128,7 +128,7 @@ public class ExcelDataSiswa {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=HeaderOnly.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplateSiswa.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

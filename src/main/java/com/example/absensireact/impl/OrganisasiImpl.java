@@ -267,25 +267,12 @@ public class OrganisasiImpl implements OrganisasiService {
             throw new NotFoundException("Id admin tidak ditemukan");
         }
 
-        // Jika foto organisasi yang ada tidak kosong, hapus foto lama
-        if (existingOrganisasi.getFotoOrganisasi() != null && !existingOrganisasi.getFotoOrganisasi().isEmpty()) {
-            String currentFotoUrl = existingOrganisasi.getFotoOrganisasi();
-            String fileName = currentFotoUrl.substring(currentFotoUrl.lastIndexOf("/") + 1);
-            deleteFoto(fileName);
-        }
-
-        // Jika ada foto baru yang diunggah, simpan URL foto baru
+        // Jika ada gambar baru yang diunggah, panggil metode uploadImage
         if (image != null && !image.isEmpty()) {
-            String imageUrl = uploadFoto(image);
-            existingOrganisasi.setFotoOrganisasi(imageUrl);
-        }
-        // Tetap mempertahankan foto yang ada jika tidak ada foto baru
-        else {
-            existingOrganisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());
+            existingOrganisasi = uploadImage(id, image);
         }
 
         // Set nilai-nilai baru pada organisasi yang ada
-        Admin admin = adminOptional.get();
         existingOrganisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
         existingOrganisasi.setAlamat(organisasi.getAlamat());
         existingOrganisasi.setKecamatan(organisasi.getKecamatan());
@@ -293,11 +280,12 @@ public class OrganisasiImpl implements OrganisasiService {
         existingOrganisasi.setProvinsi(organisasi.getProvinsi());
         existingOrganisasi.setNomerTelepon(organisasi.getNomerTelepon());
         existingOrganisasi.setEmailOrganisasi(organisasi.getEmailOrganisasi());
-        existingOrganisasi.setAdmin(admin);
+        existingOrganisasi.setAdmin(adminOptional.get());
 
         // Menyimpan perubahan ke dalam database
         return organisasiRepository.save(existingOrganisasi);
     }
+
 
 
     @Override

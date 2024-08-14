@@ -3,6 +3,7 @@ package com.example.absensireact.controller;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.service.OrganisasiService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -103,12 +104,18 @@ public class OrganisasiController {
     public ResponseEntity<Organisasi> editOrganisasi(
             @PathVariable Long id,
             @RequestParam Long idAdmin,
-            @RequestPart(value = "organisasi") Organisasi organisasi,
+            @RequestPart(value = "organisasi") String organisasiJson,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
+        // Deserialize JSON string into Organisasi object
+        ObjectMapper objectMapper = new ObjectMapper();
+        Organisasi organisasi = objectMapper.readValue(organisasiJson, Organisasi.class);
+
+        // Panggil service untuk mengedit organisasi
         Organisasi updatedOrganisasi = organisasiService.EditByid(id, idAdmin, organisasi, image);
         return ResponseEntity.ok(updatedOrganisasi);
     }
+
     @DeleteMapping("/organisasi/delete/{id}")
     public ResponseEntity<Void> deleteOrganisasi(@PathVariable Long id) throws IOException {
         organisasiService.deleteOrganisasi(id);

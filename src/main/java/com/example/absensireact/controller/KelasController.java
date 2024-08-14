@@ -59,6 +59,13 @@ public class KelasController {
         return new ResponseEntity<>(kelasBaru, HttpStatus.CREATED);
     }
 
+    @GetMapping("/hasRelations/{id}")
+    public ResponseEntity<Boolean> hasRelations(@PathVariable Long id) {
+        boolean hasRelations = kelasService.checkIfHasRelations(id);
+        return ResponseEntity.ok(hasRelations);
+    }
+
+
     @DeleteMapping("/deleteKelas/{id}")
     public ResponseEntity<Void> deleteKelas(@PathVariable Long id) throws IOException {
         kelasService.deleteKelas(id);

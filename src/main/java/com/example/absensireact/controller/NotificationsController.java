@@ -4,8 +4,12 @@ import com.example.absensireact.model.Notifications;
 import com.example.absensireact.service.NotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.Notification;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +20,9 @@ public class NotificationsController {
 
     @Autowired
     private NotificationsService notificationsService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @GetMapping
     public List<Notifications> getAllNotifications() {
@@ -65,8 +72,8 @@ public class NotificationsController {
     public ResponseEntity<Notifications> sendNotificationToAllUsers(
             @PathVariable Long idAdmin,
             @RequestBody Notifications notifications) {
-
         Notifications sentNotification = notificationsService.sendToAllUser(idAdmin, notifications);
+        messagingTemplate.convertAndSend("/topic/notifications", sentNotification);
         return ResponseEntity.ok(sentNotification);
     }
 

@@ -1,6 +1,7 @@
 package com.example.absensireact.service;
 
 import com.example.absensireact.dto.PasswordDTO;
+import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.OrangTua;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,8 @@ public interface OrangTuaService {
     void deleteOrangTua(Long id);
 
     OrangTua uploadImage(Long id, MultipartFile image) throws IOException;
+
+    Admin getAdminByOrangTuaId(Long id);
 
     OrangTua ubahUsernamedanemail(Long id, OrangTua updateOrangTua);
 }

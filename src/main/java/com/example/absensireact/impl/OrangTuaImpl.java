@@ -130,6 +130,14 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
 
+    @Override
+    public Admin getAdminByOrangTuaId(Long id) {
+        OrangTua orangTua = orangTuaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("OrangTua not found with id: " + id));
+        return orangTua.getAdmin();
+    }
+
+
     private String extractFileUrlFromResponse(String responseBody) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonResponse = mapper.readTree(responseBody);

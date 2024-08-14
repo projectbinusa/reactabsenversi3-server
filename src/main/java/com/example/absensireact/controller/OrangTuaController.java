@@ -35,6 +35,10 @@ public class OrangTuaController {
     @Autowired
     private OrangTuaService orangTuaService;
 
+    @GetMapping("/{id}/admin")
+    public Admin getAdminByOrangTuaId(@PathVariable Long id) {
+        return orangTuaService.getAdminByOrangTuaId(id);
+    }
     @GetMapping("/all")
     public ResponseEntity<List<OrangTua>> getAllOrangTua(){
         return ResponseEntity.ok(orangTuaService.getAllOrangTua());

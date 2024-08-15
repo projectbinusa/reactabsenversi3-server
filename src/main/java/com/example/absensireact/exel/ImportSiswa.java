@@ -57,28 +57,23 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
             Cell namaUserCell = row.getCell(1);
             Cell emailCell = row.getCell(2);
             Cell passwordCell = row.getCell(3);
-            Cell jabatanCell = row.getCell(4);
-            Cell orangTuaCell = row.getCell(5);
-            Cell shiftCell = row.getCell(6);
-            Cell organisasiCell = row.getCell(7);
+            Cell orangTuaCell = row.getCell(4);
+            Cell shiftCell = row.getCell(5);
+            Cell organisasiCell = row.getCell(6);
 
-            if (organisasiCell != null || jabatanCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
+            if (organisasiCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
                 String namaOrganisasi = getCellValue(organisasiCell);
                 String namaShift = getCellValue(shiftCell);
-                String namaJabatan = getCellValue(jabatanCell);
                 String namaOrangtua = getCellValue(orangTuaCell);
 
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
-                        .orElseThrow(() -> new NotFoundException("waktu pembelajaran dengan nama " + namaShift + " tidak ditemukan"));
-                Jabatan jabatan = jabatanRepository.findByNamaStatus(namaJabatan)
-                        .orElseThrow(() -> new NotFoundException("status dengan nama " + namaJabatan + " tidak ditemukan"));
+                        .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
                 OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangtua)
-                        .orElseThrow(() -> new NotFoundException("wali murid dengan nama " + namaOrangtua + " tidak ditemukan"));
+                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangtua + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
-                user.setJabatan(jabatan);
                 user.setShift(shift);
                 user.setOrangTua(orangTua);
                 user.setUsername(getCellValue(namaUserCell));
@@ -99,6 +94,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
             }
 
             user.setAdmin(admin);
+            user.setStatusKerja("Siswa"); // Set status otomatis menjadi "Siswa"
             userList.add(user);
         }
     }
@@ -106,6 +102,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
     siswaRepository.saveAll(userList);
     workbook.close();
 }
+
 
 
     private String getCellValue(Cell cell) {

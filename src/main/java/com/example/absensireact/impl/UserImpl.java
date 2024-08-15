@@ -10,7 +10,6 @@ import com.example.absensireact.service.UserService;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.client.RestTemplate;
 
 import javax.mail.MessagingException;
@@ -668,7 +666,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idJabatan, Long idShift, Long idOrangTua) {
+    public User Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             Admin admin = adminOptional.get();
@@ -684,19 +682,17 @@ public class UserImpl implements UserService {
             User user = new User();
             user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setRole("USER");
+            user.setStatusKerja("Siswa"); // Set status otomatis menjadi "Siswa"
 
             user.setEmail(userDTO.getEmail());
             user.setUsername(userDTO.getUsername());
             user.setOrganisasi(organisasiRepository.findById(idOrganisasi)
                     .orElseThrow(() -> new NotFoundException("Organisasi tidak ditemukan")));
-            user.setJabatan(jabatanRepository.findById(idJabatan)
-                    .orElseThrow(() -> new NotFoundException("Jabatan tidak ditemukan")));
             user.setShift(shiftRepository.findById(idShift)
                     .orElseThrow(() -> new NotFoundException("Shift tidak ditemukan")));
             user.setOrangTua(orangTuaRepository.findById(idOrangTua)
                     .orElseThrow(() -> new NotFoundException("id Orang Tua tidak ditemukan : " + idOrangTua)));
             user.setStartKerja(new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(new Date()));
-            user.setStatusKerja("aktif");
             user.setAdmin(admin);
 
             return userRepository.save(user);
@@ -704,6 +700,7 @@ public class UserImpl implements UserService {
             throw new NotFoundException("Id Admin tidak ditemukan");
         }
     }
+
 
 
     @Override
@@ -727,7 +724,6 @@ public class UserImpl implements UserService {
     public User edit(Long id, User user) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
-
         existingUser.setUsername(user.getUsername());
         existingUser.setOrganisasi(user.getOrganisasi());
         existingUser.setEmail(user.getEmail());

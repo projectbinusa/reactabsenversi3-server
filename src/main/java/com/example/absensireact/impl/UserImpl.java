@@ -539,7 +539,7 @@ public class UserImpl implements UserService {
         user.setShift(shift);
         user.setStartKerja(tanggalKerja);
         user.setStatusKerja("aktif");
-        user.setJabatan(null);
+        user.setStatus("Siswa");
         user.setAdmin(admin);
         user.setOrganisasi(organisasi);
         user.setRole("USER");
@@ -600,8 +600,8 @@ public class UserImpl implements UserService {
             throw new NotFoundException("id user tidak ditemukan");
         }
         User user = userOptional.get();
-        user.setJabatan(jabatanRepository.findById(idJabatan)
-                .orElseThrow(() -> new NotFoundException("id jabatan tidak ditemukan")));
+//        user.setJabatan(jabatanRepository.findById(idJabatan)
+//                .orElseThrow(() -> new NotFoundException("id jabatan tidak ditemukan")));
         user.setShift(shiftRepository.findById(idShift)
                 .orElseThrow(() -> new NotFoundException("id shift tidak ditemukan")));
         user.setOrangTua(orangTuaRepository.findById(idOrangTua)
@@ -658,8 +658,8 @@ public class UserImpl implements UserService {
         }
         User user = userOptional.get();
         user.setUsername(updateUser.getUsername());
-        user.setJabatan(jabatanRepository.findById(idJabatan)
-                .orElseThrow(() -> new NotFoundException("id Jabatan tidak ditemukan :" + idJabatan)));
+//        user.setJabatan(jabatanRepository.findById(idJabatan)
+//                .orElseThrow(() -> new NotFoundException("id Jabatan tidak ditemukan :" + idJabatan)));
         user.setShift(shiftRepository.findById(idShift)
                 .orElseThrow(() -> new NotFoundException("id Shift tidak ditemukan : " + idShift)));
         return userRepository.save(user);
@@ -682,7 +682,7 @@ public class UserImpl implements UserService {
             User user = new User();
             user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setRole("USER");
-            user.setStatusKerja("Siswa"); // Set status otomatis menjadi "Siswa"
+            user.setStatus("Siswa"); // Set status otomatis menjadi "Siswa"
 
             user.setEmail(userDTO.getEmail());
             user.setUsername(userDTO.getUsername());

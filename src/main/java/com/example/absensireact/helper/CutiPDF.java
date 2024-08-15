@@ -61,7 +61,7 @@ public class CutiPDF {
                 "<p>di tempat</p>" +
                 "<p>Dengan hormat,<br>Yang bertanda tangan di bawah ini:</p>" +
                 "<p>Nama: " + user.getUsername() + "</p>" +
-                "<p>Jabatan: " + user.getJabatan().getNamaJabatan() + "</p>" +
+                "<p>Jabatan: " + user.getStatus() + "</p>" +
                 "<p>Tanggal Pengambilan Cuti: " + awalCuti + "</p>" +
                 "<p>Tanggal Kembali Kerja: " + masukKerja + "</p>" +
                 "<p>Keperluan: " + cuti.getKeperluan() + "</p>" +

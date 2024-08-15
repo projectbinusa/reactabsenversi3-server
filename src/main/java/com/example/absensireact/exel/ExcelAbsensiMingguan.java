@@ -108,7 +108,7 @@ public class ExcelAbsensiMingguan {
         for (Map.Entry<String, List<Absensi>> entry : userAbsensiMap.entrySet()) {
             String userName = entry.getKey();
             List<Absensi> userAbsensi = entry.getValue();
-            String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
+            String position = userAbsensi.get(0).getUser().getStatus();
 
             // Variables to count absences for each user
             int userTotalLate = 0;
@@ -299,7 +299,7 @@ public class ExcelAbsensiMingguan {
         for (Map.Entry<String, List<Absensi>> entry : userAbsensiMap.entrySet()) {
             String userName = entry.getKey();
             List<Absensi> userAbsensi = entry.getValue();
-            String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
+            String position = userAbsensi.get(0).getUser().getStatus();
 
             // Variables to count absences for each user
             int userTotalLate = 0;
@@ -487,7 +487,7 @@ public class ExcelAbsensiMingguan {
         for (Map.Entry<String, List<Absensi>> userEntry : userAbsensiMap.entrySet()) {
             String userName = userEntry.getKey();
             List<Absensi> userAbsensi = userEntry.getValue();
-            String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
+            String position = userAbsensi.get(0).getUser().getStatus();
             System.out.println("Processing user: " + userName + " with position: " + position); // Debug
 
             // Variables to count absences for each user

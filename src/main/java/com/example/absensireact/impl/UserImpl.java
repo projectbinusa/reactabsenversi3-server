@@ -509,12 +509,12 @@ public class UserImpl implements UserService {
     }
     @Override
     public User Register(User user, Long idOrganisasi, Long idShift) {
-        if (adminRepository.existsByEmail(user.getEmail())) {
-            throw new BadRequestException("Email sudah digunakan oleh admin");
+        if (adminRepository.existsByEmail(user.getEmail()) || userRepository.existsByEmail(user.getEmail())) {
+            throw new BadRequestException("Email sudah digunakan");
         }
 
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new BadRequestException("Email sudah digunakan oleh user");
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new BadRequestException("Username sudah digunakan");
         }
 
         Organisasi organisasi = organisasiRepository.findById(idOrganisasi)
@@ -672,6 +672,15 @@ public class UserImpl implements UserService {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             Admin admin = adminOptional.get();
+
+            // Cek apakah email atau username sudah terdaftar
+            if (userRepository.existsByEmail(userDTO.getEmail())) {
+                throw new BadRequestException("Email " + userDTO.getEmail() + " telah digunakan");
+            }
+            if (userRepository.existsByUsername(userDTO.getUsername())) {
+                throw new BadRequestException("Username " + userDTO.getUsername() + " telah digunakan");
+            }
+
             User user = new User();
             user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setRole("USER");
@@ -695,6 +704,7 @@ public class UserImpl implements UserService {
             throw new NotFoundException("Id Admin tidak ditemukan");
         }
     }
+
 
     @Override
     public List<User> GetAllKaryawanByIdAdmin(Long idAdmin){

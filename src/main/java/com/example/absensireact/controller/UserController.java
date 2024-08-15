@@ -99,15 +99,15 @@ public class UserController {
             @PathVariable Long idAdmin,
             @RequestParam Long idOrganisasi,
             @RequestParam Long idOrangTua,
-            @RequestParam Long idJabatan,
             @RequestParam Long idShift) {
         try {
-            User savedUser = userImpl.Tambahkaryawan(userDTO, idAdmin, idOrganisasi, idJabatan, idShift, idOrangTua);
+            User savedUser = userImpl.Tambahkaryawan(userDTO, idAdmin, idOrganisasi, idShift, idOrangTua);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
+
     @PutMapping("/user/edit-email-username/{id}")
     public ResponseEntity<User> editemailusername(@PathVariable Long id, @RequestBody User updateUser) {
         User user = userImpl.ubahUsernamedanemail(id , updateUser );

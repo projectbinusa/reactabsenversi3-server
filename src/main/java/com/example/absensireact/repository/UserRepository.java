@@ -40,6 +40,8 @@ public interface UserRepository extends JpaRepository<User , Long> {
 
     List<User> findByKelasId(Long kelasId );
 
+    boolean existsByUsername(String username);
+
 //    @Query(value = "SELECT * FROM user WHERE nama_organisasi = :namaOrganisasi" , nativeQuery = true)
 //    Optional<Organisasi> findByNamaOrganisasi(String namaOrganisasi);
 

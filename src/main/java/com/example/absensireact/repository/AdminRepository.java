@@ -21,6 +21,7 @@ public interface AdminRepository extends JpaRepository<Admin , Long> {
     @Query(value = "SELECT * FROM admin WHERE email = :email", nativeQuery = true)
     Optional<Admin> findByEmail (String email);
     Boolean existsByEmail(String email);
+
     @Query(value = "SELECT * FROM admin WHERE username = :username", nativeQuery = true)
     boolean existsByUsername (String username);
 

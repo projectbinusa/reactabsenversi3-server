@@ -14,10 +14,16 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface AdminService {
 
     Admin ubahPassByForgot (ResetPassDTO updatePass);
+
+    Optional<Admin> findByEmail(String email);
+
+    Optional<Admin> findByUsername(String username);
+
 
     Reset_Password validasiCodeUniqResPass(VerifyCode codeUser);
 

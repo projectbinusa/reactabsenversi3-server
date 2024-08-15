@@ -190,6 +190,7 @@ public class ExportSuperAdmin {
 
     public void importAdmin(Long superAdminId, MultipartFile file) throws IOException {
         List<Admin> adminList = new ArrayList<>();
+        List<String> errorMessages = new ArrayList<>();
 
         // Read Excel file
         try (InputStream inputStream = file.getInputStream()) {
@@ -206,32 +207,43 @@ public class ExportSuperAdmin {
                     continue;
                 }
 
-                // Log to check row data
-                System.out.println("Processing row " + rowNum);
-
                 Cell namaCell = row.getCell(1);
                 Cell emailCell = row.getCell(2);
                 Cell passwordCell = row.getCell(3);
 
                 if (emailCell == null || namaCell == null || passwordCell == null) {
-                    System.out.println("Skipping row " + rowNum + " due to missing data.");
                     continue;
                 }
 
                 Optional<SuperAdmin> superAdminOptional = superAdminRepository.findById(superAdminId);
                 if (superAdminOptional.isEmpty()) {
-                    System.out.println("SuperAdmin with id " + superAdminId + " not found.");
                     continue;
                 }
 
                 SuperAdmin superAdmin = superAdminOptional.get();
+                String email = emailCell.getStringCellValue();
+                String username = namaCell.getStringCellValue();
+
+                // Check if email or username already exists
+                boolean emailExists = adminRepository.existsByEmail(email);
+                boolean usernameExists = adminRepository.existsByUsername(username);
+
+                if (emailExists) {
+                    errorMessages.add("Email '" + email + "' sudah digunakan.");
+                    continue;
+                }
+
+                if (usernameExists) {
+                    errorMessages.add("Username '" + username + "' sudah digunakan.");
+                    continue;
+                }
+
                 Admin admin = new Admin();
                 admin.setSuperAdmin(superAdmin);
-                admin.setEmail(emailCell.getStringCellValue());
-                admin.setUsername(namaCell.getStringCellValue());
+                admin.setEmail(email);
+                admin.setUsername(username);
                 String encodedPassword = encoder.encode(passwordCell.getStringCellValue());
                 admin.setPassword(encodedPassword);
-
                 admin.setRole("ADMIN");
 
                 adminList.add(admin);
@@ -241,11 +253,13 @@ public class ExportSuperAdmin {
 
         if (!adminList.isEmpty()) {
             adminRepository.saveAll(adminList);
-            System.out.println("Saving " + adminList.size() + " records to database.");
-        } else {
-            System.out.println("No records to save.");
+        }
+
+        if (!errorMessages.isEmpty()) {
+            throw new RuntimeException(String.join(", ", errorMessages));
         }
     }
+
 
     public void templateExcelAdmin(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();

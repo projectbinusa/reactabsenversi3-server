@@ -126,13 +126,26 @@ public class AdminImpl implements AdminService {
         return reset_password;
     }
 
+    @Override
+    public Optional<Admin> findByEmail(String email) {
+        return adminRepository.findByEmail(email);
+    }
 
     @Override
-    public Admin RegisterBySuperAdmin(Long idSuperAdmin , Admin admin){
+    public Optional<Admin> findByUsername(String username) {
+        return adminRepository.findByUsername(username);
+    }
+
+
+    @Override
+    public Admin RegisterBySuperAdmin(Long idSuperAdmin, Admin admin) {
         Optional<SuperAdmin> superAdminOptional = superAdminRepository.findById(idSuperAdmin);
         if (superAdminOptional.isPresent()) {
             if (adminRepository.existsByEmail(admin.getEmail())) {
                 throw new NotFoundException("Email sudah digunakan");
+            }
+            if (adminRepository.existsByUsername(admin.getUsername())) {
+                throw new NotFoundException("Username sudah digunakan");
             }
             SuperAdmin superAdmin = superAdminOptional.get();
 
@@ -149,6 +162,9 @@ public class AdminImpl implements AdminService {
     public Admin RegisterAdmin(Admin admin) {
         if (adminRepository.existsByEmail(admin.getEmail())) {
             throw new NotFoundException("Email sudah digunakan");
+        }
+        if (adminRepository.existsByUsername(admin.getUsername())) {
+            throw new NotFoundException("Username sudah digunakan");
         }
         admin.setUsername(admin.getUsername());
         admin.setPassword(encoder.encode(admin.getPassword()));

@@ -16,18 +16,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
-    public ResponseEntity<ErrorResponse> notFound(ChangeSetPersister.NotFoundException notFoundException) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(notFoundException.getMessage()));
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> badRequest(BadRequestException badRequestException) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(badRequestException.getMessage()));
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(InternalErrorException.class)
-    public ResponseEntity<ErrorResponse> internalError(InternalErrorException internalErrorException) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(internalErrorException.getMessage()));
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleInternalErrorException(InternalErrorException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ex.getMessage()));
     }
 }
+

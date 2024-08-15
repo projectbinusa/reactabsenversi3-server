@@ -6,6 +6,8 @@ import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.OrangTuaRepository;
+import com.example.absensireact.repository.SuperAdminRepository;
+import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.service.OrangTuaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +36,12 @@ public class OrangTuaImpl implements OrangTuaService {
     private AdminRepository adminrepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
+
+    @Autowired
     PasswordEncoder encoder;
 
     @Override
@@ -55,6 +63,14 @@ public class OrangTuaImpl implements OrangTuaService {
     public OrangTua tambahOrangTua(Long idAdmin, OrangTua orangTua) {
         Optional<Admin> adminOptional = adminrepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
+            boolean emailExistsInAdmin = adminrepository.existsByEmail(orangTua.getEmail());
+            boolean emailExistsInSuperAdmin = superAdminRepository.existsByEmail(orangTua.getEmail());
+            boolean emailExistsInUser = userRepository.existsByEmail(orangTua.getEmail());
+            boolean emailExistsInOrangTua = orangTuaRepository.existsByEmail(orangTua.getEmail());
+
+            if (emailExistsInAdmin || emailExistsInSuperAdmin || emailExistsInUser || emailExistsInOrangTua) {
+                throw  new NotFoundException("email : " + orangTua.getEmail() + " telah terdaftar");
+            }
             Admin admin = adminOptional.get();
             orangTua.setAdmin(admin);
             orangTua.setEmail(orangTua.getEmail());

@@ -111,6 +111,12 @@ public class OrganisasiImpl implements OrganisasiService {
             throw new IllegalStateException("Admin sudah memiliki organisasi");
         }
 
+        // Cek apakah nama organisasi sudah ada
+        boolean nameExisting = organisasiRepository.existsByNamaOrganisasi(organisasi.getNamaOrganisasi());
+        if (nameExisting) {
+            throw new IllegalStateException("Organisasi dengan nama : " + organisasi.getNamaOrganisasi() + " sudah terdaftar");
+        }
+
         organisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
         organisasi.setAlamat(organisasi.getAlamat());
         organisasi.setKecamatan(organisasi.getKecamatan());
@@ -121,7 +127,6 @@ public class OrganisasiImpl implements OrganisasiService {
         organisasi.setAdmin(admin);
 
         return organisasiRepository.save(organisasi);
-
     }
 
     @Override
@@ -138,6 +143,12 @@ public class OrganisasiImpl implements OrganisasiService {
             throw new IllegalStateException("Admin sudah memiliki organisasi");
         }
 
+        // Cek apakah nama organisasi sudah ada
+        boolean nameExisting = organisasiRepository.existsByNamaOrganisasi(organisasi.getNamaOrganisasi());
+        if (nameExisting) {
+            throw new IllegalStateException("Organisasi dengan nama : " + organisasi.getNamaOrganisasi() + " sudah terdaftar");
+        }
+
         organisasi.setAdmin(admin);
         organisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
         organisasi.setAlamat(organisasi.getAlamat());
@@ -148,6 +159,7 @@ public class OrganisasiImpl implements OrganisasiService {
         organisasi.setEmailOrganisasi(organisasi.getEmailOrganisasi());
         return organisasiRepository.save(organisasi);
     }
+
 
     @Override
     public void saveOrganisasiImage(Long idAdmin, Long organisasiId, MultipartFile image) throws IOException {

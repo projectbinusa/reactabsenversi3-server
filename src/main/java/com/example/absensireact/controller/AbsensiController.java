@@ -240,6 +240,15 @@ public class AbsensiController {
             return ResponseEntity.status(HttpStatus.OK).body("Pengguna belum melakukan absensi hari ini.");
         }
     }
+    @GetMapping("/absensi/checkIzin/{userId}")
+    public ResponseEntity<String> hasTakenLeave(@PathVariable Long userId) {
+        if (absensiService.hasTakenLeave(userId)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Pengguna sudah melakukan izin.");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Pengguna belum melakukan izin.");
+        }
+    }
+
     @GetMapping("/absensi/getAll")
     public ResponseEntity<List<Absensi>> getAllAbsensi() {
         List<Absensi> allAbsensi = absensiService.getAllAbsensi();

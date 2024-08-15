@@ -50,7 +50,7 @@ public class LemburPDF {
                 "<p>di tempat</p>" +
                 "<p>Dengan hormat,<br>Yang bertanda tangan di bawah ini:</p>" +
                 "<p>Nama: " + lembur.getUser().getUsername() + "</p>" +
-                "<p>Jabatan: " + lembur.getUser().getJabatan().getNamaJabatan() + "</p>" +
+                "<p>Jabatan: " + lembur.getUser().getStatus() + "</p>" +
                 "<p>Untuk melaksanakan lembur pada : " + tanggalLembur + "</p>" +
                 "<p>Keterangan Lembur : " + lembur.getKeteranganLembur() + "</p>" +
                 "<p>Demikian surat ini buat , untuk digunakan sebagaimana mestinya</p>" +

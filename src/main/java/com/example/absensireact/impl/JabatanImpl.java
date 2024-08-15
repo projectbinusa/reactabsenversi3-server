@@ -90,7 +90,7 @@ public class JabatanImpl implements JabatanService {
         try {
             List<User> users = userRepository.findByIdJabatan(idJabatan);
             for (User user : users) {
-                user.setJabatan(null);
+//                user.setJabatan(null);
                 userRepository.save(user);
             }
 

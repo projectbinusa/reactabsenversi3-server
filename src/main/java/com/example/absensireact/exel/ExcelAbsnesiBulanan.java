@@ -116,7 +116,7 @@ public class ExcelAbsnesiBulanan {
             for (Map.Entry<String, List<Absensi>> entry : userAbsensiMap.entrySet()) {
                 String userName = entry.getKey();
                 List<Absensi> userAbsensi = entry.getValue();
-                String position = userAbsensi.get(0).getUser().getJabatan().getNamaJabatan();
+                String position = userAbsensi.get(0).getUser().getStatus();
 
                 // Variables to count absences for each user
                 int userTotalLate = 0;

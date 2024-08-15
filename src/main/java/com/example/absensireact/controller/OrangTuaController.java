@@ -113,12 +113,18 @@ public class OrangTuaController {
     }
 
     @PostMapping("/import/data-orang-tua/{adminId}")
-    public ResponseEntity<String> importOrangTua(@PathVariable Long adminId, @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<?> importOrangTua(@RequestParam("adminId") Long adminId, @RequestPart("file") MultipartFile file) {
         try {
-            importOrtu.importOrangTua(adminId, file);
-            return ResponseEntity.ok("Import berhasil!");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
+            List<String> errorMessages = importOrtu.importOrangTua(adminId, file);
+
+            if (!errorMessages.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
+            }
+
+            return ResponseEntity.ok("Successfully imported data.");
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing file: " + e.getMessage());
         }
     }
 

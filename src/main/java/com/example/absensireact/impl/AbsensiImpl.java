@@ -245,6 +245,12 @@ public class AbsensiImpl implements AbsensiService {
     }
 
     @Override
+    public boolean hasTakenLeave(Long userId) {
+        Optional<Absensi> izin = absensiRepository.findByUserIdAndKeteranganIzin(userId);
+        return izin.isPresent();
+    }
+
+    @Override
     public Absensi izin(Long userId, String keteranganIzin) {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {

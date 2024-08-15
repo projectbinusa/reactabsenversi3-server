@@ -35,9 +35,8 @@ public class User {
     @JoinColumn(name = "idOrganisasi")
     private Organisasi organisasi;
 
-    @ManyToOne
-    @JoinColumn(name = "idJabatan")
-    private Jabatan jabatan;
+    @Column(name = "Status")
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "idShift")
@@ -66,7 +65,7 @@ public class User {
 
     }
 
-    public User(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, OrangTua orangTua, Jabatan jabatan, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
+    public User(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, OrangTua orangTua, String status, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -75,13 +74,13 @@ public class User {
         this.startKerja = startKerja;
         this.statusKerja = statusKerja;
         this.organisasi = organisasi;
-        this.jabatan = jabatan;
         this.shift = shift;
         this.admin = admin;
         this.orangTua = orangTua;
         this.kelas = kelas;
         this.superAdmin = superAdmin;
         this.role = role;
+        this.status = status;
     }
 
     public Long getId() {
@@ -150,14 +149,6 @@ public class User {
         this.organisasi = organisasi;
     }
 
-    public Jabatan getJabatan() {
-        return jabatan;
-    }
-
-    public void setJabatan(Jabatan jabatan) {
-        this.jabatan = jabatan;
-    }
-
     public Shift getShift() {
         return shift;
     }
@@ -204,5 +195,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -75,6 +75,11 @@ public class ShiftImpl implements ShiftService {
     public Shift PostShift(Long idAdmin, Shift shift) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
+            boolean namaShiftExisting = shiftRepository.existsByNamaShift(shift.getNamaShift());
+            if (namaShiftExisting) {
+                throw new IllegalStateException("Shift dengan nama : " + shift.getNamaShift() + " sudah terdaftar");
+
+            }
             Admin admin = adminOptional.get();
             shift.setAdmin(admin);
             shift.setNamaShift(shift.getNamaShift());

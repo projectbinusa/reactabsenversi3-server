@@ -91,6 +91,9 @@ public class OrangTuaImpl implements OrangTuaService {
         Admin admin = adminrepository.findById(idAdmin)
                 .orElseThrow(() -> new NotFoundException("Admin dengan id: " + idAdmin + " tidak ditemukan"));
         orangTua.setAdmin(admin);
+        if (orangTuaRepository.existsByNama(updateOrangTua.getNama())) {
+            throw new BadRequestException("Username " + updateOrangTua.getNama() + " telah digunakan");
+        }
         orangTua.setNama(updateOrangTua.getNama());
         orangTua.setEmail(updateOrangTua.getEmail());
         orangTua.setImageOrtu(updateOrangTua.getImageOrtu());

@@ -609,7 +609,14 @@ public class UserImpl implements UserService {
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan");
         }
+
         User user = userOptional.get();
+        boolean usernameExisting = userRepository.existsByUsername(user.getUsername());
+
+        if (usernameExisting ) {
+            throw new IllegalStateException("Username dengan nama : " + user.getUsername() +  " sudah terdaftar");
+
+        }
 //        user.setJabatan(jabatanRepository.findById(idJabatan)
 //                .orElseThrow(() -> new NotFoundException("id jabatan tidak ditemukan")));
         user.setShift(shiftRepository.findById(idShift)
@@ -621,7 +628,9 @@ public class UserImpl implements UserService {
         if (updatedUserDTO.getUsername() != null) {
             user.setUsername(updatedUserDTO.getUsername());
         }
-
+        if (updatedUserDTO.getEmail() != null) {
+            user.setEmail(updatedUserDTO.getEmail());
+        }
         return userRepository.save(user);
     }
 
@@ -652,6 +661,12 @@ public class UserImpl implements UserService {
         if (userOptional.isEmpty()) {
             throw new NotFoundException("Id User tidak ditemukan :" + id);
         }
+        boolean usernameExisting = userRepository.existsByUsername(updateUser.getUsername());
+        if (usernameExisting) {
+            throw new IllegalStateException("Username dengan nama : " + updateUser.getUsername() +  " sudah terdaftar");
+
+        }
+
         User user = userOptional.get();
         user.setEmail(updateUser.getEmail());
         user.setUsername(updateUser.getUsername());
@@ -667,6 +682,11 @@ public class UserImpl implements UserService {
             throw new NotFoundException("id user tidak ditenukan : " + id);
         }
         User user = userOptional.get();
+        boolean usernameExisting = userRepository.existsByUsername(updateUser.getUsername());
+        if ( usernameExisting) {
+            throw new IllegalStateException("Username dengan nama : " + updateUser.getUsername() + " sudah terdaftar");
+
+        }
         user.setUsername(updateUser.getUsername());
 //        user.setJabatan(jabatanRepository.findById(idJabatan)
 //                .orElseThrow(() -> new NotFoundException("id Jabatan tidak ditemukan :" + idJabatan)));
@@ -772,6 +792,11 @@ public class UserImpl implements UserService {
     public User edit(Long id, User user) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
+
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new BadRequestException("Username " + user.getUsername() + " telah digunakan");
+        }
+
         existingUser.setUsername(user.getUsername());
         existingUser.setOrganisasi(user.getOrganisasi());
         existingUser.setEmail(user.getEmail());

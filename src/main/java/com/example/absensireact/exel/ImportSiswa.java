@@ -103,6 +103,67 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
     workbook.close();
 }
 
+//    @Transactional
+public void importUserperKelas(MultipartFile file, Admin admin, Kelas kelas) throws IOException {
+    Workbook workbook = new XSSFWorkbook(file.getInputStream());
+    Sheet sheet = workbook.getSheetAt(0);
+
+    List<User> userList = new ArrayList<>();
+    for (int i = 3; i <= sheet.getLastRowNum(); i++) {
+        Row row = sheet.getRow(i);
+        if (row != null) {
+            User user = new User();
+
+            Cell namaUserCell = row.getCell(1);
+            Cell emailCell = row.getCell(2);
+            Cell passwordCell = row.getCell(3);
+            Cell orangTuaCell = row.getCell(4);
+            Cell shiftCell = row.getCell(5);
+            Cell organisasiCell = row.getCell(6);
+
+            if (organisasiCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
+                String namaOrganisasi = getCellValue(organisasiCell);
+                String namaShift = getCellValue(shiftCell);
+                String namaOrangtua = getCellValue(orangTuaCell);
+
+                Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
+                        .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
+                Shift shift = shiftRepository.findByShift(namaShift)
+                        .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
+                OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangtua)
+                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangtua + " tidak ditemukan"));
+
+                user.setOrganisasi(organisasi);
+                user.setShift(shift);
+                user.setOrangTua(orangTua);
+                user.setUsername(getCellValue(namaUserCell));
+                user.setEmail(getCellValue(emailCell));
+
+                // Cek apakah email atau username sudah terdaftar
+                if (siswaRepository.existsByEmail(user.getEmail())) {
+                    workbook.close();
+                    throw new BadRequestException("Email " + user.getEmail() + " telah digunakan");
+                }
+                if (siswaRepository.existsByUsername(user.getUsername())) {
+                    workbook.close();
+                    throw new BadRequestException("Username " + user.getUsername() + " telah digunakan");
+                }
+
+                String encodedPassword = encoder.encode(passwordCell.getStringCellValue());
+                user.setPassword(encodedPassword);
+            }
+
+            user.setAdmin(admin);
+            user.setKelas(kelas);
+            user.setStatusKerja("Siswa");
+            userList.add(user);
+        }
+    }
+
+    siswaRepository.saveAll(userList);
+    workbook.close();
+}
+
 
 
     private String getCellValue(Cell cell) {

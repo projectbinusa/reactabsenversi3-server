@@ -18,6 +18,7 @@ public interface OrangTuaRepository extends JpaRepository<OrangTua, Long> {
     Optional<OrangTua> findByEmail (String email);
 
     Boolean existsByEmail(String email);
+    Boolean existsByNama(String nama);
 
     @Query(value = "SELECT * FROM orang_tua WHERE nama = :username", nativeQuery = true)
     Optional<OrangTua> findByUsername (String username);

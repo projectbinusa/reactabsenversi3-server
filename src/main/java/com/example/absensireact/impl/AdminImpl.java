@@ -193,6 +193,9 @@ public class AdminImpl implements AdminService {
 
         SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
                 .orElseThrow(() -> new NotFoundException("SuperAdmin dengan id: " + idSuperAdmin + " tidak ditemukan"));
+        if (adminRepository.existsByUsername(admin.getUsername())) {
+            throw new BadRequestException("Username " + admin.getUsername() + " telah digunakan");
+        }
         existingUser.setUsername(admin.getUsername());
         existingUser.setEmail(admin.getEmail());
         existingUser.setSuperAdmin(superAdmin);
@@ -242,6 +245,10 @@ public class AdminImpl implements AdminService {
         if (adminOptional.isEmpty()) {
             throw new NotFoundException("Id admin tidak ditemukan :" + id);
         }
+        if (adminRepository.existsByUsername(updateadmin.getUsername())) {
+            throw new BadRequestException("Username " + updateadmin.getUsername() + " telah digunakan");
+        }
+
         Admin admin = adminOptional.get();
         admin.setEmail(updateadmin.getEmail());
         admin.setUsername(updateadmin.getUsername());

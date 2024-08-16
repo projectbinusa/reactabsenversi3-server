@@ -30,11 +30,15 @@ public interface UserService {
 
     List<User> getAllByAdmin(Long idAdmin);
 
+    List<User> getAllByAdminandKelas(Long idAdmin, Long KlasId);
+
     List<User> getAllBySuperAdmin(Long idSuperAdmin);
 
     List<User> getAllByShift(Long idShift);
 
     User Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua);
+
+    User TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas);
 
 
     User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO);

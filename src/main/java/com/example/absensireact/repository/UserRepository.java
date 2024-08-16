@@ -30,6 +30,9 @@ public interface UserRepository extends JpaRepository<User , Long> {
     Boolean existsByEmail(String email);
     @Query(value = "SELECT * FROM user WHERE id_admin = :idAdmin", nativeQuery = true)
     List<User> findByIdAdmin (Long idAdmin);
+
+    @Query(value = "SELECT * FROM user WHERE id_admin = :idAdmin AND id_kelas = :kelasId", nativeQuery = true)
+    List<User> findByIdAdminAndKelasId(Long idAdmin, Long kelasId);
     @Query(value = "SELECT * FROM user WHERE id_super_admin = :idSuperAdmin", nativeQuery = true)
     List<User> findByIdSuperAdmin (Long idSuperAdmin);
     @Query(value = "SELECT * FROM user WHERE username = :username", nativeQuery = true)

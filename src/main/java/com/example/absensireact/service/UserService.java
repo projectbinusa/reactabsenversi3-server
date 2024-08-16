@@ -50,7 +50,7 @@ public interface UserService {
 
     User ubahUsernamedanemail(Long id, User updateUser);
 
-    User EditUserBySuper(Long id, Long idShift, User updateUser);
+    User EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, User updateUser);
 
     List<User> GetAllKaryawanByIdAdmin(Long idAdmin);
 

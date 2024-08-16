@@ -272,8 +272,8 @@ public class AbsensiController {
         return absensiService.izin(userId, keteranganIzin);
     }
     @PutMapping("/absensi/izin-tengah-hari/{userId}")
-    public Absensi izinTengahHari(@PathVariable Long userId ,@RequestBody Map<String , String> body)  {
-        String keteranganPulangAwal = body.get("keteranganPulangAwal");
+    public Absensi izinTengahHari(@PathVariable Long userId ,@RequestBody Absensi keteranganPulangAwal)  {
+
         return absensiService.izinTengahHari(userId , keteranganPulangAwal );
     }
 

@@ -272,7 +272,7 @@ public class AbsensiImpl implements AbsensiService {
         }
     }
     @Override
-    public Absensi izinTengahHari(Long userId , String keterangaPulangAwal )   {
+    public Absensi izinTengahHari(Long userId , Absensi keterangaPulangAwal )   {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             Absensi absensi = existingAbsensi.get();
@@ -280,7 +280,7 @@ public class AbsensiImpl implements AbsensiService {
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
             String jamPulang = formatter.format(masuk);
             absensi.setJamPulang(jamPulang);
-            absensi.setKeteranganPulangAwal(keterangaPulangAwal);
+            absensi.setKeteranganPulangAwal(keterangaPulangAwal.getKeteranganPulangAwal());
             absensi.setStatusAbsen("Izin Tengah Hari");
             return absensiRepository.save(absensi);
         } else {

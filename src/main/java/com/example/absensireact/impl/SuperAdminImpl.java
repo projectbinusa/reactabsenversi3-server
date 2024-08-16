@@ -6,6 +6,7 @@ import com.example.absensireact.dto.ResetPassDTO;
 import com.example.absensireact.dto.VerifyCode;
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
+import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.Reset_Password;
 import com.example.absensireact.model.SuperAdmin;
@@ -568,6 +569,19 @@ public class SuperAdminImpl implements SuperAdminService {
         Optional<SuperAdmin> superoptional = superAdminRepository.findById(id);
         if (superoptional.isEmpty()) {
             throw new NotFoundException("Id super admin tidak ditemukan :" + id);
+        }
+        SuperAdmin existingSuperAdmin = superoptional.get();
+
+        // Check if the email is being used by another account
+        if (!existingSuperAdmin.getEmail().equals(updateadmin.getEmail()) &&
+                superAdminRepository.existsByEmail(updateadmin.getEmail())) {
+            throw new NotFoundException("Email sudah digunakan");
+        }
+
+        // Check if the username is being used by another account
+        if (!existingSuperAdmin.getUsername().equals(updateadmin.getUsername()) &&
+                superAdminRepository.existsByUsername(updateadmin.getUsername())) {
+            throw new NotFoundException("Username sudah digunakan");
         }
         SuperAdmin superAdmin = superoptional.get();
 

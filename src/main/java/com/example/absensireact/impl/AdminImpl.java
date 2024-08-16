@@ -188,6 +188,12 @@ public class AdminImpl implements AdminService {
 
     @Override
     public Admin edit(Long id, Long idSuperAdmin, Admin admin) {
+        if (adminRepository.existsByEmail(admin.getEmail())) {
+            throw new NotFoundException("Email sudah digunakan");
+        }
+        if (adminRepository.existsByUsername(admin.getUsername())) {
+            throw new NotFoundException("Username sudah digunakan");
+        }
         Admin existingUser = adminRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan : " + id));
 
@@ -237,16 +243,33 @@ public class AdminImpl implements AdminService {
 
 
     @Override
-    public Admin ubahUsernamedanemail(Long id ,Admin updateadmin){
+    public Admin ubahUsernamedanemail(Long id, Admin updateAdmin) {
+        // Retrieve the existing admin data
         Optional<Admin> adminOptional = adminRepository.findById(id);
         if (adminOptional.isEmpty()) {
-            throw new NotFoundException("Id admin tidak ditemukan :" + id);
+            throw new NotFoundException("Id admin tidak ditemukan: " + id);
         }
-        Admin admin = adminOptional.get();
-        admin.setEmail(updateadmin.getEmail());
-        admin.setUsername(updateadmin.getUsername());
-        return  adminRepository.save(admin);
+        Admin existingAdmin = adminOptional.get();
+
+        // Check if the email is being used by another account
+        if (!existingAdmin.getEmail().equals(updateAdmin.getEmail()) &&
+                adminRepository.existsByEmail(updateAdmin.getEmail())) {
+            throw new NotFoundException("Email sudah digunakan");
+        }
+
+        // Check if the username is being used by another account
+        if (!existingAdmin.getUsername().equals(updateAdmin.getUsername()) &&
+                adminRepository.existsByUsername(updateAdmin.getUsername())) {
+            throw new NotFoundException("Username sudah digunakan");
+        }
+
+        // Update the admin's email and username
+        existingAdmin.setEmail(updateAdmin.getEmail());
+        existingAdmin.setUsername(updateAdmin.getUsername());
+
+        return adminRepository.save(existingAdmin);
     }
+
 
     @Override
     public Admin putPasswordAdmin(PasswordDTO passwordDTO, Long id) {

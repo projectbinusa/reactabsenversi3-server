@@ -570,6 +570,16 @@ public class UserImpl implements UserService {
         List<User> userList = userRepository.findByIdAdmin(idAdmin);
         return userList;
     }
+
+    @Override
+    public List<User> getAllByAdminandKelas(Long idAdmin, Long KlasId) {
+        Admin admin = adminRepository.findById(idAdmin)
+                .orElseThrow(() -> new NotFoundException("id Admin tidak ditemukan: " + idAdmin));
+        Kelas kelas = kelasRepository.findById(KlasId)
+                .orElseThrow(() -> new NotFoundException("id Kelas tidak ditemukan: " + KlasId));
+        List<User> userList = userRepository.findByIdAdminAndKelasId(idAdmin, KlasId);
+        return userList;
+    }
     @Override
     public List<User> getAllBySuperAdmin(Long idSuperAdmin) {
         SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
@@ -721,6 +731,44 @@ public class UserImpl implements UserService {
         }
     }
 
+    @Override
+    public User TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas) {
+        Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
+        Optional<Kelas> kelasOptional = kelasRepository.findById(idKelas);
+        if (adminOptional.isPresent() || kelasOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            Kelas kelas = kelasOptional.get();
+
+            // Cek apakah email atau username sudah terdaftar
+            if (userRepository.existsByEmail(userDTO.getEmail())) {
+                throw new BadRequestException("Email " + userDTO.getEmail() + " telah digunakan");
+            }
+            if (userRepository.existsByUsername(userDTO.getUsername())) {
+                throw new BadRequestException("Username " + userDTO.getUsername() + " telah digunakan");
+            }
+
+            User user = new User();
+            user.setPassword(encoder.encode(userDTO.getPassword()));
+            user.setRole("USER");
+            user.setStatus("Siswa"); // Set status otomatis menjadi "Siswa"
+
+            user.setEmail(userDTO.getEmail());
+            user.setUsername(userDTO.getUsername());
+            user.setOrganisasi(organisasiRepository.findById(idOrganisasi)
+                    .orElseThrow(() -> new NotFoundException("Organisasi tidak ditemukan")));
+            user.setShift(shiftRepository.findById(idShift)
+                    .orElseThrow(() -> new NotFoundException("Shift tidak ditemukan")));
+            user.setOrangTua(orangTuaRepository.findById(idOrangTua)
+                    .orElseThrow(() -> new NotFoundException("id Orang Tua tidak ditemukan : " + idOrangTua)));
+            user.setStartKerja(new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(new Date()));
+            user.setAdmin(admin);
+            user.setKelas(kelas);
+
+            return userRepository.save(user);
+        } else {
+            throw new NotFoundException("Id Admin atau kelas tidak ditemukan");
+        }
+    }
 
 
     @Override

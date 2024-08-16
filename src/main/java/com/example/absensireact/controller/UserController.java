@@ -13,6 +13,7 @@ import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.model.User;
 import com.example.absensireact.repository.AdminRepository;
+import com.example.absensireact.repository.KelasRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
 import com.example.absensireact.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class UserController {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private KelasRepository kelasRepository;
 
     @Autowired
     private ImportSiswa importSiswa;
@@ -102,6 +106,23 @@ public class UserController {
             @RequestParam Long idShift) {
         try {
             User savedUser = userImpl.Tambahkaryawan(userDTO, idAdmin, idOrganisasi, idShift, idOrangTua);
+            return ResponseEntity.ok(savedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/user/tambahuser/byAdmin/{idAdmin}/byKelas")
+    public ResponseEntity<User> tambahUserKelas(
+            @RequestBody UserDTO userDTO,
+            @PathVariable Long idAdmin,
+            @RequestParam Long idOrganisasi,
+            @RequestParam Long idOrangTua,
+            @RequestParam Long idShift,
+            @RequestParam Long idKelas
+            ) {
+        try {
+            User savedUser = userImpl.TambahUserKelas(userDTO, idAdmin, idOrganisasi, idShift, idOrangTua, idKelas);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -280,6 +301,37 @@ public class UserController {
         }
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
     }
+
+
+    @GetMapping("/user/export-data-siswa/{idAdmin}/perkelas/{KlasId}")
+    public ResponseEntity<Void> exportDataSiswa(@PathVariable Long idAdmin, @PathVariable Long KlasId, HttpServletResponse response) {
+        try {
+            excelDataSiswa.exportDataSiswaperKelas(idAdmin, KlasId, response);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+//    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
+@PostMapping("/import/data-siswa/admin/{adminId}/kelas/{kelasId}")
+public ResponseEntity<String> importUserperKelas(@RequestPart("file") MultipartFile file, @PathVariable Long adminId, @PathVariable Long kelasId) {
+    return adminRepository.findById(adminId).map(admin ->
+            kelasRepository.findById(kelasId).map(kelas -> {
+                try {
+                    importSiswa.importUserperKelas(file, admin, kelas);
+                    return ResponseEntity.ok("Import berhasil!");
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
+                }
+            }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Kelas dengan ID " + kelasId + " tidak ditemukan"))
+    ).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body("Admin dengan ID " + adminId + " tidak ditemukan"));
+}
+
 
 
 }

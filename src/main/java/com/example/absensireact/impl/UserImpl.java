@@ -602,6 +602,11 @@ public class UserImpl implements UserService {
         return users;
     }
 
+    @Override
+    public User EditUserBySuper(Long id, Long idJabatan, Long idShift, User updateUser) {
+        return null;
+    }
+
 
     @Override
     public User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO) {
@@ -656,42 +661,51 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User ubahUsernamedanemail(Long id, User updateUser){
+    public User ubahUsernamedanemail(Long id, User updateUser) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
-            throw new NotFoundException("Id User tidak ditemukan :" + id);
-        }
-        boolean usernameExisting = userRepository.existsByUsername(updateUser.getUsername());
-        if (usernameExisting) {
-            throw new IllegalStateException("Username dengan nama : " + updateUser.getUsername() +  " sudah terdaftar");
-
+            throw new NotFoundException("Id User tidak ditemukan: " + id);
         }
 
         User user = userOptional.get();
+
+        // Cek apakah email sudah digunakan oleh user lain
+        Optional<User> userByEmail = userRepository.findByEmail(updateUser.getEmail());
+        if (userByEmail.isPresent() && !userByEmail.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Email sudah digunakan");
+        }
+
+        // Cek apakah username sudah digunakan oleh user lain
+        Optional<User> userByUsername = userRepository.findByUsername(updateUser.getUsername());
+        if (userByUsername.isPresent() && !userByUsername.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Username sudah digunakan");
+        }
+
         user.setEmail(updateUser.getEmail());
         user.setUsername(updateUser.getUsername());
-
 
         return userRepository.save(user);
     }
 
     @Override
-    public User EditUserBySuper (Long id , Long idJabatan , Long idShift , User updateUser ){
+    public User EditUserBySuper(Long id, Long idShift, User updateUser) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
-            throw new NotFoundException("id user tidak ditenukan : " + id);
+            throw new NotFoundException("id user tidak ditemukan: " + id);
         }
-        User user = userOptional.get();
-        boolean usernameExisting = userRepository.existsByUsername(updateUser.getUsername());
-        if ( usernameExisting) {
-            throw new IllegalStateException("Username dengan nama : " + updateUser.getUsername() + " sudah terdaftar");
 
+        User user = userOptional.get();
+
+        // Cek apakah username sudah digunakan oleh user lain
+        Optional<User> userByUsername = userRepository.findByUsername(updateUser.getUsername());
+        if (userByUsername.isPresent() && !userByUsername.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Username sudah digunakan");
         }
+
         user.setUsername(updateUser.getUsername());
-//        user.setJabatan(jabatanRepository.findById(idJabatan)
-//                .orElseThrow(() -> new NotFoundException("id Jabatan tidak ditemukan :" + idJabatan)));
         user.setShift(shiftRepository.findById(idShift)
-                .orElseThrow(() -> new NotFoundException("id Shift tidak ditemukan : " + idShift)));
+                .orElseThrow(() -> new NotFoundException("id Shift tidak ditemukan: " + idShift)));
+
         return userRepository.save(user);
     }
 

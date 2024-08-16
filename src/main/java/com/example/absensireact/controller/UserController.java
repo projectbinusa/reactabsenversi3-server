@@ -201,14 +201,17 @@ public class UserController {
     }
 
     @PutMapping("/user/editBYSuper/{id}")
-    public ResponseEntity<User> editUserBySuper(@PathVariable Long id,@RequestParam Long idJabatan , @RequestParam Long idShift ,@RequestBody  User user ) {
+    public ResponseEntity<User> editUserBySuper(@PathVariable Long id,
+                                                @RequestParam Long idShift,
+                                                @RequestBody User user) {
         try {
-            User updatedUser = userImpl.EditUserBySuper(id,idJabatan, idShift, user );
+            User updatedUser = userImpl.EditUserBySuper(id, idShift, user);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
 
     @PutMapping("/user/edit-kar/{id}")
     public ResponseEntity<User> editUser(

@@ -237,9 +237,15 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
     styleHeader.setBorderRight(BorderStyle.THIN);
     styleHeader.setBorderBottom(BorderStyle.THIN);
     styleHeader.setBorderLeft(BorderStyle.THIN);
+    styleHeader.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+    styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    Font headerFont = workbook.createFont();
+    headerFont.setBold(true);
+    headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
+    styleHeader.setFont(headerFont);
 
     CellStyle styleTitle = workbook.createCellStyle();
-    styleTitle.setAlignment(HorizontalAlignment.CENTER);
+    styleTitle.setAlignment(HorizontalAlignment.LEFT);  // Align title to the left
     styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
     Font titleFont = workbook.createFont();
     titleFont.setBold(true);
@@ -253,7 +259,6 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
     styleCenterNumber.setBorderBottom(BorderStyle.THIN);
     styleCenterNumber.setBorderLeft(BorderStyle.THIN);
 
-
     List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
 
     int rowNum = 0;
@@ -263,7 +268,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
     Cell titleCell = titleRow.createCell(0);
     titleCell.setCellValue("DATA KELAS");
     titleCell.setCellStyle(styleTitle);
-    sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 5)); // Merging cells for title
+    sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for title
     rowNum++;
 
     // Header row
@@ -290,8 +295,6 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         Cell cell2 = row.createCell(2);
         cell2.setCellValue(kelas.getOrganisasi().getNamaOrganisasi());
         cell2.setCellStyle(styleCenterNumber);
-
-
     }
 
     // Adjust column width
@@ -304,6 +307,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
     workbook.write(response.getOutputStream());
     workbook.close();
 }
+
 
 
     public void importKelas(MultipartFile file, Admin admin) throws IOException {
@@ -350,11 +354,11 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         Sheet sheet = workbook.createSheet("Template Kelas");
 
         CellStyle styleTitle = workbook.createCellStyle();
-        styleTitle.setAlignment(HorizontalAlignment.CENTER);
+        styleTitle.setAlignment(HorizontalAlignment.LEFT);
         styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
-        Font titleFont = workbook.createFont();
-        titleFont.setBold(true);
-        styleTitle.setFont(titleFont);
+//        Font titleFont = workbook.createFont();
+//        titleFont.setBold(true);
+//        styleTitle.setFont(titleFont);
 
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
@@ -363,6 +367,12 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
+        styleHeader.setFont(headerFont);
 
         int rowNum = 0;
 

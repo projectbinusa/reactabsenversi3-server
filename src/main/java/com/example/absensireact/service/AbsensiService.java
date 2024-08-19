@@ -45,7 +45,8 @@ public interface  AbsensiService {
 
     Absensi izin(Long userId, String keteranganIzin)  ;
 
-    Absensi izinTengahHari(Long userId, String keteranganPulangAwal)  ;
+
+    Absensi izinTengahHari(Long userId, Absensi keterangaPulangAwal);
 
     List<Absensi>getByStatusAbsen(Long userId, String statusAbsen);
 

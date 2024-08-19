@@ -320,6 +320,10 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
                 Cell organisasiCell = row.getCell(2);
 
                 if (namaKelasCell != null) {
+                    boolean namekelasExisting = kelasRepository.existsByNamaKelas(String.valueOf(namaKelasCell));
+                    if (namekelasExisting) {
+                        throw new NotFoundException("nama kelas sudah terdaftar");
+                    }
                     kelas.setNamaKelas(getCellValue(namaKelasCell));
                 }
 
@@ -328,7 +332,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
                     Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                             .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
                     kelas.setOrganisasi(organisasi);
-                    System.out.println("ID Organisasi yang di-set: " + organisasi.getId());
+//                    System.out.println("ID Organisasi yang di-set: " + organisasi.getId());
 
                 }
 

@@ -66,7 +66,7 @@ public class ExcelDataSiswa {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar"};
+        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar", "Kelas"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -91,6 +91,9 @@ public class ExcelDataSiswa {
 
             row.createCell(4).setCellValue(siswa.getStatusKerja());
             row.getCell(4).setCellStyle(styleCenter);
+
+            row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas());
+            row.getCell(5).setCellStyle(styleCenter);
         }
 
         // Adjust column width

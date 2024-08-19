@@ -63,18 +63,22 @@ public class KelasImpl implements KelasService {
     }
 
     @Override
-    public Kelas tambahKelas(Kelas kelas, Long idOrganisasi, Long idAdmin){
+    public Kelas tambahKelas(Kelas kelas, Long idOrganisasi, Long idAdmin) {
         Organisasi organisasi = organisasiRepository.findById(idOrganisasi)
-                        .orElseThrow(() -> new NotFoundException("organisasi tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Organisasi tidak ditemukan"));
         Admin admin = adminRepository.findById(idAdmin)
-                        .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("ID admin tidak ditemukan"));
+
+        Optional<Kelas> existingKelas = kelasRepository.findByNamaKelasAndAdmin(kelas.getNamaKelas(), admin);
+        if (existingKelas.isPresent()) {
+            throw new NotFoundException("Kelas dengan nama yang sama sudah ada di bawah admin ini");
+        }
 
         kelas.setOrganisasi(organisasi);
         kelas.setAdmin(admin);
         kelas.setNamaKelas(kelas.getNamaKelas());
 
-         return kelasRepository.save(kelas);
-
+        return kelasRepository.save(kelas);
     }
 
     @Override

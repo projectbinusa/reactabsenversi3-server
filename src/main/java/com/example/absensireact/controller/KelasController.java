@@ -41,7 +41,7 @@ public class KelasController {
         return ResponseEntity.ok(kelasList);
     }
 
-    @GetMapping("/getALlByAdmin/{idAdmin}")
+    @GetMapping("/getAllByAdmin/{idAdmin}")
     public ResponseEntity<List<Kelas>> getALlByAdmin(@PathVariable Long idAdmin) {
         List<Kelas> kelasList =  kelasService.getAllByIdAdmin(idAdmin);
         return ResponseEntity.ok(kelasList);

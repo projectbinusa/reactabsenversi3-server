@@ -44,26 +44,26 @@ public class AuthService  {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(username);
-        if (userOptional.isPresent()) {
+        if (userOptional.isPresent() && userOptional.get().getEmail().equals(username)) {
             return UserDetail.buidUser(userOptional.get());
         }
 
         Optional<Admin> adminOptional = adminRepository.findByEmail(username);
-        if (adminOptional.isPresent()) {
+        if (adminOptional.isPresent() && adminOptional.get().getEmail().equals(username)) {
             return AdminDetail.buildAdmin(adminOptional.get());
         }
 
         Optional<SuperAdmin> superAdminOptional = superAdminRepository.findByEmail(username);
-        if (superAdminOptional.isPresent()) {
+        if (superAdminOptional.isPresent() && superAdminOptional.get().getEmail().equals(username)) {
             return SuperAdminDetail.buildSuperAdmin(superAdminOptional.get());
         }
 
         Optional<OrangTua> orangTuaOptional = orangTuaRepository.findByEmail(username);
-        if (orangTuaOptional.isPresent()) {
+        if (orangTuaOptional.isPresent() && orangTuaOptional.get().getEmail().equals(username)) {
             return OrangTuaDetail.buildOrangTua(orangTuaOptional.get());
         }
 
-        throw new UsernameNotFoundException("User not found with username3: " + username);
+        throw new UsernameNotFoundException("User not found with username: " + username);
     }
 
 
@@ -71,6 +71,7 @@ public class AuthService  {
         String email = loginRequest.getEmail();
         UserDetails userDetails = loadUserByUsername(email);
 
+        // Password is checked without altering the email case
         if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
             throw new BadCredentialsException("Email atau password yang Anda masukkan salah");
         }
@@ -83,5 +84,4 @@ public class AuthService  {
         response.put("token", token);
         return response;
     }
-
 }

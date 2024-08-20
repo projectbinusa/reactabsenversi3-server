@@ -102,6 +102,9 @@ public class ExcelOrtu {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Template Excel Wali Murid");
 
+        // Deklarasi header
+        String[] headers = {"No", "Nama Wali Murid", "Email", "Password"};
+
         // Font and cell styles for header
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
@@ -118,19 +121,37 @@ public class ExcelOrtu {
         headerFont.setColor(IndexedColors.WHITE.getIndex());
         styleHeader.setFont(headerFont);
 
+        // Catatan di atas header
+        Row noteRow = sheet.createRow(0);
+        Cell noteCell = noteRow.createCell(0);
+        noteCell.setCellValue("Catatan: Jangan berikan spasi pada awal kata saat mengisi data.");
+
+        // Menggunakan wrap text untuk catatan
+        CellStyle noteStyle = workbook.createCellStyle();
+        noteStyle.setAlignment(HorizontalAlignment.LEFT);
+        noteStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        noteStyle.setWrapText(true); // Mengaktifkan wrap text
+        noteCell.setCellStyle(noteStyle);
+
+        // Mengatur lebar kolom pertama agar cukup untuk catatan
+        sheet.setColumnWidth(0, 15000); // Atur lebar kolom pertama agar catatan terlihat jelas
+
+        // Merge cells for the note
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, headers.length - 1));
+
         // Header row
-        Row headerRow = sheet.createRow(0);
-        String[] headers = {"No", "Nama Wali Murid", "Email", "Password"};
+        Row headerRow = sheet.createRow(1);
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styleHeader);
         }
 
-        // Adjust column width
-        for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        // Adjust column width untuk memperbesar kolom
+        sheet.setColumnWidth(0, 3000);  // No
+        sheet.setColumnWidth(1, 10000); // Nama Wali Murid
+        sheet.setColumnWidth(2, 10000); // Email
+        sheet.setColumnWidth(3, 8000);  // Password
 
         // Set response headers and write workbook
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -138,5 +159,6 @@ public class ExcelOrtu {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 
 }

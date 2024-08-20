@@ -356,9 +356,9 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         CellStyle styleTitle = workbook.createCellStyle();
         styleTitle.setAlignment(HorizontalAlignment.LEFT);
         styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
-//        Font titleFont = workbook.createFont();
-//        titleFont.setBold(true);
-//        styleTitle.setFont(titleFont);
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        styleTitle.setFont(titleFont);
 
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
@@ -374,6 +374,10 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
         styleHeader.setFont(headerFont);
 
+        CellStyle styleNote = workbook.createCellStyle();
+        styleNote.setAlignment(HorizontalAlignment.LEFT);
+        styleNote.setVerticalAlignment(VerticalAlignment.CENTER);
+
         int rowNum = 0;
 
         // Title row
@@ -382,6 +386,14 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         titleCell.setCellValue("DATA KELAS");
         titleCell.setCellStyle(styleTitle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for title
+        rowNum++;
+
+        // Note row
+        Row noteRow = sheet.createRow(rowNum++);
+        Cell noteCell = noteRow.createCell(0);
+        noteCell.setCellValue("Catatan: Jangan berikan spasi pada awal kata saat mengisi data.");
+        noteCell.setCellStyle(styleNote);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for note
         rowNum++;
 
         // Header row
@@ -393,10 +405,10 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
             cell.setCellStyle(styleHeader);
         }
 
-        // Adjust column width
-        for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        // Adjust column width for header and note
+        sheet.setColumnWidth(0, 4000); // Adjust the width of the "No" column
+        sheet.setColumnWidth(1, 8000); // Adjust the width of the "Nama Kelas" column
+        sheet.setColumnWidth(2, 8000); // Adjust the width of the "Organisasi" column
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=TemplateKelas.xlsx");
@@ -407,9 +419,6 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
 
         workbook.close();
     }
-
-
-
 
     private String getCellValue(Cell cell) {
         switch (cell.getCellType()) {

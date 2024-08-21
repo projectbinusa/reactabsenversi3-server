@@ -41,6 +41,9 @@ public class ImportSiswa {
     private OrganisasiRepository organisasiRepository;
 
     @Autowired
+    private KelasRepository kelasRepository;
+
+    @Autowired
     PasswordEncoder encoder;
 
 //    @Transactional
@@ -60,20 +63,25 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
             Cell orangTuaCell = row.getCell(4);
             Cell shiftCell = row.getCell(5);
             Cell organisasiCell = row.getCell(6);
+            Cell kelasCell = row.getCell(7);
 
-            if (organisasiCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
+            if (kelasCell != null || organisasiCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
                 String namaOrganisasi = getCellValue(organisasiCell);
+                String namaKelas = getCellValue(kelasCell);
                 String namaShift = getCellValue(shiftCell);
                 String namaOrangtua = getCellValue(orangTuaCell);
 
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
+                Kelas kelas = kelasRepository.findByNamaKelas(namaKelas)
+                        .orElseThrow(() -> new NotFoundException("Kelas dengan nama " + namaKelas + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
                 OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangtua)
                         .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangtua + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
+                user.setKelas(kelas);
                 user.setShift(shift);
                 user.setOrangTua(orangTua);
                 user.setUsername(getCellValue(namaUserCell));

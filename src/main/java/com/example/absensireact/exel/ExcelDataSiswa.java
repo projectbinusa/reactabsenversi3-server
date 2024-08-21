@@ -214,6 +214,8 @@ public class ExcelDataSiswa {
         styleHeader.setBorderRight(BorderStyle.THIN);
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         CellStyle styleNote = workbook.createCellStyle();
         styleNote.setAlignment(HorizontalAlignment.LEFT);

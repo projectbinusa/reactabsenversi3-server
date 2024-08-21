@@ -229,7 +229,7 @@ public class ExcelDataSiswa {
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA Siswa");
         titleCell.setCellStyle(styleTitle);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 6)); // Merging cells for title
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7)); // Adjusted for new "Kelas" column
         rowNum++;
 
         // Note row
@@ -237,12 +237,12 @@ public class ExcelDataSiswa {
         Cell noteCell = noteRow.createCell(0);
         noteCell.setCellValue("Catatan: Jangan berikan spasi pada awal kata saat mengisi data.");
         noteCell.setCellStyle(styleNote);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 6)); // Merging cells for note
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7)); // Adjusted for new "Kelas" column
         rowNum++;
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Siswa","Email", "Password", "Nama Wali Murid", "Nama Waktu Pembelajaran", "Nama Organisasi"};
+        String[] headers = {"No", "Nama Siswa", "Email", "Password", "Nama Wali Murid", "Nama Waktu Pembelajaran", "Nama Organisasi", "Kelas"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -263,5 +263,6 @@ public class ExcelDataSiswa {
 
         workbook.close();
     }
+
 
 }

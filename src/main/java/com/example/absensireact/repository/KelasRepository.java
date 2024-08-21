@@ -2,6 +2,7 @@ package com.example.absensireact.repository;
 
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Kelas;
+import com.example.absensireact.model.Organisasi;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,6 +22,9 @@ public interface KelasRepository extends JpaRepository<Kelas ,Long> {
     Optional<Kelas> findByNamaKelasAndAdmin(String namaKelas, Admin admin);
 
     Boolean existsByNamaKelas (String namaKelas);
+
+    @Query(value = "SELECT * FROM kelas WHERE nama_kelas = :namaKelas" , nativeQuery = true)
+    Optional<Kelas> findByNamaKelas(String namaKelas);
 
 
 }

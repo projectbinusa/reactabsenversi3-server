@@ -27,7 +27,7 @@ public class ExcelOrtu {
         fontWhite.setColor(IndexedColors.WHITE.getIndex());
 
         CellStyle styleHeader = workbook.createCellStyle();
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setAlignment(HorizontalAlignment.LEFT); // Diubah menjadi kiri
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
@@ -40,13 +40,13 @@ public class ExcelOrtu {
         headerFont.setColor(IndexedColors.WHITE.getIndex());
         styleHeader.setFont(headerFont);
 
-        CellStyle styleCenter = workbook.createCellStyle();
-        styleCenter.setAlignment(HorizontalAlignment.CENTER);
-        styleCenter.setVerticalAlignment(VerticalAlignment.CENTER);
-        styleCenter.setBorderTop(BorderStyle.THIN);
-        styleCenter.setBorderRight(BorderStyle.THIN);
-        styleCenter.setBorderBottom(BorderStyle.THIN);
-        styleCenter.setBorderLeft(BorderStyle.THIN);
+        CellStyle styleLeft = workbook.createCellStyle(); // Mengubah nama menjadi styleLeft
+        styleLeft.setAlignment(HorizontalAlignment.LEFT); // Diubah menjadi kiri
+        styleLeft.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleLeft.setBorderTop(BorderStyle.THIN);
+        styleLeft.setBorderRight(BorderStyle.THIN);
+        styleLeft.setBorderBottom(BorderStyle.THIN);
+        styleLeft.setBorderLeft(BorderStyle.THIN);
 
         // Fetch data from service
         List<OrangTua> orangTuaList = orangTuaService.getAllByAdmin(idAdmin);
@@ -77,13 +77,13 @@ public class ExcelOrtu {
         for (OrangTua orangTua : orangTuaList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(no++);
-            row.getCell(0).setCellStyle(styleCenter);
+            row.getCell(0).setCellStyle(styleLeft); // Menggunakan styleLeft
 
             row.createCell(1).setCellValue(orangTua.getEmail());
-            row.getCell(1).setCellStyle(styleCenter);
+            row.getCell(1).setCellStyle(styleLeft); // Menggunakan styleLeft
 
             row.createCell(2).setCellValue(orangTua.getNama());
-            row.getCell(2).setCellStyle(styleCenter);
+            row.getCell(2).setCellStyle(styleLeft); // Menggunakan styleLeft
         }
 
         // Adjust column width
@@ -98,6 +98,7 @@ public class ExcelOrtu {
     }
 
 
+
     public void templateExcelWaliMurid(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Template Excel Wali Murid");
@@ -107,7 +108,7 @@ public class ExcelOrtu {
 
         // Font and cell styles for header
         CellStyle styleHeader = workbook.createCellStyle();
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setAlignment(HorizontalAlignment.LEFT);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);

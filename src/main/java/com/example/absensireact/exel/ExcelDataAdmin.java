@@ -231,7 +231,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
 
     // Cell styles
     CellStyle styleHeader = workbook.createCellStyle();
-    styleHeader.setAlignment(HorizontalAlignment.CENTER);
+    styleHeader.setAlignment(HorizontalAlignment.LEFT);  // Align header to the left
     styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
     styleHeader.setBorderTop(BorderStyle.THIN);
     styleHeader.setBorderRight(BorderStyle.THIN);
@@ -251,13 +251,13 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
     titleFont.setBold(true);
     styleTitle.setFont(titleFont);
 
-    CellStyle styleCenterNumber = workbook.createCellStyle();
-    styleCenterNumber.setAlignment(HorizontalAlignment.CENTER);
-    styleCenterNumber.setVerticalAlignment(VerticalAlignment.CENTER);
-    styleCenterNumber.setBorderTop(BorderStyle.THIN);
-    styleCenterNumber.setBorderRight(BorderStyle.THIN);
-    styleCenterNumber.setBorderBottom(BorderStyle.THIN);
-    styleCenterNumber.setBorderLeft(BorderStyle.THIN);
+    CellStyle styleLeftAlign = workbook.createCellStyle();
+    styleLeftAlign.setAlignment(HorizontalAlignment.LEFT);  // Align data to the left
+    styleLeftAlign.setVerticalAlignment(VerticalAlignment.CENTER);
+    styleLeftAlign.setBorderTop(BorderStyle.THIN);
+    styleLeftAlign.setBorderRight(BorderStyle.THIN);
+    styleLeftAlign.setBorderBottom(BorderStyle.THIN);
+    styleLeftAlign.setBorderLeft(BorderStyle.THIN);
 
     List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
 
@@ -286,15 +286,15 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         Row row = sheet.createRow(rowNum++);
         Cell cell0 = row.createCell(0);
         cell0.setCellValue(userRowNum++);
-        cell0.setCellStyle(styleCenterNumber); // Use the centered number style
+        cell0.setCellStyle(styleLeftAlign); // Use the left-aligned style
 
         Cell cell1 = row.createCell(1);
         cell1.setCellValue(kelas.getNamaKelas());
-        cell1.setCellStyle(styleCenterNumber);
+        cell1.setCellStyle(styleLeftAlign);
 
         Cell cell2 = row.createCell(2);
         cell2.setCellValue(kelas.getOrganisasi().getNamaOrganisasi());
-        cell2.setCellStyle(styleCenterNumber);
+        cell2.setCellStyle(styleLeftAlign);
     }
 
     // Adjust column width
@@ -307,6 +307,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
     workbook.write(response.getOutputStream());
     workbook.close();
 }
+
 
 
 
@@ -361,7 +362,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         styleTitle.setFont(titleFont);
 
         CellStyle styleHeader = workbook.createCellStyle();
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setAlignment(HorizontalAlignment.LEFT);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);

@@ -119,12 +119,13 @@ public class AbsensiImpl implements AbsensiService {
     }
 
     @Override
-    public List<Absensi> getAbsensiByBulanSimpel(int month) {
-        logger.info("Fetching absensi for month: " + month);
+    public List<Absensi> getAbsensiByBulanSimpel(int month, Long idAdmin) {
+        Admin admin = adminRepository.findById(idAdmin)
+                        .orElseThrow(() -> new NotFoundException(" id admin tidak ditemukaan : " + idAdmin));
 
         List<Absensi> absensiList = absensiRepository.findByMonth(month);
 
-        logger.info("Number of records found: " + absensiList.size());
+//        logger.info("Number of records found: " + absensiList.size());
 
         return absensiList;
 }

@@ -152,9 +152,9 @@ public class AbsensiController {
 
 
     @GetMapping("/absensi/get-absensi-bulan-simpel")
-    public ResponseEntity<List<Absensi>> getAbsensiByBulanSimpel(@RequestParam("bulan") int bulan) {
+    public ResponseEntity<List<Absensi>> getAbsensiByBulanSimpel(@RequestParam("bulan") int bulan , @RequestParam Long idAdmin) {
         try {
-            List<Absensi> absensiList = absensiService.getAbsensiByBulanSimpel(bulan);
+            List<Absensi> absensiList = absensiService.getAbsensiByBulanSimpel(bulan , idAdmin);
             return ResponseEntity.ok(absensiList);
         } catch (Exception e) {
             e.printStackTrace();

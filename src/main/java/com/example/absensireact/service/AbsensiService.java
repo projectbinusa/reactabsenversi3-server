@@ -28,7 +28,8 @@ public interface  AbsensiService {
     List<Absensi> getAbsensiByBulan(Date tanggalAbsen);
 
 
-    List<Absensi> getAbsensiByBulanSimpel(int month);
+
+    List<Absensi> getAbsensiByBulanSimpel(int month, Long idAdmin);
 
     Map<String, List<Absensi>> getAbsensiByMingguan(Date startDate, Date endDate);
 

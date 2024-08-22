@@ -28,7 +28,7 @@ public class ExcelDataSiswa {
         fontWhite.setColor(IndexedColors.WHITE.getIndex());
 
         CellStyle styleHeader = workbook.createCellStyle();
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setAlignment(HorizontalAlignment.LEFT);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
@@ -44,13 +44,14 @@ public class ExcelDataSiswa {
         headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
         styleHeader.setFont(headerFont);
 
-        CellStyle styleCenter = workbook.createCellStyle();
-        styleCenter.setAlignment(HorizontalAlignment.CENTER);
-        styleCenter.setVerticalAlignment(VerticalAlignment.CENTER);
-        styleCenter.setBorderTop(BorderStyle.THIN);
-        styleCenter.setBorderRight(BorderStyle.THIN);
-        styleCenter.setBorderBottom(BorderStyle.THIN);
-        styleCenter.setBorderLeft(BorderStyle.THIN);
+        CellStyle styleLeft = workbook.createCellStyle(); // Mengubah nama menjadi styleLeft
+        styleLeft.setAlignment(HorizontalAlignment.LEFT); // Diubah menjadi kiri
+        styleLeft.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleLeft.setBorderTop(BorderStyle.THIN);
+        styleLeft.setBorderRight(BorderStyle.THIN);
+        styleLeft.setBorderBottom(BorderStyle.THIN);
+        styleLeft.setBorderLeft(BorderStyle.THIN);
+
 
         // Fetch data from service
         List<User> siswaList = userService.getAllByAdmin(idAdmin);
@@ -78,22 +79,22 @@ public class ExcelDataSiswa {
         for (User siswa : siswaList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(no++);
-            row.getCell(0).setCellStyle(styleCenter);
+            row.getCell(0).setCellStyle(styleLeft);
 
             row.createCell(1).setCellValue(siswa.getUsername());
-            row.getCell(1).setCellStyle(styleCenter);
+            row.getCell(1).setCellStyle(styleLeft);
 
             row.createCell(2).setCellValue(siswa.getEmail());
-            row.getCell(2).setCellStyle(styleCenter);
+            row.getCell(2).setCellStyle(styleLeft);
 
             row.createCell(3).setCellValue(siswa.getStartKerja());
-            row.getCell(3).setCellStyle(styleCenter);
+            row.getCell(3).setCellStyle(styleLeft);
 
             row.createCell(4).setCellValue(siswa.getStatusKerja());
-            row.getCell(4).setCellStyle(styleCenter);
+            row.getCell(4).setCellStyle(styleLeft);
 
             row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas());
-            row.getCell(5).setCellStyle(styleCenter);
+            row.getCell(5).setCellStyle(styleLeft);
         }
 
         // Adjust column width
@@ -116,7 +117,7 @@ public class ExcelDataSiswa {
         fontWhite.setColor(IndexedColors.WHITE.getIndex());
 
         CellStyle styleHeader = workbook.createCellStyle();
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setAlignment(HorizontalAlignment.LEFT);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
@@ -132,13 +133,13 @@ public class ExcelDataSiswa {
         headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
         styleHeader.setFont(headerFont);
 
-        CellStyle styleCenter = workbook.createCellStyle();
-        styleCenter.setAlignment(HorizontalAlignment.CENTER);
-        styleCenter.setVerticalAlignment(VerticalAlignment.CENTER);
-        styleCenter.setBorderTop(BorderStyle.THIN);
-        styleCenter.setBorderRight(BorderStyle.THIN);
-        styleCenter.setBorderBottom(BorderStyle.THIN);
-        styleCenter.setBorderLeft(BorderStyle.THIN);
+        CellStyle styleLeft = workbook.createCellStyle(); // Mengubah nama menjadi styleLeft
+        styleLeft.setAlignment(HorizontalAlignment.LEFT); // Diubah menjadi kiri
+        styleLeft.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleLeft.setBorderTop(BorderStyle.THIN);
+        styleLeft.setBorderRight(BorderStyle.THIN);
+        styleLeft.setBorderBottom(BorderStyle.THIN);
+        styleLeft.setBorderLeft(BorderStyle.THIN);
 
         // Fetch data from service
         List<User> siswaList = userService.getAllByAdminandKelas(idAdmin, KlasId);
@@ -166,22 +167,22 @@ public class ExcelDataSiswa {
         for (User siswa : siswaList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(no++);
-            row.getCell(0).setCellStyle(styleCenter);
+            row.getCell(0).setCellStyle(styleLeft);
 
             row.createCell(1).setCellValue(siswa.getUsername());
-            row.getCell(1).setCellStyle(styleCenter);
+            row.getCell(1).setCellStyle(styleLeft);
 
             row.createCell(2).setCellValue(siswa.getEmail());
-            row.getCell(2).setCellStyle(styleCenter);
+            row.getCell(2).setCellStyle(styleLeft);
 
             row.createCell(3).setCellValue(siswa.getStartKerja());
-            row.getCell(3).setCellStyle(styleCenter);
+            row.getCell(3).setCellStyle(styleLeft);
 
             row.createCell(4).setCellValue(siswa.getStatusKerja());
-            row.getCell(4).setCellStyle(styleCenter);
+            row.getCell(4).setCellStyle(styleLeft);
 
             row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas());
-            row.getCell(5).setCellStyle(styleCenter);
+            row.getCell(5).setCellStyle(styleLeft);
         }
 
         // Adjust column width
@@ -208,7 +209,7 @@ public class ExcelDataSiswa {
         styleTitle.setFont(titleFont);
 
         CellStyle styleHeader = workbook.createCellStyle();
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setAlignment(HorizontalAlignment.LEFT);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);

@@ -52,7 +52,7 @@ public class ImportOrtu {
             int rowNum = 0;
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
-                if (rowNum++ < 1) {
+                if (rowNum++ < 2) {
                     continue;
                 }
 

@@ -274,6 +274,14 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/user/by-orangtua/{idOrangTua}")
+    public ResponseEntity<List<User>> getUserByIdOrangtua(@PathVariable Long idOrangTua) {
+        List<User> users = userImpl.getAllByOrangTua(idOrangTua);
+        if (users.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(users);
+    }
     @GetMapping("/user/export-data-siswa/{idAdmin}")
     public ResponseEntity<Void> exportDataSiswa(@PathVariable Long idAdmin, HttpServletResponse response) {
         try {

@@ -44,6 +44,8 @@ public interface UserRepository extends JpaRepository<User , Long> {
     List<User> findByKelasId(Long kelasId );
 
 
+    @Query(value = "SELECT * FROM user WHERE id_orang_tua + :idOrangTua" , nativeQuery = true)
+    List<User>findByIdOrangTua(Long idOrangTua);
     boolean existsByUsername(String username);
 
 //    @Query(value = "SELECT * FROM user WHERE nama_organisasi = :namaOrganisasi" , nativeQuery = true)

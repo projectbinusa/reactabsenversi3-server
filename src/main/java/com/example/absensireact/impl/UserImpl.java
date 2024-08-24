@@ -639,7 +639,19 @@ public class UserImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public List<User> getAllByOrangTua(Long idOrangTua) {
+        OrangTua orangTua = orangTuaRepository.findById(idOrangTua)
+                .orElseThrow(() -> new NotFoundException("Id orang tua tidak ditemukan"));
 
+        List<User> userList = userRepository.findByIdOrangTua(idOrangTua);
+
+        if (userList.isEmpty()) {
+            throw new NotFoundException("Tidak ada user yang memiliki id orang tua: " + idOrangTua);
+        }
+
+        return userList;
+    }
 
     @Override
     public User putPassword(PasswordDTO passwordDTO, Long id) {

@@ -45,6 +45,8 @@ public interface UserService {
 
     User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO);
 
+    List<User>getAllByOrangTua(Long idOrangTua);
+
     User putPassword(PasswordDTO passwordDTO, Long id);
 
 

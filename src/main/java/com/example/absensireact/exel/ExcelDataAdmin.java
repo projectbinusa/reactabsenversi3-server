@@ -319,6 +319,11 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
         for (int i = 3; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row != null) {
+                Cell firstCell = row.getCell(0);
+                if (firstCell != null && "No".equalsIgnoreCase(getCellValue(firstCell))) {
+                    continue;
+                }
+
                 Kelas kelas = new Kelas();
 
                 Cell namaKelasCell = row.getCell(1);

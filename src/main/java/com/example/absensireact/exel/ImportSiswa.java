@@ -55,6 +55,11 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
     for (int i = 3; i <= sheet.getLastRowNum(); i++) {
         Row row = sheet.getRow(i);
         if (row != null) {
+            Cell firstCell = row.getCell(0);
+            if (firstCell != null && "No".equalsIgnoreCase(getCellValue(firstCell))) {
+                continue;
+            }
+
             User user = new User();
 
             Cell namaUserCell = row.getCell(1);

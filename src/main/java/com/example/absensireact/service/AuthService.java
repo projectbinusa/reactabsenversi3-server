@@ -43,7 +43,7 @@ public class AuthService  {
 
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByEmail(username);
+        Optional<UserModel> userOptional = userRepository.findByEmail(username);
         if (userOptional.isPresent() && userOptional.get().getEmail().equals(username)) {
             return UserDetail.buidUser(userOptional.get());
         }

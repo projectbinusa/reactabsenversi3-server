@@ -2,7 +2,7 @@ package com.example.absensireact.helper;
 
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Cuti;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.CutiRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -29,7 +29,7 @@ public class CutiPDF {
 
     public void generatePDF(Long id, ByteArrayOutputStream baos) throws IOException {
         Cuti cuti = cutiRepository.findById(id).orElseThrow(() -> new NotFoundException("Id cuti tidak ditemukan"));
-        User user = userRepository.findById(cuti.getUser().getId())
+        UserModel user = userRepository.findById(cuti.getUser().getId())
                 .orElseThrow(() -> new NotFoundException("user tidak ditemukan"));
 
         SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");

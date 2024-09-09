@@ -1,6 +1,6 @@
 package com.example.absensireact.exel;
 
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.service.UserService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -54,7 +54,7 @@ public class ExcelDataSiswa {
 
 
         // Fetch data from service
-        List<User> siswaList = userService.getAllByAdmin(idAdmin);
+        List<UserModel> siswaList = userService.getAllByAdmin(idAdmin);
 
         int rowNum = 0;
 
@@ -76,7 +76,7 @@ public class ExcelDataSiswa {
 
         // Data rows
         int no = 1;
-        for (User siswa : siswaList) {
+        for (UserModel siswa : siswaList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(no++);
             row.getCell(0).setCellStyle(styleLeft);
@@ -142,7 +142,7 @@ public class ExcelDataSiswa {
         styleLeft.setBorderLeft(BorderStyle.THIN);
 
         // Fetch data from service
-        List<User> siswaList = userService.getAllByAdminandKelas(idAdmin, KlasId);
+        List<UserModel> siswaList = userService.getAllByAdminandKelas(idAdmin, KlasId);
 
         int rowNum = 0;
 
@@ -164,7 +164,7 @@ public class ExcelDataSiswa {
 
         // Data rows
         int no = 1;
-        for (User siswa : siswaList) {
+        for (UserModel siswa : siswaList) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(no++);
             row.getCell(0).setCellStyle(styleLeft);

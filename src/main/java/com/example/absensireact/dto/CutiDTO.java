@@ -1,6 +1,6 @@
 package com.example.absensireact.dto;
 
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Column;
@@ -21,7 +21,7 @@ public class CutiDTO {
 
     private String status;
 
-    private User user;
+    private UserModel user;
 
     public Long getId() {
         return id;
@@ -71,11 +71,11 @@ public class CutiDTO {
         this.status = status;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 }

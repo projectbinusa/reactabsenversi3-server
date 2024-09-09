@@ -3,7 +3,7 @@ package com.example.absensireact.repository;
 
 import com.example.absensireact.model.Absensi;
 import com.example.absensireact.model.Cuti;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,7 @@ public interface CutiRepository extends JpaRepository<Cuti ,Long> {
 
     List<Cuti> findByUserId(Long userId);
 
-    List<Cuti> findByUser(User user);
+    List<Cuti> findByUser(UserModel user);
 
-    Cuti findJabatanByid(User user);
+    Cuti findJabatanByid(UserModel user);
 }

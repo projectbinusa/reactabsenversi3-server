@@ -2,7 +2,7 @@ package com.example.absensireact.detail;
 
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Organisasi;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +29,7 @@ public class UserDetail implements UserDetails {
 
 
 
-    public static UserDetail buidUser(User user) {
+    public static UserDetail buidUser(UserModel user) {
         return new UserDetail(
                 user.getId(),
                 user.getUsername(),

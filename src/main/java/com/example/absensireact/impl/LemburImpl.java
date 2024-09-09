@@ -3,7 +3,7 @@ package com.example.absensireact.impl;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Lembur;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.LemburRepository;
 import com.example.absensireact.repository.UserRepository;
@@ -45,7 +45,7 @@ public class LemburImpl implements LemburService {
 
     @Override
     public Lembur IzinLembur(Long userId, Lembur lembur){
-        User userLembur = userRepository.findById(userId).orElse(null);
+        UserModel userLembur = userRepository.findById(userId).orElse(null);
         if (userLembur == null) {
             throw new NotFoundException("User id tidak ditemukan");
         }
@@ -80,14 +80,14 @@ public class LemburImpl implements LemburService {
 
         if (adminOptional.isPresent()) {
             Long admin = adminOptional.get().getId();
-            List<User> users = userRepository.findByadminIdAbsensi(admin);
+            List<UserModel> users = userRepository.findByadminIdAbsensi(admin);
 
             if (users.isEmpty()) {
                 throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
             }
 
             List<Lembur> lemburList = new ArrayList<>();
-            for (User user : users) {
+            for (UserModel user : users) {
                 List<Lembur> lemburUser = lemburRepository.findByUser(user);
                 lemburList.addAll(lemburUser);
             }

@@ -7,7 +7,6 @@ import com.example.absensireact.dto.VerifyCode;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.LoginRequest;
 import com.example.absensireact.model.Reset_Password;
-import com.example.absensireact.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;

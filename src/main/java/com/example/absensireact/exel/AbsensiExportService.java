@@ -1,6 +1,5 @@
 package com.example.absensireact.exel;
 import com.example.absensireact.model.Absensi;
-import com.example.absensireact.model.User;
 import com.example.absensireact.repository.AbsensiRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.service.AbsensiService;

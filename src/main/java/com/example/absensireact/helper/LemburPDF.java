@@ -3,7 +3,6 @@ package com.example.absensireact.helper;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Cuti;
 import com.example.absensireact.model.Lembur;
-import com.example.absensireact.model.User;
 import com.example.absensireact.repository.LemburRepository;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;

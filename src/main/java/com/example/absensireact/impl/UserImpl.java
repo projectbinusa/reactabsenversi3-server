@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -116,8 +117,8 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User ubahPassByForgot (ResetPassDTO updatePass){
-        User user = userRepository.findByEmail(updatePass.getEmail())
+    public UserModel ubahPassByForgot (ResetPassDTO updatePass){
+        UserModel user = userRepository.findByEmail(updatePass.getEmail())
                 .orElseThrow(()  -> new NotFoundException("email tidak ditemukan"));
         if (updatePass.getNew_password().equals(updatePass.getConfirm_new_password())) {
             user.setPassword(encoder.encode(updatePass.getNew_password()));
@@ -484,7 +485,7 @@ public class UserImpl implements UserService {
                     "\n" +
                     "</html>");
             if (userRepository.existsByEmail(forGotPass.getEmail())) {
-                User user = userRepository.findByEmail(forGotPass.getEmail()).get();
+                UserModel user = userRepository.findByEmail(forGotPass.getEmail()).get();
 
                 if (getVerification.findByEmail(forGotPass.getEmail()).isPresent()) {
                     Reset_Password pass = getVerification.findByEmail(forGotPass.getEmail()).orElseThrow(() -> new NotFoundException("Email not found"));
@@ -506,7 +507,7 @@ public class UserImpl implements UserService {
         return forGotPass;
     }
     @Override
-    public User Register(User user, Long idOrganisasi, Long idShift) {
+    public UserModel Register(UserModel user, Long idOrganisasi, Long idShift) {
         if (adminRepository.existsByEmail(user.getEmail()) || userRepository.existsByEmail(user.getEmail())) {
             throw new BadRequestException("Email sudah digunakan");
         }
@@ -549,13 +550,13 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllByJabatan(Long idJabatan) {
+    public List<UserModel> getAllByJabatan(Long idJabatan) {
         Optional<Jabatan> jabatanOptional = jabatanRepository.findById(idJabatan);
         if (jabatanOptional.isEmpty()) {
             throw new NotFoundException("id Jabatan tidak ditemukan");
         }
 
-        List<User> users = userRepository.findByIdJabatan(idJabatan);
+        List<UserModel> users = userRepository.findByIdJabatan(idJabatan);
         if (users.isEmpty()) {
             return new ArrayList<>();
         }
@@ -564,37 +565,37 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllByAdmin(Long idAdmin) {
+    public List<UserModel> getAllByAdmin(Long idAdmin) {
         Admin admin = adminRepository.findById(idAdmin)
                 .orElseThrow(() -> new NotFoundException("id Admin tidak ditemukan: " + idAdmin));
-        List<User> userList = userRepository.findByIdAdmin(idAdmin);
+        List<UserModel> userList = userRepository.findByIdAdmin(idAdmin);
         return userList;
     }
 
     @Override
-    public List<User> getAllByAdminandKelas(Long idAdmin, Long KlasId) {
+    public List<UserModel> getAllByAdminandKelas(Long idAdmin, Long KlasId) {
         Admin admin = adminRepository.findById(idAdmin)
                 .orElseThrow(() -> new NotFoundException("id Admin tidak ditemukan: " + idAdmin));
         Kelas kelas = kelasRepository.findById(KlasId)
                 .orElseThrow(() -> new NotFoundException("id Kelas tidak ditemukan: " + KlasId));
-        List<User> userList = userRepository.findByIdAdminAndKelasId(idAdmin, KlasId);
+        List<UserModel> userList = userRepository.findByIdAdminAndKelasId(idAdmin, KlasId);
         return userList;
     }
     @Override
-    public List<User> getAllBySuperAdmin(Long idSuperAdmin) {
+    public List<UserModel> getAllBySuperAdmin(Long idSuperAdmin) {
         SuperAdmin superAdmin = superAdminRepository.findById(idSuperAdmin)
                 .orElseThrow(() -> new NotFoundException("id Super Admin tidak ditemukan: " + idSuperAdmin));
-        List<User> userList = userRepository.findByIdSuperAdmin(idSuperAdmin);
+        List<UserModel> userList = userRepository.findByIdSuperAdmin(idSuperAdmin);
         return userList;
     }
     @Override
-    public List<User> getAllByShift(Long idShift) {
+    public List<UserModel> getAllByShift(Long idShift) {
         Optional<Shift> shiftOptional = shiftRepository.findById(idShift);
         if (shiftOptional.isEmpty()) {
             throw new NotFoundException("id Jabatan tidak ditemukan");
         }
 
-        List<User> users = userRepository.findByIdShift(idShift);
+        List<UserModel> users = userRepository.findByIdShift(idShift);
         if (users.isEmpty()) {
             return new ArrayList<>();
         }
@@ -603,19 +604,19 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User EditUserBySuper(Long id, Long idJabatan, Long idShift, User updateUser) {
+    public UserModel EditUserBySuper(Long id, Long idJabatan, Long idShift, UserModel updateUser) {
         return null;
     }
 
 
     @Override
-    public User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO) {
-        Optional<User> userOptional = userRepository.findById(id);
+    public UserModel editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO) {
+        Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan");
         }
 
-        User user = userOptional.get();
+        UserModel user = userOptional.get();
         boolean usernameExisting = userRepository.existsByUsername(user.getUsername());
 
         if (usernameExisting ) {
@@ -640,11 +641,11 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllByOrangTua(Long idOrangTua) {
+    public List<UserModel> getAllByOrangTua(Long idOrangTua) {
         OrangTua orangTua = orangTuaRepository.findById(idOrangTua)
                 .orElseThrow(() -> new NotFoundException("Id orang tua tidak ditemukan"));
 
-        List<User> userList = userRepository.findByIdOrangTua(idOrangTua);
+        List<UserModel> userList = userRepository.findByIdOrangTua(idOrangTua);
 
         if (userList.isEmpty()) {
             throw new NotFoundException("Tidak ada user yang memiliki id orang tua: " + idOrangTua);
@@ -654,8 +655,8 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User putPassword(PasswordDTO passwordDTO, Long id) {
-        User update = userRepository.findById(id)
+    public UserModel putPassword(PasswordDTO passwordDTO, Long id) {
+        UserModel update = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Id Not Found"));
 
         boolean isOldPasswordCorrect = encoder.matches(passwordDTO.getOld_password(), update.getPassword());
@@ -673,22 +674,22 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User ubahUsernamedanemail(Long id, User updateUser) {
-        Optional<User> userOptional = userRepository.findById(id);
+    public UserModel ubahUsernamedanemail(Long id, UserModel updateUser) {
+        Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("Id User tidak ditemukan: " + id);
         }
 
-        User user = userOptional.get();
+        UserModel user = userOptional.get();
 
         // Cek apakah email sudah digunakan oleh user lain
-        Optional<User> userByEmail = userRepository.findByEmail(updateUser.getEmail());
+        Optional<UserModel> userByEmail = userRepository.findByEmail(updateUser.getEmail());
         if (userByEmail.isPresent() && !userByEmail.get().getId().equals(id)) {
             throw new IllegalArgumentException("Email sudah digunakan");
         }
 
         // Cek apakah username sudah digunakan oleh user lain
-        Optional<User> userByUsername = userRepository.findByUsername(updateUser.getUsername());
+        Optional<UserModel> userByUsername = userRepository.findByUsername(updateUser.getUsername());
         if (userByUsername.isPresent() && !userByUsername.get().getId().equals(id)) {
             throw new IllegalArgumentException("Username sudah digunakan");
         }
@@ -700,16 +701,16 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, User updateUser) {
-        Optional<User> userOptional = userRepository.findById(id);
+    public UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, UserModel updateUser) {
+        Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan: " + id);
         }
 
-        User user = userOptional.get();
+        UserModel user = userOptional.get();
 
         // Cek apakah username sudah digunakan oleh user lain
-        Optional<User> userByUsername = userRepository.findByUsername(updateUser.getUsername());
+        Optional<UserModel> userByUsername = userRepository.findByUsername(updateUser.getUsername());
         if (userByUsername.isPresent() && !userByUsername.get().getId().equals(id)) {
             throw new IllegalArgumentException("Username sudah digunakan");
         }
@@ -726,7 +727,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua) {
+    public UserModel Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             Admin admin = adminOptional.get();
@@ -739,7 +740,7 @@ public class UserImpl implements UserService {
                 throw new BadRequestException("Username " + userDTO.getUsername() + " telah digunakan");
             }
 
-            User user = new User();
+            UserModel user = new UserModel();
             user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setRole("USER");
             user.setStatus("Siswa"); // Set status otomatis menjadi "Siswa"
@@ -762,7 +763,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas) {
+    public UserModel TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas) {
         Optional<Admin> adminOptional = adminRepository.findById(idAdmin);
         Optional<Kelas> kelasOptional = kelasRepository.findById(idKelas);
         if (adminOptional.isPresent() || kelasOptional.isPresent()) {
@@ -777,7 +778,7 @@ public class UserImpl implements UserService {
                 throw new BadRequestException("Username " + userDTO.getUsername() + " telah digunakan");
             }
 
-            User user = new User();
+            UserModel user = new UserModel();
             user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setRole("USER");
             user.setStatus("Siswa"); // Set status otomatis menjadi "Siswa"
@@ -802,25 +803,25 @@ public class UserImpl implements UserService {
 
 
     @Override
-    public List<User> GetAllKaryawanByIdAdmin(Long idAdmin){
+    public List<UserModel> GetAllKaryawanByIdAdmin(Long idAdmin){
         return userRepository.findByIdAdmin(idAdmin);
     }
 
 
     @Override
-    public User getById(Long id) {
+    public UserModel getById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Id Not Found"));
     }
 
     @Override
-    public List<User> getAll() {
+    public List<UserModel> getAll() {
         return userRepository.findAll();
     }
 
 
     @Override
-    public User edit(Long id, User user) {
-        User existingUser = userRepository.findById(id)
+    public UserModel edit(Long id, UserModel user) {
+        UserModel existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
 
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -879,8 +880,8 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User fotoUser(Long id, MultipartFile image) throws IOException {
-        User exisUser = userRepository.findById(id)
+    public UserModel fotoUser(Long id, MultipartFile image) throws IOException {
+        UserModel exisUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
         String fileUrl = uploadFoto(image);
         exisUser.setFotoUser(fileUrl);
@@ -899,9 +900,9 @@ public class UserImpl implements UserService {
 
     @Override
     public void delete(Long id) throws IOException {
-        Optional<User> userOptional = userRepository.findById(id);
+        Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
-            User user = userOptional.get();
+            UserModel user = userOptional.get();
             String fotoUrl = user.getFotoUser();
             String fileName = fotoUrl.substring(fotoUrl.indexOf("/o/") + 3, fotoUrl.indexOf("?alt=media"));
             deleteFoto(fileName);
@@ -926,7 +927,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public List<User> getUsersByIdKelas(Long idKelas) {
+    public List<UserModel> getUsersByIdKelas(Long idKelas) {
         return userRepository.findUsersByKelas(idKelas);
     }
 

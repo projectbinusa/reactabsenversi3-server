@@ -4,8 +4,8 @@ package com.example.absensireact.model;
 import javax.persistence.*;
 
 @Entity
-@Table
-public class User {
+@Table(name = "user")
+public class UserModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,11 +61,11 @@ public class User {
     @Column(name = "role")
     private String role;
 
-    public User(){
+    public UserModel(){
 
     }
 
-    public User(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, OrangTua orangTua, String status, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
+    public UserModel(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, OrangTua orangTua, String status, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
         this.id = id;
         this.email = email;
         this.password = password;

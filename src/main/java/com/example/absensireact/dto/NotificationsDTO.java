@@ -1,6 +1,5 @@
 package com.example.absensireact.dto;
-
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -9,7 +8,7 @@ import java.util.Date;
 public class NotificationsDTO {
 
     private Long id;
-    private User user;
+    private UserModel user;
 
     private String message;
     private String tempatAcara;
@@ -28,11 +27,11 @@ public class NotificationsDTO {
         this.id = id;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

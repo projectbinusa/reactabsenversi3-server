@@ -3,7 +3,7 @@ package com.example.absensireact.detail;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.OrangTuaRepository;
 import com.example.absensireact.repository.SuperAdminRepository;
@@ -38,9 +38,9 @@ public class CustomUserDetails  implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+        Optional<UserModel> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
-            User user = userOptional.get();
+            UserModel user = userOptional.get();
             return UserDetail.buidUser(user);
         }
 

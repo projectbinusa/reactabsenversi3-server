@@ -1,6 +1,7 @@
 package com.example.absensireact.dto;
 
-import com.example.absensireact.model.User;
+
+import com.example.absensireact.model.UserModel;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,7 +10,7 @@ public class TokenDTO {
     private Long id;
     private String token;
 
-    private User user;
+    private UserModel user;
     private Date created;
 
     public Long getId() {
@@ -28,11 +29,11 @@ public class TokenDTO {
         this.token = token;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

@@ -16,7 +16,7 @@ public class Notifications {
 
     @OneToOne
     @JoinColumn(name = "userId")
-    private User user;
+    private UserModel user;
 
     @OneToOne
     @JoinColumn(name = "adminId")
@@ -42,7 +42,7 @@ public class Notifications {
 
     }
 
-    public Notifications(Long id, User user, Admin admin, String message, String tempatAcara, String namaAcara, Date tanggalAcara, Date createdAt) {
+    public Notifications(Long id, UserModel user, Admin admin, String message, String tempatAcara, String namaAcara, Date tanggalAcara, Date createdAt) {
         this.id = id;
         this.user = user;
         this.admin = admin;
@@ -61,11 +61,11 @@ public class Notifications {
         this.id = id;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

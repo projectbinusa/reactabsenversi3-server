@@ -3,7 +3,7 @@ package com.example.absensireact.impl;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Cuti;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.CutiRepository;
  import com.example.absensireact.repository.UserRepository;
@@ -66,14 +66,14 @@ public class CutiImpl implements CutiService {
 
         if (adminOptional.isPresent()) {
             Long admin = adminOptional.get().getId();
-            List<User> users = userRepository.findByadminIdAbsensi(admin);
+            List<UserModel> users = userRepository.findByadminIdAbsensi(admin);
 
             if (users.isEmpty()) {
                 throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
             }
 
             List<Cuti> cutiList = new ArrayList<>();
-            for (User user : users) {
+            for (UserModel user : users) {
                 List<Cuti> cutiUser = cutiRepository.findByUser(user);
                 cutiList.addAll(cutiUser);
             }
@@ -85,11 +85,11 @@ public class CutiImpl implements CutiService {
     }
     @Override
     public Cuti IzinCuti(Long userId, Cuti cuti){
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<UserModel> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan");
         }
-        User user1 = userOptional.get();
+        UserModel user1 = userOptional.get();
 
         cuti.setAwalCuti(cuti.getAwalCuti());
         cuti.setAkhirCuti(cuti.getAkhirCuti());

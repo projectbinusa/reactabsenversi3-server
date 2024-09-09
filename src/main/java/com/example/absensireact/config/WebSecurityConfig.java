@@ -111,11 +111,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers(AUTH_AUTHORIZATION).hasAnyAuthority("USER", "ADMIN", "SUPERADMIN")
-                .antMatchers(AUTH_WHITELIST).permitAll();
+                .antMatchers(AUTH_WHITELIST).permitAll()
+//                .antMatchers(AUTH_AUTHORIZATION).hasRole("ADMIN")
+                .antMatchers(AUTH_AUTHORIZATION).hasAnyRole( "USER", "ADMIN", "SUPERADMIN", "WALI MURID")
+                .anyRequest()
+                .authenticated().and()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

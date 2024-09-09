@@ -57,7 +57,7 @@ public class Absensi {
 
     @OneToOne
     @JoinColumn(name = "userId")
-    private User  user;
+    private UserModel  user;
 
 
 
@@ -65,7 +65,7 @@ public class Absensi {
 
     }
 
-    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, User user, Date attendanceDate) {
+    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, Date attendanceDate) {
         this.id = id;
         this.tanggalAbsen = tanggalAbsen;
         this.jamMasuk = jamMasuk;
@@ -195,11 +195,11 @@ public class Absensi {
         this.statusAbsen = statusAbsen;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

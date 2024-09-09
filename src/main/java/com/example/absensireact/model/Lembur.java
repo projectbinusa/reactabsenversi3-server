@@ -29,13 +29,13 @@ public class Lembur {
 
      @OneToOne
     @JoinColumn(name = "userId")
-    private User user;
+    private UserModel user;
 
     public Lembur (){
 
     }
 
-    public Lembur(Long id, String tanggalLembur, String jamMulai, String jamSelesai, String keteranganLembur, User user , String nama) {
+    public Lembur(Long id, String tanggalLembur, String jamMulai, String jamSelesai, String keteranganLembur, UserModel user , String nama) {
         this.id = id;
         this.tanggalLembur = tanggalLembur;
         this.jamMulai = jamMulai;
@@ -94,11 +94,11 @@ public class Lembur {
         this.keteranganLembur = keteranganLembur;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 }

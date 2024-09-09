@@ -3,7 +3,7 @@ package com.example.absensireact.impl;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Notifications;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.NotificationsRepository;
 import com.example.absensireact.repository.UserRepository;
@@ -34,7 +34,7 @@ public class NotificationsImpl implements NotificationsService {
 
     @Override
     public List<Notifications>getNotfiUser(Long userId){
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<UserModel> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("User id tiak ditemukan dengan id :" + userId);
         }
@@ -60,12 +60,12 @@ public class NotificationsImpl implements NotificationsService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan : " + adminId));
 
-        List<User> users = userRepository.findByIdAdmin(adminId);
+        List<UserModel> users = userRepository.findByIdAdmin(adminId);
 
         if (users.isEmpty()) {
             throw new NotFoundException("Tidak ada user yang terdaftar dengan id admin: " + adminId);
         }
-        for (User user : users) {
+        for (UserModel user : users) {
 
             notifications.setAdmin(admin);
             notifications.setMessage(notifications.getMessage());
@@ -85,11 +85,11 @@ public class NotificationsImpl implements NotificationsService {
         if (adminOptional.isEmpty()) {
             throw new NotFoundException("Admin id tidak ditemukan dengan id :" + adminId);
         }
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<UserModel> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("User id tidak ditemukan dengan id :" + userId);
         }
-        User user = userOptional.get();
+        UserModel user = userOptional.get();
         Admin admin = adminOptional.get();
         Date newDate = new Date();
         notifications.setAdmin(admin);
@@ -118,12 +118,12 @@ public class NotificationsImpl implements NotificationsService {
     //    gagall
     @Override
     public Notifications editNotifByUserId(Long userId, Notifications notifications){
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<UserModel> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("Id User tidak ditemukan dengan id :" + userId);
         }
         Date newDate = new Date();
-        User user = userOptional.get();
+        UserModel user = userOptional.get();
         notifications.setMessage(notifications.getMessage());
         notifications.setCreatedAt(newDate);
         notifications.setUser(user);

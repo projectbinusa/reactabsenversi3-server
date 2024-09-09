@@ -2,7 +2,7 @@ package com.example.absensireact.service;
 
 import com.example.absensireact.dto.*;
 import com.example.absensireact.model.Reset_Password;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
@@ -14,63 +14,63 @@ public interface UserService {
 
 //    Map<Object, Object> login(LoginRequest loginRequest, HttpServletRequest request);
 
-//    User Register(User user);
+//    UserModel Register(UserModel user);
 
 
-    User ubahPassByForgot(ResetPassDTO updatePass);
+    UserModel ubahPassByForgot(ResetPassDTO updatePass);
 
 
     Reset_Password validasiCodeUniqResPass(VerifyCode codeUser);
 
     ForGotPass sendEmail(ForGotPass forGotPass) throws MessagingException;
 
-    User Register(User user, Long idOrganisasi, Long idShift);
+    UserModel Register(UserModel user, Long idOrganisasi, Long idShift);
 
-    List<User> getAllByJabatan(Long idJabatan);
+    List<UserModel> getAllByJabatan(Long idJabatan);
 
-    List<User> getAllByAdmin(Long idAdmin);
+    List<UserModel> getAllByAdmin(Long idAdmin);
 
-    List<User> getAllByAdminandKelas(Long idAdmin, Long KlasId);
+    List<UserModel> getAllByAdminandKelas(Long idAdmin, Long KlasId);
 
-    List<User> getAllBySuperAdmin(Long idSuperAdmin);
+    List<UserModel> getAllBySuperAdmin(Long idSuperAdmin);
 
-    List<User> getAllByShift(Long idShift);
+    List<UserModel> getAllByShift(Long idShift);
 
-    User EditUserBySuper(Long id, Long idJabatan, Long idShift, User updateUser);
+    UserModel EditUserBySuper(Long id, Long idJabatan, Long idShift, UserModel updateUser);
 
-    User Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua);
+    UserModel Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua);
 
-    User TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas);
-
-
-    User editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO);
-
-    List<User>getAllByOrangTua(Long idOrangTua);
-
-    User putPassword(PasswordDTO passwordDTO, Long id);
+    UserModel TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas);
 
 
-    User ubahUsernamedanemail(Long id, User updateUser);
+    UserModel editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO);
 
-    User EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, User updateUser);
+    List<UserModel>getAllByOrangTua(Long idOrangTua);
 
-    List<User> GetAllKaryawanByIdAdmin(Long idAdmin);
-
-
-    User getById(Long id);
-
-    List<User> getAll();
+    UserModel putPassword(PasswordDTO passwordDTO, Long id);
 
 
-    User fotoUser(Long id, MultipartFile image) throws  IOException;
+    UserModel ubahUsernamedanemail(Long id, UserModel updateUser);
 
-    User edit(Long id, User user);
+    UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, UserModel updateUser);
+
+    List<UserModel> GetAllKaryawanByIdAdmin(Long idAdmin);
+
+
+    UserModel getById(Long id);
+
+    List<UserModel> getAll();
+
+
+    UserModel fotoUser(Long id, MultipartFile image) throws  IOException;
+
+    UserModel edit(Long id, UserModel user);
 
     void delete(Long id) throws IOException;
 
     void deleteUser(Long id);
 
-    List<User> getUsersByIdKelas(Long idKelas);
+    List<UserModel> getUsersByIdKelas(Long idKelas);
 
 
 

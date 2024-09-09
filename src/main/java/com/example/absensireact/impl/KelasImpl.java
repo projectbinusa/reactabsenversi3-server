@@ -5,7 +5,7 @@ import com.example.absensireact.exception.RelationExistsException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.Organisasi;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.KelasRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
@@ -94,7 +94,7 @@ public class KelasImpl implements KelasService {
     @Override
     public boolean checkIfHasRelations(Long kelasId) {
         // Use the repository method to check if there are users associated with the kelas
-        List<User> users = userRepository.findUsersByKelas(kelasId);
+        List<UserModel> users = userRepository.findUsersByKelas(kelasId);
         return !users.isEmpty(); // Return true if there are any users associated, otherwise false
     }
 

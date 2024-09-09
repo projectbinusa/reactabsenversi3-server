@@ -61,14 +61,14 @@ public class AbsensiImpl implements AbsensiService {
 
         if (adminOptional.isPresent()) {
             Long admin = adminOptional.get().getId();
-            List<User> users = userRepository.findByadminIdAbsensi(admin);
+            List<UserModel> users = userRepository.findByadminIdAbsensi(admin);
 
             if (users.isEmpty()) {
                 throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
             }
 
             List<Absensi> absensiList = new ArrayList<>();
-            for (User user : users) {
+            for (UserModel user : users) {
                 List<Absensi> userAbsensi = absensiRepository.findByUser(user);
                 absensiList.addAll(userAbsensi);
             }
@@ -174,7 +174,7 @@ public class AbsensiImpl implements AbsensiService {
         if (existingAbsensi.isPresent()) {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
         } else {
-            User user = userRepository.findById(userId)
+            UserModel user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan ID " + userId + " tidak ditemukan."));
             Shift shift = shiftRepository.findById(user.getShift().getId())
                     .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
@@ -257,7 +257,7 @@ public class AbsensiImpl implements AbsensiService {
         if (existingAbsensi.isPresent()) {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
         } else {
-            User user = userRepository.findById(userId)
+            UserModel user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan ID " + userId + " tidak ditemukan."));
 
             Date tanggalHariIni = truncateTime(new Date());
@@ -437,13 +437,13 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public List<Absensi> getAbsensiByKelas(Long kelasId) {
-        List<User> users = userRepository.findByKelasId(kelasId);
+        List<UserModel> users = userRepository.findByKelasId(kelasId);
         if (users.isEmpty()) {
             throw new NotFoundException("Tidak ada pengguna yang terkait dengan kelas dengan id: " + kelasId);
         }
 
         List<Absensi> absensiList = new ArrayList<>();
-        for (User user : users) {
+        for (UserModel user : users) {
             List<Absensi> userAbsensi = absensiRepository.findByUser(user);
             absensiList.addAll(userAbsensi);
         }

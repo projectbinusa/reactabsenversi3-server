@@ -3,7 +3,7 @@ package com.example.absensireact.impl;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Shift;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
 import com.example.absensireact.repository.ShiftRepository;
@@ -66,7 +66,7 @@ public class ShiftImpl implements ShiftService {
 
     @Override
     public Optional<Shift> getByUserId(Long userId){
-        User user = userRepository.findById(userId)
+        UserModel user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("id user tidak ditemukan"));
 
         return shiftRepository.findById(user.getShift().getId());
@@ -110,8 +110,8 @@ public class ShiftImpl implements ShiftService {
     @Override
     public Map<String, Boolean> delete(Long id) {
         try {
-            List<User> users = userRepository.findByIdShift(id);
-            for (User user : users) {
+            List<UserModel> users = userRepository.findByIdShift(id);
+            for (UserModel user : users) {
                 user.setShift(null);
                 userRepository.save(user);
             }

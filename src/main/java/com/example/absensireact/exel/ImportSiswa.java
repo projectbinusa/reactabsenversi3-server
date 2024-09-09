@@ -51,7 +51,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
     Workbook workbook = new XSSFWorkbook(file.getInputStream());
     Sheet sheet = workbook.getSheetAt(0);
 
-    List<User> userList = new ArrayList<>();
+    List<UserModel> userList = new ArrayList<>();
     for (int i = 3; i <= sheet.getLastRowNum(); i++) {
         Row row = sheet.getRow(i);
         if (row != null) {
@@ -60,7 +60,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
                 continue;
             }
 
-            User user = new User();
+            UserModel user = new UserModel();
 
             Cell namaUserCell = row.getCell(1);
             Cell emailCell = row.getCell(2);
@@ -121,11 +121,11 @@ public void importUserperKelas(MultipartFile file, Admin admin, Kelas kelas) thr
     Workbook workbook = new XSSFWorkbook(file.getInputStream());
     Sheet sheet = workbook.getSheetAt(0);
 
-    List<User> userList = new ArrayList<>();
+    List<UserModel> userList = new ArrayList<>();
     for (int i = 3; i <= sheet.getLastRowNum(); i++) {
         Row row = sheet.getRow(i);
         if (row != null) {
-            User user = new User();
+            UserModel user = new UserModel();
 
             Cell namaUserCell = row.getCell(1);
             Cell emailCell = row.getCell(2);

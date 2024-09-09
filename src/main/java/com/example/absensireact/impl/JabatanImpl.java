@@ -3,7 +3,7 @@ package com.example.absensireact.impl;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Jabatan;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.JabatanRepository;
 import com.example.absensireact.repository.UserRepository;
@@ -88,8 +88,8 @@ public class JabatanImpl implements JabatanService {
     @Override
     public Map<String, Boolean> deleteJabatan(Long idJabatan) {
         try {
-            List<User> users = userRepository.findByIdJabatan(idJabatan);
-            for (User user : users) {
+            List<UserModel> users = userRepository.findByIdJabatan(idJabatan);
+            for (UserModel user : users) {
 //                user.setJabatan(null);
                 userRepository.save(user);
             }

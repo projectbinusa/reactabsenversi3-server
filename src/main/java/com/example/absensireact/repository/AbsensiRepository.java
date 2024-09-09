@@ -1,7 +1,7 @@
 package com.example.absensireact.repository;
 
 import com.example.absensireact.model.Absensi;
-import com.example.absensireact.model.User;
+import com.example.absensireact.model.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,14 +13,14 @@ import java.util.Optional;
 
 public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
 
-    Optional<Absensi> findByUserAndTanggalAbsen(User user, Date tanggalAbsen);
+    Optional<Absensi> findByUserAndTanggalAbsen(UserModel user, Date tanggalAbsen);
 
     @Query("SELECT a FROM Absensi a WHERE a.tanggalAbsen BETWEEN :tanggalAwal AND :tanggalAkhir")
     List<Absensi> findByMingguan(@Param("tanggalAwal") Date tanggalAwal, @Param("tanggalAkhir") Date tanggalAkhir);
 
-    List<Absensi> findByUser(User user);
+    List<Absensi> findByUser(UserModel user);
     @Query("SELECT a FROM Absensi a WHERE YEAR(a.tanggalAbsen) = :year AND MONTH(a.tanggalAbsen) = :month AND DAY(a.tanggalAbsen) = :day AND a.user = :user")
-    List<Absensi> findByUserAndDate(@Param("user") User user, @Param("year") int year, @Param("month") int month, @Param("day") int day);
+    List<Absensi> findByUserAndDate(@Param("user") UserModel user, @Param("year") int year, @Param("month") int month, @Param("day") int day);
 
     @Query("SELECT a FROM Absensi a WHERE FUNCTION('DAY', a.tanggalAbsen) = :day AND FUNCTION('MONTH', a.tanggalAbsen) = :month AND FUNCTION('YEAR', a.tanggalAbsen) = :year")
     List<Absensi> findByTanggalAbsen(@Param("day") int day, @Param("month") int month, @Param("year") int year);
@@ -63,7 +63,7 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
     @Query("SELECT a FROM Absensi a WHERE a.user.kelas.id = :kelasId AND a.tanggalAbsen BETWEEN :startOfDay AND :endOfDay")
     List<Absensi> findByTanggalAndKelas(@Param("startOfDay") Date startOfDay, @Param("endOfDay") Date endOfDay, @Param("kelasId") Long kelasId);
 
-    @Query("SELECT a FROM Absensi a WHERE a.user.id IN (SELECT u.id FROM User u WHERE u.orangTua.id = :orangTuaId)")
+    @Query("SELECT a FROM Absensi a WHERE a.user.id IN (SELECT u.id FROM UserModel u WHERE u.orangTua.id = :orangTuaId)")
     List<Absensi> findByOrangTuaId(@Param("orangTuaId") Long orangTuaId);
 
     @Query("SELECT a FROM Absensi a WHERE a.user.kelas.id = :kelasId")

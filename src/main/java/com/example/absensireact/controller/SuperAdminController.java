@@ -12,7 +12,6 @@ import com.example.absensireact.exel.ExcelDataAdmin;
 import com.example.absensireact.exel.ExportSuperAdmin;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.model.User;
 import com.example.absensireact.repository.SuperAdminRepository;
 import com.example.absensireact.service.SuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;

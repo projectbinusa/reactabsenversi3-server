@@ -255,14 +255,18 @@ public class OrganisasiImpl implements OrganisasiService {
             organisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());
         }
 
-        organisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
-        organisasi.setAlamat(organisasi.getAlamat());
-        organisasi.setKecamatan(organisasi.getKecamatan());
-        organisasi.setKabupaten(organisasi.getKabupaten());
-        organisasi.setProvinsi(organisasi.getProvinsi());
-        organisasi.setNomerTelepon(organisasi.getNomerTelepon());
-        organisasi.setEmailOrganisasi(organisasi.getEmailOrganisasi());
-        organisasi.setAdmin(admin);
+        boolean nameExisting = organisasiRepository.existsByNamaOrganisasi(organisasi.getNamaOrganisasi());
+        if (nameExisting) {
+            throw new IllegalStateException("Organisasi dengan nama : " + organisasi.getNamaOrganisasi() + " sudah terdaftar");
+        }
+        existingOrganisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
+        existingOrganisasi.setAlamat(organisasi.getAlamat());
+        existingOrganisasi.setKecamatan(organisasi.getKecamatan());
+        existingOrganisasi.setKabupaten(organisasi.getKabupaten());
+        existingOrganisasi.setProvinsi(organisasi.getProvinsi());
+        existingOrganisasi.setNomerTelepon(organisasi.getNomerTelepon());
+        existingOrganisasi.setEmailOrganisasi(organisasi.getEmailOrganisasi());
+        existingOrganisasi.setAdmin(admin);
 
         return organisasiRepository.save(organisasi);
     }
@@ -279,12 +283,26 @@ public class OrganisasiImpl implements OrganisasiService {
             throw new NotFoundException("Id admin tidak ditemukan");
         }
 
-        // Jika ada gambar baru yang diunggah, panggil metode uploadImage
+        if (existingOrganisasi.getFotoOrganisasi() != null && !existingOrganisasi.getFotoOrganisasi().isEmpty()) {
+            String currentFotoUrl = existingOrganisasi.getFotoOrganisasi();
+            String fileName = currentFotoUrl.substring(currentFotoUrl.indexOf("/o/") + 3, currentFotoUrl.indexOf("?alt=media"));
+            deleteFoto(fileName);
+        }
+
         if (image != null && !image.isEmpty()) {
-            existingOrganisasi = uploadImage(id, image);
+            String imageUrl = uploadFoto(image);
+            organisasi.setFotoOrganisasi(imageUrl);
+        } else {
+            organisasi.setFotoOrganisasi(existingOrganisasi.getFotoOrganisasi());
+        }
+
+        boolean nameExisting = organisasiRepository.existsByNamaOrganisasi(organisasi.getNamaOrganisasi());
+        if (nameExisting) {
+            throw new IllegalStateException("Organisasi dengan nama : " + organisasi.getNamaOrganisasi() + " sudah terdaftar");
         }
 
         // Set nilai-nilai baru pada organisasi yang ada
+
         existingOrganisasi.setNamaOrganisasi(organisasi.getNamaOrganisasi());
         existingOrganisasi.setAlamat(organisasi.getAlamat());
         existingOrganisasi.setKecamatan(organisasi.getKecamatan());
@@ -312,7 +330,7 @@ public class OrganisasiImpl implements OrganisasiService {
                 organisasiRepository.deleteById(id);
             } else {
 
-             organisasiRepository.deleteById(id);
+                organisasiRepository.deleteById(id);
             }
         } else {
             throw new NotFoundException("Organisasi not found with id: " + id);

@@ -173,6 +173,10 @@ public class OrangTuaImpl implements OrangTuaService {
             throw new NotFoundException("Id Ortu tidak ditemukan :" + id);
         }
         OrangTua orangTua = orangTuaOptional.get();
+        boolean nameExisting = orangTuaRepository.existsByNama(updateOrangTua.getNama());
+        if (nameExisting) {
+            throw new IllegalStateException("Orang tua dengan nama : " + updateOrangTua.getNama() + " sudah terdaftar");
+        }
         orangTua.setEmail(updateOrangTua.getEmail());
         orangTua.setNama(updateOrangTua.getNama());
 

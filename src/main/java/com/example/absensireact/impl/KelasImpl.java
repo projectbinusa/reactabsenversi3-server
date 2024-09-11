@@ -52,13 +52,26 @@ public class KelasImpl implements KelasService {
         return kelasRepository.findByIdAdmin(idAdmin);
     }
     @Override
-    public Kelas editKelasById(Long id, Kelas updateKelas){
+    public Kelas editKelasById(Long id, Kelas updateKelas) {
+        // Fetch the class that is being updated
         Kelas kelas = kelasRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("id kelas tidak ditemukan : " + id));
+
+        // Check if there is an existing class with the same name under the same admin
+        Optional<Kelas> existingKelas = kelasRepository.findByNamaKelasAndAdmin(updateKelas.getNamaKelas(), kelas.getAdmin());
+
+        // If another class with the same name exists, throw an exception
+        if (existingKelas.isPresent() && !existingKelas.get().getId().equals(id)) {
+            throw new NotFoundException("Kelas dengan nama yang sama sudah ada di bawah admin ini");
+        }
+
+        // Proceed with updating the class details
         kelas.setNamaKelas(updateKelas.getNamaKelas());
-        if (updateKelas.getOrganisasi() != null){
+
+        if (updateKelas.getOrganisasi() != null) {
             kelas.setOrganisasi(updateKelas.getOrganisasi());
         }
+
         return kelasRepository.save(kelas);
     }
 

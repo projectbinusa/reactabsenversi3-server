@@ -280,7 +280,7 @@ public class AbsensiController {
 
     @PostMapping("/absensi/masuk/{userId}")
     public ResponseEntity<?> postAbsensiMasuk(@PathVariable Long userId,
-                                              @RequestPart("image") MultipartFile image ,
+                                              @RequestParam("image") String image ,
                                               @RequestParam("lokasiMasuk") String lokasiMasuk,
                                               @RequestParam("keteranganTerlambat") String keteranganTerlambat
                                              ) {
@@ -295,7 +295,7 @@ public class AbsensiController {
     }
      @PutMapping("/absensi/pulang/{userId}")
     public ResponseEntity<?> putAbsensiPulang(@PathVariable Long userId,
-                                              @RequestPart("image") MultipartFile image,
+                                              @RequestParam("image") String image,
                                               @RequestParam("lokasiPulang") String lokasiPulang,
                                               @RequestParam("keteranganPulangAwal") String keteranganPulangAwal
      ) {

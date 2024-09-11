@@ -69,6 +69,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         Optional<SuperAdmin> optionalSuperAdmin = superAdminRepository.findByUsername(username);
         Optional<Admin> optionalAdmin = adminRepository.findByUsername(username);
         Optional<OrangTua> optionalOrangTua = orangTuaRepository.findByUsername(username);
+
         if (optionalUser.isPresent()) {
             UserModel user = optionalUser.get();
             List<SimpleGrantedAuthority> roles = Collections.singletonList(
@@ -81,21 +82,22 @@ public class JwtUserDetailsService implements UserDetailsService {
                     new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())
             );
             return new User(user.getUsername(), user.getPassword(), roles);
-        }else if (optionalSuperAdmin.isPresent()) {
+        } else if (optionalSuperAdmin.isPresent()) {
             SuperAdmin user = optionalSuperAdmin.get();
             List<SimpleGrantedAuthority> roles = Collections.singletonList(
                     new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())
             );
             return new User(user.getUsername(), user.getPassword(), roles);
-        }else if (optionalOrangTua.isPresent()) {
+        } else if (optionalOrangTua.isPresent()) {
             OrangTua user = optionalOrangTua.get();
             List<SimpleGrantedAuthority> roles = Collections.singletonList(
                     new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())
             );
             return new User(user.getNama(), user.getPassword(), roles);
         } else {
-            throw new UsernameNotFoundException("User not found with username1: " + username);
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
     }
+
 
 }

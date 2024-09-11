@@ -42,6 +42,8 @@ public class AuthService  {
     private PasswordEncoder passwordEncoder;
 
 
+
+
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserModel> userOptional = userRepository.findByEmail(username);
         if (userOptional.isPresent() && userOptional.get().getEmail().equals(username)) {
@@ -77,7 +79,7 @@ public class AuthService  {
         }
 
         // Generate token after successful authentication
-        String token = jwtTokenUtil.generateToken(userDetails);
+        String token = jwtTokenUtil.generateToken(userDetails );
 
         Map<String, Object> response = new HashMap<>();
         response.put("data", userDetails);

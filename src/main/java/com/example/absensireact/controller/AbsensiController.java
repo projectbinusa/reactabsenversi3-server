@@ -272,14 +272,25 @@ public class AbsensiController {
     }
 
     @PostMapping("/absensi/izin")
-    public Absensi izin(@PathVariable Long userId, @RequestBody Map<String, String> body) {
+    public Absensi izin(@RequestParam String token, @RequestBody Map<String, String> body) {
         String keteranganIzin = body.get("keteranganIzin");
-        return absensiService.izin(userId, keteranganIzin);
+        try {
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+
+            return absensiService.izin(userId, keteranganIzin);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during absensi processing: " + e.getMessage(), e);
+        }
     }
     @PutMapping("/absensi/izin-tengah-hari")
-    public Absensi izinTengahHari(@RequestParam Long userId ,@RequestBody Absensi keteranganPulangAwal)  {
+    public Absensi izinTengahHari(@RequestParam String token, @RequestBody Absensi keterangaPulangAwal)  {
+        try {
+            Long userId = jwtTokenUtil.getIdFromToken(token);
 
-        return absensiService.izinTengahHari(userId , keteranganPulangAwal );
+            return absensiService.izinTengahHari(userId, keterangaPulangAwal);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during absensi processing: " + e.getMessage(), e);
+        }
     }
 
 

@@ -169,7 +169,7 @@ public class AbsensiImpl implements AbsensiService {
         return startOfWeek.toString() + " - " + endOfWeek.toString();
     }
     @Override
-    public Absensi PostAbsensi(Long userId, MultipartFile image, String lokasiMasuk, String keteranganTerlambat) throws IOException, ParseException {
+    public Absensi PostAbsensi(Long userId, String image, String lokasiMasuk, String keteranganTerlambat) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
@@ -199,7 +199,7 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setKeteranganTerlambat(keteranganTerlambat != null ? keteranganTerlambat : "-");
             absensi.setStatusAbsen(keterangan);
 
-            absensi.setFotoMasuk(uploadFoto(image));
+            absensi.setFotoMasuk(image);
 
             return absensiRepository.save(absensi);
         }
@@ -207,7 +207,7 @@ public class AbsensiImpl implements AbsensiService {
 
 
     @Override
-    public Absensi Pulang(Long userId, MultipartFile image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException {
+    public Absensi Pulang(Long userId, String image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException {
         Absensi absensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()))
                 .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
 
@@ -233,7 +233,7 @@ public class AbsensiImpl implements AbsensiService {
         absensi.setKeteranganPulangAwal(keteranganPulangAwal != null ? keteranganPulangAwal : "-");
         absensi.setJamPulang(jamPulangString);
         absensi.setLokasiPulang(lokasiPulang);
-        absensi.setFotoPulang(uploadFotoPUlang(image));
+        absensi.setFotoPulang(image);
 
         return absensiRepository.save(absensi);
     }

@@ -35,10 +35,12 @@ public interface  AbsensiService {
 
     Map<String, List<Absensi>> getAbsensiByMingguanPerKelas(Date startDate, Date endDate, Long kelasId);
 
-    Absensi PostAbsensi(Long userId, MultipartFile image, String lokasiMasuk, String keteranganTerlambat) throws IOException, ParseException;
+    Absensi PostAbsensi(Long userId, String image, String lokasiMasuk, String keteranganTerlambat) throws IOException, ParseException;
 
 
-    Absensi Pulang(Long userId, MultipartFile image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
+//    Absensi Pulang(Long userId, MultipartFile image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
+
+    Absensi Pulang(Long userId, String image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
 
     boolean checkUserAlreadyAbsenToday(Long userId);
 

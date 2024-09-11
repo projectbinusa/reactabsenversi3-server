@@ -266,19 +266,19 @@ public class AbsensiController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/absensi/izin/{userId}")
+    @PostMapping("/absensi/izin")
     public Absensi izin(@PathVariable Long userId, @RequestBody Map<String, String> body) {
         String keteranganIzin = body.get("keteranganIzin");
         return absensiService.izin(userId, keteranganIzin);
     }
-    @PutMapping("/absensi/izin-tengah-hari/{userId}")
+    @PutMapping("/absensi/izin-tengah-hari")
     public Absensi izinTengahHari(@PathVariable Long userId ,@RequestBody Absensi keteranganPulangAwal)  {
 
         return absensiService.izinTengahHari(userId , keteranganPulangAwal );
     }
 
 
-    @PostMapping("/absensi/masuk/{userId}")
+    @PostMapping("/absensi/masuk")
     public ResponseEntity<?> postAbsensiMasuk(@PathVariable Long userId,
                                               @RequestParam("image") String image ,
                                               @RequestParam("lokasiMasuk") String lokasiMasuk,
@@ -293,7 +293,7 @@ public class AbsensiController {
             throw new RuntimeException(e);
         }
     }
-     @PutMapping("/absensi/pulang/{userId}")
+     @PutMapping("/absensi/pulang")
     public ResponseEntity<?> putAbsensiPulang(@PathVariable Long userId,
                                               @RequestParam("image") String image,
                                               @RequestParam("lokasiPulang") String lokasiPulang,

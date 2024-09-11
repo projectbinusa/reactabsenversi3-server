@@ -8,8 +8,10 @@ import com.example.absensireact.exel.ExcelAbsnesiBulanan;
 import com.example.absensireact.exel.RekapanPresensiExcel;
 import com.example.absensireact.model.Absensi;
 import com.example.absensireact.repository.AbsensiRepository;
+import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.AbsensiService;
 import io.swagger.annotations.ApiParam;
+import org.apache.tomcat.util.buf.UDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -49,6 +51,9 @@ public class AbsensiController {
 
     @Autowired
     private final AbsensiService absensiService;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     private final AbsensiRepository absensiRepository;
 
@@ -266,26 +271,29 @@ public class AbsensiController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/absensi/izin/{userId}")
+    @PostMapping("/absensi/izin")
     public Absensi izin(@PathVariable Long userId, @RequestBody Map<String, String> body) {
         String keteranganIzin = body.get("keteranganIzin");
         return absensiService.izin(userId, keteranganIzin);
     }
-    @PutMapping("/absensi/izin-tengah-hari/{userId}")
-    public Absensi izinTengahHari(@PathVariable Long userId ,@RequestBody Absensi keteranganPulangAwal)  {
+    @PutMapping("/absensi/izin-tengah-hari")
+    public Absensi izinTengahHari(@RequestParam Long userId ,@RequestBody Absensi keteranganPulangAwal)  {
 
         return absensiService.izinTengahHari(userId , keteranganPulangAwal );
     }
 
 
-    @PostMapping("/absensi/masuk/{userId}")
-    public ResponseEntity<?> postAbsensiMasuk(@PathVariable Long userId,
-                                              @RequestParam("image") String image ,
+    @PostMapping("/absensi/masuk")
+    public ResponseEntity<?> postAbsensiMasuk(@RequestParam String token,
+                                              @RequestParam("image") String image,
                                               @RequestParam("lokasiMasuk") String lokasiMasuk,
-                                              @RequestParam("keteranganTerlambat") String keteranganTerlambat
-                                             ) {
+                                              @RequestParam("keteranganTerlambat") String keteranganTerlambat) {
         try {
-            Absensi absensi = absensiService.PostAbsensi(userId, image , lokasiMasuk , keteranganTerlambat);
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+
+            // Gunakan userId ini untuk membuat absensi
+            Absensi absensi = absensiService.PostAbsensi(userId, image, lokasiMasuk, keteranganTerlambat);
+
             return ResponseEntity.ok().body(absensi);
         } catch (IOException | EntityNotFoundException | NotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -293,14 +301,16 @@ public class AbsensiController {
             throw new RuntimeException(e);
         }
     }
-     @PutMapping("/absensi/pulang/{userId}")
-    public ResponseEntity<?> putAbsensiPulang(@PathVariable Long userId,
+     @PutMapping("/absensi/pulang")
+    public ResponseEntity<?> putAbsensiPulang(@RequestParam String token,
                                               @RequestParam("image") String image,
                                               @RequestParam("lokasiPulang") String lokasiPulang,
                                               @RequestParam("keteranganPulangAwal") String keteranganPulangAwal
      ) {
         try {
-            Absensi absensi = absensiService.Pulang(userId ,image , lokasiPulang , keteranganPulangAwal );
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+
+            Absensi absensi = absensiService.PostAbsensi(userId, image, lokasiPulang, keteranganPulangAwal);
             return ResponseEntity.ok().body(absensi);
         } catch (IOException | NotFoundException | ParseException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

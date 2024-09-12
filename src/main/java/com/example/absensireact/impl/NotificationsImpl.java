@@ -1,5 +1,6 @@
 package com.example.absensireact.impl;
 
+import com.example.absensireact.controller.NotificationsController;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Notifications;
@@ -9,6 +10,9 @@ import com.example.absensireact.repository.NotificationsRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.service.NotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -26,6 +30,19 @@ public class NotificationsImpl implements NotificationsService {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    @MessageMapping("/send-notifications")
+    @SendTo("/topic/notifications")
+    public Notifications send(Notifications notifications) {
+        return notifications;
+    }
+
+    public void sendNotificationToUser(String destination, Notifications notification) {
+        messagingTemplate.convertAndSend(destination, notification);
+    }
 
     @Override
     public List<Notifications>getAllNotif(){
@@ -65,8 +82,8 @@ public class NotificationsImpl implements NotificationsService {
         if (users.isEmpty()) {
             throw new NotFoundException("Tidak ada user yang terdaftar dengan id admin: " + adminId);
         }
-        for (UserModel user : users) {
 
+        for (UserModel user : users) {
             notifications.setAdmin(admin);
             notifications.setMessage(notifications.getMessage());
             notifications.setUser(user);
@@ -74,13 +91,15 @@ public class NotificationsImpl implements NotificationsService {
             notifications.setTanggalAcara(notifications.getTanggalAcara());
             notifications.setTempatAcara(notifications.getTempatAcara());
             notificationsRepository.save(notifications);
+
+            sendNotificationToUser("/topic/notifications", notifications);
         }
 
         return notifications;
     }
 
     @Override
-    public Notifications tambahNotif(Long adminId, Long userId, Notifications notifications){
+    public Notifications tambahNotif(Long adminId, Long userId, Notifications notifications) {
         Optional<Admin> adminOptional = adminRepository.findById(adminId);
         if (adminOptional.isEmpty()) {
             throw new NotFoundException("Admin id tidak ditemukan dengan id :" + adminId);
@@ -99,8 +118,14 @@ public class NotificationsImpl implements NotificationsService {
         notifications.setTanggalAcara(notifications.getTanggalAcara());
         notifications.setTempatAcara(notifications.getTempatAcara());
         notifications.setCreatedAt(newDate);
-        return notificationsRepository.save(notifications);
+
+        Notifications savedNotification = notificationsRepository.save(notifications);
+
+        sendNotificationToUser("/topic/notifications", savedNotification);
+
+        return savedNotification;
     }
+
 
     @Override
     public Notifications editNotifById(Long id, Notifications notificationsUpdate){

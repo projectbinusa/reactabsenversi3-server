@@ -9,8 +9,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.Notification;
-import java.util.List;
+ import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,11 +17,13 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class NotificationsController {
 
+
     @Autowired
     private NotificationsService notificationsService;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
 
     @GetMapping
     public List<Notifications> getAllNotifications() {

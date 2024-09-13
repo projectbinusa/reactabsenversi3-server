@@ -1,6 +1,7 @@
 package com.example.absensireact.controller;
 
 
+import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.exel.AbsensiExportService;
 import com.example.absensireact.exel.ExcelAbsensiMingguan;
@@ -245,6 +246,7 @@ public class AbsensiController {
             return ResponseEntity.status(HttpStatus.OK).body("Pengguna belum melakukan absensi hari ini.");
         }
     }
+
     @GetMapping("/absensi/checkIzin/{userId}")
     public ResponseEntity<String> hasTakenLeave(@PathVariable Long userId) {
         if (absensiService.hasTakenLeave(userId)) {
@@ -253,6 +255,20 @@ public class AbsensiController {
             return ResponseEntity.status(HttpStatus.OK).body("Pengguna belum melakukan izin.");
         }
     }
+
+    @PostMapping("/absensi/check-alpha")
+    public ResponseEntity<Absensi> checkUserAlpha(@RequestParam String token) {
+        try {
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            Absensi absensi = absensiService.checkUserAlpha(userId);
+            return ResponseEntity.ok(absensi);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
 
     @GetMapping("/absensi/getAll")
     public ResponseEntity<List<Absensi>> getAllAbsensi() {

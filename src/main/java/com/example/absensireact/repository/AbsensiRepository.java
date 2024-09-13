@@ -15,6 +15,9 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
 
     Optional<Absensi> findByUserAndTanggalAbsen(UserModel user, Date tanggalAbsen);
 
+    @Query(value = "SELECT * FROM absensi WHERE user_id = userId AND tanggal_absen = tanggalAbsen" , nativeQuery = true)
+    boolean existsByUserIdAndTanggalAbsen(Long userId, Date tanggalAbsen);
+
     @Query("SELECT a FROM Absensi a WHERE a.tanggalAbsen BETWEEN :tanggalAwal AND :tanggalAkhir")
     List<Absensi> findByMingguan(@Param("tanggalAwal") Date tanggalAwal, @Param("tanggalAkhir") Date tanggalAkhir);
 

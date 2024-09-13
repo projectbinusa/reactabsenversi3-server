@@ -255,6 +255,30 @@ public class AbsensiController {
             return ResponseEntity.status(HttpStatus.OK).body("Pengguna belum melakukan izin.");
         }
     }
+//    @PostMapping("/absensi/check-alpha")
+//    public ResponseEntity<?> checkUserAlpha(@RequestParam String token) {
+//        try {
+//            Long userId = jwtTokenUtil.getIdFromToken(token);
+//            Absensi absensi = absensiService.checkUserAlpha(userId);
+//            return ResponseEntity.ok().body(Map.of(
+//                    "message", "User belum melakukan absen hari ini. Status Alpha berhasil ditambahkan.",
+//                    "absensi", absensi
+//            ));
+//
+//        } catch (NotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+//                    "message", "User dengan ID tersebut tidak ditemukan.",
+//                    "error", e.getMessage()
+//            ));
+//
+//        } catch (BadRequestException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+//                    "message", e.getMessage(),
+//                    "error", "Bad Request"
+//            ));
+//        }
+//    }
+
 
     @PostMapping("/absensi/check-alpha")
     public ResponseEntity<Absensi> checkUserAlpha(@RequestParam String token) {
@@ -337,7 +361,7 @@ public class AbsensiController {
         try {
             Long userId = jwtTokenUtil.getIdFromToken(token);
 
-            Absensi absensi = absensiService.PostAbsensi(userId, image, lokasiPulang, keteranganPulangAwal);
+            Absensi absensi = absensiService.Pulang(userId, image, lokasiPulang, keteranganPulangAwal);
             return ResponseEntity.ok().body(absensi);
         } catch (IOException | NotFoundException | ParseException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

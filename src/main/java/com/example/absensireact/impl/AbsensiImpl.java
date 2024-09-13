@@ -12,6 +12,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -250,32 +251,82 @@ public class AbsensiImpl implements AbsensiService {
 
 
 
+//    @Override
+//    public Absensi checkUserAlpha(Long userId) {
+//        UserModel userModel = userRepository.findById(userId)
+//                .orElseThrow(() -> new NotFoundException("Id user tidak ditemukan"));
+//
+//        boolean absensiCheck = checkUserAlreadyAbsenToday(userId);
+//
+//        if (absensiCheck) {
+//            throw new BadRequestException("User sudah melakukan absen hari ini");
+//        }
+//
+//        Optional<Absensi> lastAbsensi = absensiRepository.findFirstByUserIdOrderByTanggalAbsenDesc(userId);
+//        if (lastAbsensi.isEmpty()) {
+//            Absensi absensi = lastAbsensi.get();
+//            long hoursSinceLastAbsen = getHoursDifference(absensi.getTanggalAbsen(), new Date());
+//            if (hoursSinceLastAbsen < 24) {
+//                throw new BadRequestException("Belum 24 jam sejak absen terakhir. Status Alpha tidak dapat ditambahkan.");
+//            }
+//        }
+//
+//        Date tanggalHariIni = truncateTime(new Date());
+//        Absensi absensi = new Absensi();
+//        absensi.setJamMasuk("-");
+//        absensi.setJamPulang("-");
+//        absensi.setLokasiPulang("-");
+//        absensi.setLokasiMasuk("-");
+//        absensi.setFotoMasuk("-");
+//        absensi.setFotoPulang("-");
+//        absensi.setKeteranganTerlambat("-");
+//        absensi.setKeteranganPulangAwal("-");
+//        absensi.setTanggalAbsen(tanggalHariIni);
+//        absensi.setUser(userModel);
+//        absensi.setStatusAbsen("Alpha");
+//
+//        return absensiRepository.save(absensi);
+//    }
+
+//    private long getHoursDifference(Date startDate, Date endDate) {
+//        long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
+//        return TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+//    }
+
     @Override
     public Absensi checkUserAlpha(Long userId) {
         UserModel userModel = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Id user tidak ditemukan"));
 
         boolean absensiCheck = checkUserAlreadyAbsenToday(userId);
-        if (!absensiCheck) {
-            Date tanggalHariIni = truncateTime(new Date());
-            Absensi absensi = new Absensi();
-            absensi.setJamMasuk("-");
-            absensi.setJamPulang("-");
-            absensi.setLokasiPulang("-");
-            absensi.setLokasiMasuk("-");
-            absensi.setFotoMasuk("-");
-            absensi.setFotoPulang("-");
-            absensi.setKeteranganTerlambat("-");
-            absensi.setKeteranganPulangAwal("-");
-            absensi.setTanggalAbsen(tanggalHariIni);
-            absensi.setUser(userModel);
-            absensi.setStatusAbsen("Alpha");
+        Date today = truncateTime(new Date());
 
-            return absensiRepository.save(absensi);
+        if (!absensiCheck) {
+            Date endOfDay = truncateTime(today);
+            Date currentTime = new Date();
+
+            if (currentTime.after(endOfDay)) {
+                Absensi absensi = new Absensi();
+                absensi.setJamMasuk("-");
+                absensi.setJamPulang("-");
+                absensi.setLokasiMasuk("-");
+                absensi.setLokasiPulang("-");
+                absensi.setFotoMasuk("-");
+                absensi.setFotoPulang("-");
+                absensi.setKeteranganTerlambat("-");
+                absensi.setKeteranganPulangAwal("-");
+                absensi.setTanggalAbsen(today);
+                absensi.setUser(userModel);
+                absensi.setStatusAbsen("Alpha");
+
+                return absensiRepository.save(absensi);
+            }
+            throw new BadRequestException("Belum 24 jam sejak pagi");
         }
 
         throw new BadRequestException("User sudah melakukan absen hari ini");
     }
+
 
 
     @Override
@@ -392,6 +443,9 @@ public class AbsensiImpl implements AbsensiService {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
+
+
+
 
     private int getHourOfDay(Date date) {
         Calendar calendar = Calendar.getInstance();

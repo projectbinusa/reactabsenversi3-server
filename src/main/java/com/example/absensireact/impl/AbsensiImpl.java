@@ -1,5 +1,6 @@
 package com.example.absensireact.impl;
 
+import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.*;
 import com.example.absensireact.repository.*;
@@ -144,6 +145,8 @@ public class AbsensiImpl implements AbsensiService {
         return weeklyAbsensiMap;
     }
 
+
+
     @Override
     public Map<String, List<Absensi>> getAbsensiByMingguanPerKelas(Date tanggalAwal, Date tanggalAkhir, Long kelasId) {
         // Fetch data based on the provided dates and kelasId
@@ -244,6 +247,36 @@ public class AbsensiImpl implements AbsensiService {
         Optional<Absensi> absensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         return absensi.isPresent();
     }
+
+
+
+    @Override
+    public Absensi checkUserAlpha(Long userId) {
+        UserModel userModel = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Id user tidak ditemukan"));
+
+        boolean absensiCheck = checkUserAlreadyAbsenToday(userId);
+        if (!absensiCheck) {
+            Date tanggalHariIni = truncateTime(new Date());
+            Absensi absensi = new Absensi();
+            absensi.setJamMasuk("-");
+            absensi.setJamPulang("-");
+            absensi.setLokasiPulang("-");
+            absensi.setLokasiMasuk("-");
+            absensi.setFotoMasuk("-");
+            absensi.setFotoPulang("-");
+            absensi.setKeteranganTerlambat("-");
+            absensi.setKeteranganPulangAwal("-");
+            absensi.setTanggalAbsen(tanggalHariIni);
+            absensi.setUser(userModel);
+            absensi.setStatusAbsen("Alpha");
+
+            return absensiRepository.save(absensi);
+        }
+
+        throw new BadRequestException("User sudah melakukan absen hari ini");
+    }
+
 
     @Override
     public boolean hasTakenLeave(Long userId) {

@@ -36,6 +36,10 @@ public interface SuperAdminService {
 
     void deleteSuperAdmin(Long id)throws IOException ;
 
+    void DeleteSASementara(Long id);
+
+    void PemulihanDataSA(Long id);
+
     SuperAdmin ubahUsernamedanemail(Long id, SuperAdmin updateadmin);
 
     SuperAdmin uploadImage(Long id, MultipartFile image) throws IOException;

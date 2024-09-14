@@ -25,4 +25,8 @@ public interface NotificationsService {
     Notifications editNotifByUserId(Long userId, Notifications notifications);
 
     boolean deleteNotif(Long id);
+
+    void DeleteNotifSementara(Long id);
+
+    void PemulihanDataNotif(Long id);
 }

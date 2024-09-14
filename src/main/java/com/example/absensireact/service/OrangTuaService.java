@@ -26,6 +26,10 @@ public interface OrangTuaService {
 
     void deleteOrangTua(Long id);
 
+    void DeleteOrtuSementara(Long id);
+
+    void PemulihanDataOrtu(Long id);
+
     OrangTua uploadImage(Long id, MultipartFile image) throws IOException;
 
     Admin getAdminByOrangTuaId(Long id);

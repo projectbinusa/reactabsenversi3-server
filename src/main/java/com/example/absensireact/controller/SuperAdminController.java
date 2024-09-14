@@ -186,4 +186,23 @@ public class SuperAdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/superadmin/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            superAdminService.DeleteSASementara(id);
+            return ResponseEntity.ok("SuperAdmin berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/superadmin/pemulihan-kelas/{id}")
+    public ResponseEntity<String> PemulihanSA(@PathVariable Long id) {
+        try {
+            superAdminService.PemulihanDataSA(id);
+            return ResponseEntity.ok("SuperAdmin berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin tidak ditemukan dengan id: " + id);
+        }
+    }
 }

@@ -647,6 +647,26 @@ public class SuperAdminImpl implements SuperAdminService {
     }
 
     @Override
+    public void DeleteSASementara(Long id){
+        Optional<SuperAdmin> superAdminOptional = superAdminRepository.findById(id);
+        if (superAdminOptional.isPresent()) {
+            SuperAdmin superAdmin = superAdminOptional.get();
+            superAdmin.setDeleted(1);
+            superAdminRepository.save(superAdmin);
+        }
+    }
+
+    @Override
+    public void PemulihanDataSA(Long id){
+        Optional<SuperAdmin> superAdminOptional = superAdminRepository.findById(id);
+        if (superAdminOptional.isPresent()) {
+            SuperAdmin superAdmin = superAdminOptional.get();
+            superAdmin.setDeleted(0);
+            superAdminRepository.save(superAdmin);
+        }
+    }
+
+    @Override
     public SuperAdmin fotoSuperadmin(Long id, MultipartFile image) throws IOException {
         SuperAdmin exisSuperadmin = superAdminRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Superadmin tidak ditemukan"));

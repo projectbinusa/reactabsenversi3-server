@@ -321,6 +321,26 @@ public Map<String, Boolean> delete(Long id) {
 }
 
     @Override
+    public void DeleteAdminSementara(Long id){
+        Optional<Admin> adminOptional = adminRepository.findById(id);
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            admin.setDeleted(1);
+            adminRepository.save(admin);
+        }
+    }
+
+    @Override
+    public void PemulihanDataAdmin(Long id){
+        Optional<Admin> adminOptional = adminRepository.findById(id);
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            admin.setDeleted(0);
+            adminRepository.save(admin);
+        }
+    }
+
+    @Override
     public ForGotPass sendEmail(ForGotPass forGotPass) throws MessagingException {
         String code = code();
         MimeMessage message = javaMailSender.createMimeMessage();

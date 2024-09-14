@@ -46,5 +46,9 @@ public interface AdminService {
 
     Map<String, Boolean> delete(Long id);
 
+    void DeleteAdminSementara(Long id);
+
+    void PemulihanDataAdmin(Long id);
+
     ForGotPass sendEmail(ForGotPass forGotPass) throws MessagingException;
 }

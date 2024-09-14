@@ -32,11 +32,14 @@ public class Admin {
     @JoinColumn(name = "idSuperAdmin")
     private SuperAdmin superAdmin;
 
+    @Column(name = "deleted")
+    private Integer deleted;
+
    public Admin(){
 
    }
 
-    public Admin(Long id, String email, String password, String username, String imageAdmin, String role,  SuperAdmin superAdmin) {
+    public Admin(Long id, String email, String password, String username, String imageAdmin, String role,  SuperAdmin superAdmin, Integer deleted) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -45,6 +48,7 @@ public class Admin {
         this.role = role;
 //        this.organisasi = organisasi;
         this.superAdmin = superAdmin;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -101,5 +105,13 @@ public class Admin {
 
     public void setSuperAdmin(SuperAdmin superAdmin) {
         this.superAdmin = superAdmin;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

@@ -26,8 +26,6 @@ public class UserModel {
     @Column(name = "startKerja")
     private String startKerja;
 
-
-
     @Column(name = "statusKerja")
     private String statusKerja;
 
@@ -61,11 +59,14 @@ public class UserModel {
     @Column(name = "role")
     private String role;
 
+    @Column(name = "deleted")
+    private Integer deleted;
+
     public UserModel(){
 
     }
 
-    public UserModel(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, OrangTua orangTua, String status, Shift shift, Admin admin, Kelas kelas, SuperAdmin superAdmin, String role) {
+    public UserModel(Long id, String email, String password, String username, String fotoUser, String startKerja, String statusKerja, Organisasi organisasi, String status, Shift shift, Admin admin, Kelas kelas, OrangTua orangTua, SuperAdmin superAdmin, String role, Integer deleted) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -74,13 +75,14 @@ public class UserModel {
         this.startKerja = startKerja;
         this.statusKerja = statusKerja;
         this.organisasi = organisasi;
+        this.status = status;
         this.shift = shift;
         this.admin = admin;
-        this.orangTua = orangTua;
         this.kelas = kelas;
+        this.orangTua = orangTua;
         this.superAdmin = superAdmin;
         this.role = role;
-        this.status = status;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -203,5 +205,14 @@ public class UserModel {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

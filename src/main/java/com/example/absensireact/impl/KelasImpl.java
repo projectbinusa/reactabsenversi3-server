@@ -90,7 +90,7 @@ public class KelasImpl implements KelasService {
         kelas.setOrganisasi(organisasi);
         kelas.setAdmin(admin);
         kelas.setNamaKelas(kelas.getNamaKelas());
-
+        kelas.setDeleted(0);
         return kelasRepository.save(kelas);
     }
 
@@ -103,6 +103,25 @@ public class KelasImpl implements KelasService {
         }
     }
 
+    @Override
+    public void DeleteKelasSementara(Long id){
+        Optional<Kelas> kelasOptional = kelasRepository.findById(id);
+        if (kelasOptional.isPresent()) {
+            Kelas kelas = kelasOptional.get();
+            kelas.setDeleted(1);
+            kelasRepository.save(kelas);
+        }
+    }
+
+    @Override
+    public void PemulihanDataKelas(Long id){
+        Optional<Kelas> kelasOptional = kelasRepository.findById(id);
+        if (kelasOptional.isPresent()) {
+            Kelas kelas = kelasOptional.get();
+            kelas.setDeleted(0);
+            kelasRepository.save(kelas);
+        }
+    }
 
     @Override
     public boolean checkIfHasRelations(Long kelasId) {

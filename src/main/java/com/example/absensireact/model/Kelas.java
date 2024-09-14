@@ -18,6 +18,8 @@ public class Kelas {
     @JoinColumn(name = "idOrganisasi")
     private Organisasi organisasi;
 
+    @Column(name = "deleted")
+    private Integer deleted;
     @OneToOne
     @JoinColumn(name = "idAdmin")
     private Admin admin;
@@ -26,10 +28,11 @@ public class Kelas {
 
     }
 
-    public Kelas(Long id, String namaKelas, Organisasi organisasi, Admin admin) {
+    public Kelas(Long id, String namaKelas, Organisasi organisasi, Integer deleted, Admin admin) {
         this.id = id;
         this.namaKelas = namaKelas;
         this.organisasi = organisasi;
+        this.deleted = deleted;
         this.admin = admin;
     }
 
@@ -63,5 +66,13 @@ public class Kelas {
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

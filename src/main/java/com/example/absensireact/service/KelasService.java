@@ -21,5 +21,9 @@ public interface KelasService {
 
     void deleteKelas(Long id);
 
+    void DeleteKelasSementara(Long id);
+
+    void PemulihanDataKelas(Long id);
+
     boolean checkIfHasRelations(Long id);
 }

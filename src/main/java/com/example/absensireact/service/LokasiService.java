@@ -33,6 +33,10 @@ public interface LokasiService {
 
     void deleteLokasi(Long id);
 
+    void DeleteLokasiSementara(Long idLokasi);
+
+    void PemulihanDataLokasi(Long idLokasi);
+
     OrganisasiDTO getOrganisasiById(Long id);
 
     AdminDTO getAdminById(Long id);

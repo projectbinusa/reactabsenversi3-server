@@ -90,21 +90,19 @@ public class LokasiImpl implements LokasiService {
                 lokasi.setNamaLokasi(lokasi.getNamaLokasi());
                 lokasi.setAlamat(lokasi.getAlamat());
                 lokasi.setAdmin(admin);
+                lokasi.setDeleted(0);
                 lokasi.setOrganisasi(organisasi);
                 return lokasiRepository.save(lokasi);
-            } else {
-                throw new NotFoundException("Organisasi dengan ID " + idOrganisasi + " tidak ditemukan.");
             }
-        } else {
-            throw new NotFoundException("Admin dengan ID " + idAdmin + " tidak ditemukan.");
+                throw new NotFoundException("Organisasi dengan ID " + idOrganisasi + " tidak ditemukan.");
         }
+            throw new NotFoundException("Admin dengan ID " + idAdmin + " tidak ditemukan.");
     }
 
      @Override
      public Lokasi tambahLokasiBySuperAdmin(Long idSuperAdmin, Lokasi lokasi, Long idOrganisasi) {
          Optional<SuperAdmin> superadminOptional = superAdminRepository.findById(idSuperAdmin);
          if (superadminOptional.isPresent()) {
-             SuperAdmin superAdmin = superadminOptional.get();
              Optional<Organisasi> organisasiOptional = organisasiRepository.findById(idOrganisasi);
              if (organisasiOptional.isPresent()) {
                  Organisasi organisasi = organisasiOptional.get();
@@ -112,13 +110,12 @@ public class LokasiImpl implements LokasiService {
                  lokasi.setAlamat(lokasi.getAlamat());
                  lokasi.setAdmin(organisasi.getAdmin());
                  lokasi.setOrganisasi(organisasi);
+                 lokasi.setDeleted(0);
                  return lokasiRepository.save(lokasi);
-             } else {
-                 throw new NotFoundException("Organisasi dengan ID " + idOrganisasi + " tidak ditemukan.");
              }
-         } else {
-             throw new NotFoundException("Super admi dengan ID " + idSuperAdmin + " tidak ditemukan.");
+                 throw new NotFoundException("Organisasi dengan ID " + idOrganisasi + " tidak ditemukan.");
          }
+             throw new NotFoundException("Super admin dengan ID " + idSuperAdmin + " tidak ditemukan.");
      }
 
     @Override
@@ -129,8 +126,8 @@ public class LokasiImpl implements LokasiService {
     }
 
     @Override
-    public LokasiDTO getLokasiById(Long id) {
-        Optional<Lokasi> lokasi = lokasiRepository.findById(id);
+    public LokasiDTO getLokasiById(Long idLokasi) {
+        Optional<Lokasi> lokasi = lokasiRepository.findById(idLokasi);
         return lokasi.map(this::convertToDto).orElse(null);
     }
 
@@ -139,8 +136,8 @@ public class LokasiImpl implements LokasiService {
         return lokasiRepository.findById(idLokasi);
     }
     @Override
-    public LokasiDTO updateLokasi(Long id, LokasiDTO lokasiDTO) {
-        return lokasiRepository.findById(id).map(existingLokasi -> {
+    public LokasiDTO updateLokasi(Long idLokasi, LokasiDTO lokasiDTO) {
+        return lokasiRepository.findById(idLokasi).map(existingLokasi -> {
             updateEntity(existingLokasi, lokasiDTO);
             lokasiRepository.save(existingLokasi);
             return convertToDto(existingLokasi);
@@ -152,6 +149,26 @@ public class LokasiImpl implements LokasiService {
         lokasiRepository.deleteById(idLokasi);
     }
 
+
+    @Override
+    public void DeleteLokasiSementara(Long idLokasi){
+        Optional<Lokasi> lokasiOptional = lokasiRepository.findById(idLokasi);
+        if (lokasiOptional.isPresent()) {
+         Lokasi lokasi = lokasiOptional.get();
+         lokasi.setDeleted(1);
+         lokasiRepository.save(lokasi);
+        }
+    }
+
+    @Override
+    public void PemulihanDataLokasi(Long idLokasi){
+        Optional<Lokasi> lokasiOptional = lokasiRepository.findById(idLokasi);
+        if (lokasiOptional.isPresent()) {
+            Lokasi lokasi = lokasiOptional.get();
+            lokasi.setDeleted(0);
+            lokasiRepository.save(lokasi);
+        }
+    }
 
     @Override
     public OrganisasiDTO getOrganisasiById(Long id) {

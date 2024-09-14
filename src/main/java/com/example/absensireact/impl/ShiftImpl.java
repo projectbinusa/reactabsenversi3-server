@@ -85,6 +85,7 @@ public class ShiftImpl implements ShiftService {
             shift.setNamaShift(shift.getNamaShift());
             shift.setWaktuMasuk(shift.getWaktuMasuk());
             shift.setWaktuPulang(shift.getWaktuPulang());
+            shift.setDeleted(0);
             return shiftRepository.save(shift);
         }
         throw new NotFoundException("Admin tidak ditemukan");
@@ -126,6 +127,26 @@ public class ShiftImpl implements ShiftService {
             Map<String, Boolean> res = new HashMap<>();
             res.put("Deleted", Boolean.FALSE);
             return res;
+        }
+    }
+
+    @Override
+    public void DeleteShiftSementara(Long id){
+        Optional<Shift> shiftOptional = shiftRepository.findById(id);
+        if (shiftOptional.isPresent()) {
+            Shift shift = shiftOptional.get();
+            shift.setDeleted(1);
+            shiftRepository.save(shift);
+        }
+    }
+
+    @Override
+    public void PemulihanDataShift(Long id){
+        Optional<Shift> shiftOptional = shiftRepository.findById(id);
+        if (shiftOptional.isPresent()) {
+            Shift shift = shiftOptional.get();
+            shift.setDeleted(0);
+            shiftRepository.save(shift);
         }
     }
 }

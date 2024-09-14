@@ -7,6 +7,7 @@ import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Lokasi;
 import com.example.absensireact.service.LokasiService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -105,7 +106,26 @@ public class LokasiController {
     }
 
     @DeleteMapping("/delete/{idLokasi}")
-    public void deleteLembur(@PathVariable Long idLokasi) {
+    public void deleteLokasi(@PathVariable Long idLokasi) {
         lokasiService.deleteLokasi(idLokasi);
+    }
+
+    @DeleteMapping("/delete-sementara/{idLokasi}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long idLokasi) {
+        try {
+            lokasiService.DeleteLokasiSementara(idLokasi);
+            return ResponseEntity.ok("Lokasi berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lokasi tidak ditemukan dengan idLokasi: " + idLokasi);
+        }
+    }
+    @PutMapping("/pemulihan-lokasi/{idLokasi}")
+    public ResponseEntity<String> PemulihanLokasi(@PathVariable Long idLokasi) {
+        try {
+            lokasiService.PemulihanDataLokasi(idLokasi);
+            return ResponseEntity.ok("Lokasi berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lokasi tidak ditemukan dengan idLokasi: " + idLokasi);
+        }
     }
 }

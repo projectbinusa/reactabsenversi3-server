@@ -71,4 +71,23 @@ public class KelasController {
         kelasService.deleteKelas(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            kelasService.DeleteKelasSementara(id);
+            return ResponseEntity.ok("Kelas berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Kelas tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/pemulihan-kelas/{id}")
+    public ResponseEntity<String> PemulihanKelas(@PathVariable Long id) {
+        try {
+            kelasService.PemulihanDataKelas(id);
+            return ResponseEntity.ok("Kelas berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Kelas tidak ditemukan dengan id: " + id);
+        }
+    }
 }

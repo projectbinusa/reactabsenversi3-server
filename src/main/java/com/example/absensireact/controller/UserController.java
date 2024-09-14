@@ -262,6 +262,26 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
         }
     }
+    @DeleteMapping("/user/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            userImpl.DeleteUserSementara(id);
+            return ResponseEntity.ok("User berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/user/pemulihan-user/{id}")
+    public ResponseEntity<String> PemulihanUser(@PathVariable Long id) {
+        try {
+            userImpl.PemulihanDataUser(id);
+            return ResponseEntity.ok("User berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
+        }
+    }
+
+
 
     @GetMapping("/user/by-kelas/{idKelas}")
     public ResponseEntity<List<UserModel>> getUserByIdKelas(@PathVariable Long idKelas) {

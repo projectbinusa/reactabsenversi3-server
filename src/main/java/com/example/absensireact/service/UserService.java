@@ -70,6 +70,11 @@ public interface UserService {
 
     void deleteUser(Long id);
 
+    void DeleteUserSementara(Long id);
+
+
+    void PemulihanDataUser(Long id);
+
     List<UserModel> getUsersByIdKelas(Long idKelas);
 
 

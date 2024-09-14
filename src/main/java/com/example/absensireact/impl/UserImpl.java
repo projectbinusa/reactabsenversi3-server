@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -546,6 +545,8 @@ public class UserImpl implements UserService {
         user.setRole("USER");
         user.setUsername(user.getUsername());
         user.setPassword(encoder.encode(user.getPassword()));
+        user.setDeleted(0);
+
         return userRepository.save(user);
     }
 
@@ -755,6 +756,8 @@ public class UserImpl implements UserService {
                     .orElseThrow(() -> new NotFoundException("id Orang Tua tidak ditemukan : " + idOrangTua)));
             user.setStartKerja(new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(new Date()));
             user.setAdmin(admin);
+            user.setDeleted(0);
+
 
             return userRepository.save(user);
         } else {
@@ -794,6 +797,7 @@ public class UserImpl implements UserService {
             user.setStartKerja(new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(new Date()));
             user.setAdmin(admin);
             user.setKelas(kelas);
+            user.setDeleted(0);
 
             return userRepository.save(user);
         } else {
@@ -915,6 +919,28 @@ public class UserImpl implements UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+
+    @Override
+    public void DeleteUserSementara(Long id){
+        Optional<UserModel> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            UserModel user = userOptional.get();
+            user.setDeleted(1);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public void PemulihanDataUser(Long id){
+        Optional<UserModel> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            UserModel user = userOptional.get();
+            user.setDeleted(0);
+            userRepository.save(user);
+        }
+    }
+
 
     private Date truncateTime(Date date) {
         Calendar calendar = Calendar.getInstance();

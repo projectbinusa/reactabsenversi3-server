@@ -31,4 +31,8 @@ public interface ShiftService {
     Shift editShiftById(Long id, Shift updatedShift);
 
     Map<String, Boolean> delete(Long id);
+
+    void DeleteShiftSementara(Long id);
+
+    void PemulihanDataShift(Long id);
 }

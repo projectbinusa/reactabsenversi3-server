@@ -1,4 +1,5 @@
 package com.example.absensireact.controller;
+import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Shift;
 import com.example.absensireact.service.ShiftService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,25 @@ public class ShiftController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            shiftService.DeleteShiftSementara(id);
+            return ResponseEntity.ok("Shift berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shift tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/pemulihan-shift/{id}")
+    public ResponseEntity<String> PemulihanShift(@PathVariable Long id) {
+        try {
+            shiftService.PemulihanDataShift(id);
+            return ResponseEntity.ok("SHift berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SHift tidak ditemukan dengan id: " + id);
         }
     }
 }

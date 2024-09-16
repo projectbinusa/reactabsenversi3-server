@@ -21,7 +21,8 @@ public class Shift {
     @Column(name = "waktuPulang")
     private String waktuPulang;
 
-
+    @Column(name = "deleted")
+    private Integer deleted;
 
     @OneToOne
     @JoinColumn(name = "idAdmin")
@@ -32,11 +33,12 @@ public class Shift {
 
     }
 
-    public Shift(Long id, String namaShift, String waktuMasuk, String waktuPulang, Admin admin) {
+    public Shift(Long id, String namaShift, String waktuMasuk, String waktuPulang, Integer deleted, Admin admin) {
         this.id = id;
         this.namaShift = namaShift;
         this.waktuMasuk = waktuMasuk;
         this.waktuPulang = waktuPulang;
+        this.deleted = deleted;
         this.admin = admin;
     }
 
@@ -78,5 +80,13 @@ public class Shift {
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

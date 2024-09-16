@@ -10,7 +10,8 @@ public class Lokasi {
     private Long idLokasi;
     private String namaLokasi;
     private String alamat;
-
+    @Column(name = "deleted")
+    private Integer deleted;
     @OneToOne
     @JoinColumn(name = "idOrganisasi" )
     private Organisasi organisasi;
@@ -18,6 +19,17 @@ public class Lokasi {
     @OneToOne
     @JoinColumn(name = "idAdmin" )
     private Admin admin;
+
+    public Lokasi(){}
+
+    public Lokasi(Long idLokasi, String namaLokasi, String alamat, Integer deleted, Organisasi organisasi, Admin admin) {
+        this.idLokasi = idLokasi;
+        this.namaLokasi = namaLokasi;
+        this.alamat = alamat;
+        this.deleted = deleted;
+        this.organisasi = organisasi;
+        this.admin = admin;
+    }
 
     public Long getIdLokasi() {
         return idLokasi;
@@ -59,5 +71,11 @@ public class Lokasi {
         this.admin = admin;
     }
 
+    public Integer getDeleted() {
+        return deleted;
+    }
 
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
+    }
 }

@@ -29,10 +29,13 @@ public class OrangTua {
     @JoinColumn(name = "idAdmin")
     private Admin admin;
 
+    @Column(name = "deleted")
+    private Integer deleted;
+
     public OrangTua() {
     }
 
-    public OrangTua(Long id, String email, String nama, String imageOrtu, String role, String password, Admin admin) {
+    public OrangTua(Long id, String email, String nama, String imageOrtu, String role, String password, Admin admin, Integer deleted) {
         this.id = id;
         this.email = email;
         this.nama = nama;
@@ -40,6 +43,7 @@ public class OrangTua {
         this.role = role;
         this.password = password;
         this.admin = admin;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -96,5 +100,13 @@ public class OrangTua {
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

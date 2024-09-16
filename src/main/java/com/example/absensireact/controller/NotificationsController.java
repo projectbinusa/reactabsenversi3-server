@@ -3,6 +3,7 @@ import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Notifications;
 import com.example.absensireact.service.NotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -105,6 +106,25 @@ public class NotificationsController {
             return ResponseEntity.ok("Notification deleted successfully.");
         } else {
             return ResponseEntity.badRequest().body("Notification not found with ID: " + id);
+        }
+    }
+
+    @DeleteMapping("/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            notificationsService.DeleteNotifSementara(id);
+            return ResponseEntity.ok("Notif berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Notif tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/pemulihan-kelas/{id}")
+    public ResponseEntity<String> PemulihanNotif(@PathVariable Long id) {
+        try {
+            notificationsService.PemulihanDataNotif(id);
+            return ResponseEntity.ok("Notif berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Kelas tidak ditemukan dengan id: " + id);
         }
     }
 }

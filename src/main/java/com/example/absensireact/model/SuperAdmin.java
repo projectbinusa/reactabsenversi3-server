@@ -1,6 +1,5 @@
 package com.example.absensireact.model;
 
-
 import javax.persistence.*;
 
 @Entity
@@ -14,30 +13,32 @@ public class SuperAdmin {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "password" , unique = true)
+    @Column(name = "password", unique = true)
     private String password;
 
     @Column(name = "username")
-    private  String username;
+    private String username;
 
-    @Column(name = "imageSuperAdmin"  )
+    @Column(name = "imageSuperAdmin")
     private String imageSuperAdmin;
-
 
     @Column(name = "role")
     private String role;
 
-    public SuperAdmin(){
+    @Column(name = "deleted")
+    private Integer deleted;
 
+    public SuperAdmin() {
     }
 
-    public SuperAdmin(Long id, String email, String password, String username, String imageSuperAdmin, String role) {
+    public SuperAdmin(Long id, String email, String password, String username, String imageSuperAdmin, String role, Integer deleted) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.username = username;
         this.imageSuperAdmin = imageSuperAdmin;
         this.role = role;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -86,5 +87,13 @@ public class SuperAdmin {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

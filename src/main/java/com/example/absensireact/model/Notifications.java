@@ -38,11 +38,14 @@ public class Notifications {
     @Column(name = "cretedAT")
     private Date createdAt;
 
+    @Column(name = "deleted")
+    private Integer deleted;
+
     public Notifications(){
 
     }
 
-    public Notifications(Long id, UserModel user, Admin admin, String message, String tempatAcara, String namaAcara, Date tanggalAcara, Date createdAt) {
+    public Notifications(Long id, UserModel user, Admin admin, String message, String tempatAcara, String namaAcara, Date tanggalAcara, Date createdAt, Integer deleted) {
         this.id = id;
         this.user = user;
         this.admin = admin;
@@ -51,6 +54,7 @@ public class Notifications {
         this.namaAcara = namaAcara;
         this.tanggalAcara = tanggalAcara;
         this.createdAt = createdAt;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -117,5 +121,13 @@ public class Notifications {
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 }

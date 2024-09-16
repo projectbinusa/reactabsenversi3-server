@@ -167,4 +167,24 @@ public class NotificationsImpl implements NotificationsService {
 
     }
 
+    @Override
+    public void DeleteNotifSementara(Long id){
+        Optional<Notifications> notificationsOptional = notificationsRepository.findById(id);
+        if (notificationsOptional.isPresent()) {
+            Notifications notifications = notificationsOptional.get();
+            notifications.setDeleted(1);
+            notificationsRepository.save(notifications);
+        }
+    }
+
+    @Override
+    public void PemulihanDataNotif(Long id){
+        Optional<Notifications> notificationsOptional = notificationsRepository.findById(id);
+        if (notificationsOptional.isPresent()) {
+            Notifications notifications = notificationsOptional.get();
+            notifications.setDeleted(0);
+            notificationsRepository.save(notifications);
+        }
+    }
+
 }

@@ -128,6 +128,23 @@ public class OrangTuaController {
         }
     }
 
-
+    @DeleteMapping("/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            orangTuaService.DeleteOrtuSementara(id);
+            return ResponseEntity.ok("Ortu berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ortu tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/pemulihan-kelas/{id}")
+    public ResponseEntity<String> PemulihanOrtu(@PathVariable Long id) {
+        try {
+            orangTuaService.PemulihanDataOrtu(id);
+            return ResponseEntity.ok("Ortu berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ortu tidak ditemukan dengan id: " + id);
+        }
+    }
 
 }

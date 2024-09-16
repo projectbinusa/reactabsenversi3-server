@@ -195,4 +195,23 @@ public class AdminController {
         Map<String, Boolean> response = adminService.delete(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @DeleteMapping("/admin/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            adminService.DeleteAdminSementara(id);
+            return ResponseEntity.ok("Admin berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin tidak ditemukan dengan id: " + id);
+        }
+    }
+    @PutMapping("/admin/pemulihan-kelas/{id}")
+    public ResponseEntity<String> PemulihanAdmin(@PathVariable Long id) {
+        try {
+            adminService.PemulihanDataAdmin(id);
+            return ResponseEntity.ok("Admin berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin tidak ditemukan dengan id: " + id);
+        }
+    }
 }

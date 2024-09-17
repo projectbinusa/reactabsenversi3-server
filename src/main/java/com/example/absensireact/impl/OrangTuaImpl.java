@@ -191,11 +191,11 @@ public class OrangTuaImpl implements OrangTuaService {
 
     @Override
     public void DeleteOrtuSementara(Long id){
-        Optional<OrangTua> orangtuaOptional = orangtuaRepository.findById(id);
+        Optional<OrangTua> orangtuaOptional = orangTuaRepository.findById(id);
         if (orangtuaOptional.isPresent()) {
             OrangTua orangtua = orangtuaOptional.get();
             orangtua.setDeleted(1);
-            orangtuaRepository.save(orangtua);
+            orangTuaRepository.save(orangtua);
         }
     }
 

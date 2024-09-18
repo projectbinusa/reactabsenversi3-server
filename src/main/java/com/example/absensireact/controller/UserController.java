@@ -203,9 +203,10 @@ public class UserController {
                                                 @RequestParam Long idShift,
                                                 @RequestParam Long idOrangTua,
                                                 @RequestParam Long idKelas,
+                                                @RequestParam Long idOrganisasi,
                                                 @RequestBody UserModel user) {
         try {
-            UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, user);
+            UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

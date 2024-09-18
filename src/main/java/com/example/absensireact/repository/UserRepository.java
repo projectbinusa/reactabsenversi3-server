@@ -20,6 +20,11 @@ public interface UserRepository extends JpaRepository<UserModel , Long> {
 
     @Query(value = "SELECT * FROM user WHERE id_admin = :adminId" , nativeQuery = true)
     List<UserModel> findByadminIdAbsensi (Long adminId);
+    @Query(value = "SELECT * FROM user WHERE id_admin = :adminId" , nativeQuery = true)
+    List<UserModel> find (Long adminId);
+
+    @Query(value = "SELECT * FROM user WHERE id_organisasi = :organiasiId" , nativeQuery = true)
+    List<UserModel> findByOrganisasiId (Long organiasiId);
 
     @Query(value = "SELECT * FROM user WHERE id_shift = :idShift" , nativeQuery = true)
     List<UserModel> findByIdShift(Long idShift);

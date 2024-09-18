@@ -1,13 +1,8 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.Organisasi;
-import com.example.absensireact.model.SuperAdmin;
-import com.example.absensireact.repository.AdminRepository;
-import com.example.absensireact.repository.OrganisasiRepository;
-import com.example.absensireact.repository.SuperAdminRepository;
-import com.example.absensireact.repository.UserRepository;
+import com.example.absensireact.model.*;
+import com.example.absensireact.repository.*;
 import com.example.absensireact.service.OrganisasiService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,9 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OrganisasiImpl implements OrganisasiService {
@@ -37,12 +30,17 @@ public class OrganisasiImpl implements OrganisasiService {
 
     private final OrganisasiRepository organisasiRepository;
     private final UserRepository userRepository;
+    private final LokasiRepository lokasiRepository;
+
+    private final KelasRepository kelasRepository;
     private final SuperAdminRepository superAdminRepository;
     private final AdminRepository adminRepository;
 
-    public OrganisasiImpl(OrganisasiRepository organisasiRepository, UserRepository userRepository, SuperAdminRepository superAdminRepository, AdminRepository adminRepository) throws IOException {
+    public OrganisasiImpl(OrganisasiRepository organisasiRepository, UserRepository userRepository, LokasiRepository lokasiRepository, KelasRepository kelasRepository, SuperAdminRepository superAdminRepository, AdminRepository adminRepository) throws IOException {
         this.organisasiRepository = organisasiRepository;
         this.userRepository = userRepository;
+        this.lokasiRepository = lokasiRepository;
+        this.kelasRepository = kelasRepository;
         this.superAdminRepository = superAdminRepository;
         this.adminRepository = adminRepository;
 
@@ -316,25 +314,98 @@ public class OrganisasiImpl implements OrganisasiService {
         return organisasiRepository.save(existingOrganisasi);
     }
 
-
-
     @Override
-    public void deleteOrganisasi(Long id) throws IOException {
-        Optional<Organisasi> organisasiOptional = organisasiRepository.findById(id);
-        if (organisasiOptional.isPresent()) {
-            Organisasi organisasi = organisasiOptional.get();
-            if (organisasi.getFotoOrganisasi() != null) {
-                String fotoUrl = organisasi.getFotoOrganisasi();
-                String fileName = fotoUrl.substring(fotoUrl.indexOf("/o/") + 3, fotoUrl.indexOf("?alt=media"));
-                deleteFoto(fileName);
-                organisasiRepository.deleteById(id);
-            } else {
-
-                organisasiRepository.deleteById(id);
-            }
-        } else {
-            throw new NotFoundException("Organisasi not found with id: " + id);
+    public void DeleteOrganisasiSementara(Long id){
+        Optional<Organisasi> shiftOptional = organisasiRepository.findById(id);
+        if (shiftOptional.isPresent()) {
+            Organisasi shift = shiftOptional.get();
+            shift.setDeleted(1);
+            organisasiRepository.save(shift);
         }
     }
+
+    @Override
+    public Map<String, Boolean> deleteOrganisasi(Long id) {
+        try {
+            // Cari semua UserModel yang menggunakan id organisasi ini
+            List<UserModel> users = userRepository.findByOrganisasiId(id);
+            for (UserModel user : users) {
+                // Set id organisasi menjadi null
+                user.setOrganisasi(null);
+                userRepository.save(user);
+            }
+            List<Lokasi> lokasis = lokasiRepository.findByOrganisasiId(id);
+            for (Lokasi user : lokasis) {
+                // Set id organisasi menjadi null
+                user.setOrganisasi(null);
+                lokasiRepository.save(user);
+            }
+            List<Kelas> kelass = kelasRepository.findAllByOrganisasi(id);
+            for (Kelas user : kelass) {
+                // Set id organisasi menjadi null
+                user.setOrganisasi(null);
+                kelasRepository.save(user);
+            }
+
+            // Hapus foto organisasi jika ada
+            Optional<Organisasi> organisasiOptional = organisasiRepository.findById(id);
+            if (organisasiOptional.isPresent()) {
+                Organisasi organisasi = organisasiOptional.get();
+                if (organisasi.getFotoOrganisasi() != null) {
+                    String fotoUrl = organisasi.getFotoOrganisasi();
+                    int startIdx = fotoUrl.indexOf("/o/") + 3; // Awal fileName
+                    int endIdx = fotoUrl.indexOf("?alt=media"); // Akhir fileName
+
+                    // Pastikan substring ?alt=media ada di fotoUrl
+                    if (endIdx != -1) {
+                        String fileName = fotoUrl.substring(startIdx, endIdx);
+                        deleteFoto(fileName);
+                    } else {
+                        // Handle jika format URL foto tidak sesuai
+                        System.out.println("Format foto URL tidak sesuai: " + fotoUrl);
+                    }
+                }
+
+                // Hapus organisasi setelah users diupdate
+                organisasiRepository.deleteById(id);
+            } else {
+                throw new NotFoundException("Organisasi not found with id: " + id);
+            }
+
+            // Return success
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.TRUE);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.FALSE);
+            return res;
+        }
+    }
+
+
+
+//    @Override
+//    public Map<String, Boolean> delete(Long id) {
+//        try {
+//            List<UserModel> users = userRepository.findByIdShift(id);
+//            for (UserModel user : users) {
+//                user.setShift(null);
+//                userRepository.save(user);
+//            }
+//
+//            shiftRepository.deleteById(id);
+//
+//            Map<String, Boolean> res = new HashMap<>();
+//            res.put("Deleted", Boolean.TRUE);
+//            return res;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Map<String, Boolean> res = new HashMap<>();
+//            res.put("Deleted", Boolean.FALSE);
+//            return res;
+//        }
+//    }
 
 }

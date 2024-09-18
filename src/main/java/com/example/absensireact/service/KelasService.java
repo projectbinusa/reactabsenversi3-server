@@ -3,6 +3,7 @@ package com.example.absensireact.service;
 import com.example.absensireact.model.Kelas;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface KelasService {
@@ -19,7 +20,7 @@ public interface KelasService {
 
     Kelas tambahKelas(Kelas kelas, Long idOrganisasi, Long idAdmin);
 
-    void deleteKelas(Long id);
+    Map<String, Boolean> deleteKelas(Long id);
 
     void DeleteKelasSementara(Long id);
 

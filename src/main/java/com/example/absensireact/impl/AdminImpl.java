@@ -12,12 +12,6 @@ import com.example.absensireact.repository.*;
 import com.example.absensireact.service.AdminService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,10 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -55,9 +46,13 @@ public class AdminImpl implements AdminService {
     private final CutiRepository cutiRepository;
     private final AbsensiRepository absensiRepository;
 
+    private final KelasRepository kelasRepository;
+    private final OrangTuaRepository orangTuaRepository;
+    private final NotificationsRepository notifikasiRepository;
+
     private final ResetPasswordRepository resetPasswordRepository;
 
-    public AdminImpl(AdminRepository adminRepository, UserRepository userRepository, SuperAdminRepository superAdminRepository, JabatanRepository jabatanRepository, ShiftRepository shiftRepository, OrganisasiRepository organisasiRepository, LokasiRepository lokasiRepository, LemburRepository lemburRepository, CutiRepository cutiRepository, AbsensiRepository absensiRepository, ResetPasswordRepository resetPasswordRepository, JavaMailSender javaMailSender, GetVerification getVerification) {
+    public AdminImpl(AdminRepository adminRepository, UserRepository userRepository, SuperAdminRepository superAdminRepository, JabatanRepository jabatanRepository, ShiftRepository shiftRepository, OrganisasiRepository organisasiRepository, LokasiRepository lokasiRepository, LemburRepository lemburRepository, CutiRepository cutiRepository, AbsensiRepository absensiRepository, KelasRepository kelasRepository, OrangTuaRepository orangTuaRepository, ResetPasswordRepository resetPasswordRepository, NotificationsRepository notifikasiRepository, JavaMailSender javaMailSender, GetVerification getVerification) {
         this.adminRepository = adminRepository;
         this.userRepository = userRepository;
         this.superAdminRepository = superAdminRepository;
@@ -68,6 +63,9 @@ public class AdminImpl implements AdminService {
         this.lemburRepository = lemburRepository;
         this.cutiRepository = cutiRepository;
         this.absensiRepository = absensiRepository;
+        this.kelasRepository = kelasRepository;
+        this.notifikasiRepository = notifikasiRepository;
+        this.orangTuaRepository = orangTuaRepository;
         this.resetPasswordRepository = resetPasswordRepository;
         this.javaMailSender = javaMailSender;
         this.getVerification = getVerification;
@@ -308,17 +306,76 @@ public class AdminImpl implements AdminService {
 //    }
 
 
-@Override
-public Map<String, Boolean> delete(Long id) {
-    Map<String, Boolean> res = new HashMap<>();
-    try {
-        adminRepository.deleteById(id);
-        res.put("Deleted", Boolean.TRUE);
-    } catch (Exception e) {
-        res.put("Deleted", Boolean.FALSE);
+//@Override
+//public Map<String, Boolean> delete(Long id) {
+//    Map<String, Boolean> res = new HashMap<>();
+//    try {
+//        adminRepository.deleteById(id);
+//        res.put("Deleted", Boolean.TRUE);
+//    } catch (Exception e) {
+//        res.put("Deleted", Boolean.FALSE);
+//    }
+//    return res;
+//}
+
+    public Map<String, Boolean> delete(Long id) {
+        try {
+            // Hapus data User yang berelasi dengan Admin
+            List<UserModel> users = userRepository.findByIdAdmin(id);
+            for (UserModel user : users) {
+                userRepository.deleteById(user.getId());
+            }
+
+            // Hapus data Kelas yang berelasi dengan Admin
+            List<Kelas> kelasList = kelasRepository.findByIdAdmin(id);
+            for (Kelas kelas : kelasList) {
+                kelasRepository.deleteById(kelas.getId());
+            }
+
+            // Hapus data OrangTua yang berelasi dengan Admin
+            List<OrangTua> orangTuaList = orangTuaRepository.findByIdAdmin(id);
+            for (OrangTua orangTua : orangTuaList) {
+                orangTuaRepository.deleteById(orangTua.getId());
+            }
+
+            // Hapus data Notifikasi yang berelasi dengan Admin
+            List<Notifications> notifikasi = notifikasiRepository.findnotifByAdmin(id);
+            for (Notifications orangTua : notifikasi) {
+                notifikasiRepository.deleteById(orangTua.getId());
+            }
+
+            // Hapus data Organisasi yang berelasi dengan Admin
+            List<Organisasi> organisasiList = organisasiRepository.findByIdAdmin(id);
+            for (Organisasi organisasi : organisasiList) {
+                organisasiRepository.deleteById(organisasi.getId());
+            }
+
+            // Hapus data Shift yang berelasi dengan Admin
+            List<Shift> shiftList = shiftRepository.findByIdAdmin1(id);
+            for (Shift shift : shiftList) {
+                shiftRepository.deleteById(shift.getId());
+            }
+
+            List<Absensi> absensiList = absensiRepository.findByUserId(id);
+            for (Absensi absensi : absensiList) {
+                absensiRepository.deleteById(absensi.getId());
+            }
+
+
+            // Setelah semua data terkait dihapus, hapus data Admin
+            adminRepository.deleteById(id);
+
+            // Membuat response sukses
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("Deleted", Boolean.TRUE);
+            return response;
+
+        } catch (Exception e) {
+            // Jika terjadi kesalahan, tangani exception dan buat response gagal
+            return Collections.singletonMap("Deleted", Boolean.FALSE);
+        }
     }
-    return res;
-}
+
 
     @Override
     public void DeleteAdminSementara(Long id){

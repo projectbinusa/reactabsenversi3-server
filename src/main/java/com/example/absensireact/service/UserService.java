@@ -52,7 +52,7 @@ public interface UserService {
 
     UserModel ubahUsernamedanemail(Long id, UserModel updateUser);
 
-    UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, UserModel updateUser);
+    UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserModel updateUser);
 
     List<UserModel> GetAllKaryawanByIdAdmin(Long idAdmin);
 

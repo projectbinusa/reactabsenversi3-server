@@ -1,7 +1,6 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.exception.RelationExistsException;
 import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.Organisasi;
@@ -14,7 +13,9 @@ import com.example.absensireact.service.KelasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -95,13 +96,27 @@ public class KelasImpl implements KelasService {
     }
 
     @Override
-    public void deleteKelas(Long id) {
-        if (checkIfHasRelations(id)) {
-            throw new RelationExistsException("Data ini sudah memiliki relasi dan tidak dapat dihapus");
-        } else {
+    public Map<String, Boolean> deleteKelas(Long id) {
+        try {
+            List<UserModel> users = userRepository.findByKelasId(id);
+            for (UserModel user : users) {
+                user.setKelas(null);
+                userRepository.save(user);
+            }
+
             kelasRepository.deleteById(id);
+
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.TRUE);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.FALSE);
+            return res;
         }
     }
+
 
     @Override
     public void DeleteKelasSementara(Long id){

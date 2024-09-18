@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface OrganisasiService {
@@ -34,5 +35,7 @@ public interface OrganisasiService {
 
     Organisasi EditByid(Long id,Long idAdmin ,  Organisasi organisasi, MultipartFile image) throws IOException;
 
-    void deleteOrganisasi(Long id) throws IOException;
+    void DeleteOrganisasiSementara(Long id);
+
+    Map<String, Boolean> deleteOrganisasi(Long id) throws IOException;
 }

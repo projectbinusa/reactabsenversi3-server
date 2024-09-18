@@ -100,6 +100,17 @@ public class OrganisasiController {
         return ResponseEntity.ok(updatedOrganisasi);
     }
 
+
+    @DeleteMapping("/delete-sementara/{id}")
+    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+        try {
+            organisasiService.DeleteOrganisasiSementara(id);
+            return ResponseEntity.ok("Organisasi berhasil dipindahkan ke sampah");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shift tidak ditemukan dengan id: " + id);
+        }
+    }
+
     @PutMapping(value = "/organisasi/editById/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Organisasi> editOrganisasi(
             @PathVariable Long id,

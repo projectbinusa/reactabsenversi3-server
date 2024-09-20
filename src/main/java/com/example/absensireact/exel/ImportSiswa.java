@@ -107,7 +107,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
             }
 
             user.setAdmin(admin);
-            user.setStatusKerja("Siswa"); // Set status otomatis menjadi "Siswa"
+            user.setRole("Siswa"); // Set status otomatis menjadi "Siswa"
             userList.add(user);
         }
     }
@@ -168,7 +168,7 @@ public void importUserperKelas(MultipartFile file, Admin admin, Kelas kelas) thr
 
             user.setAdmin(admin);
             user.setKelas(kelas);
-            user.setStatusKerja("Siswa");
+            user.setRole("Siswa");
             userList.add(user);
         }
     }

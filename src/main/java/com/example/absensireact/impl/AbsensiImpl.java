@@ -25,6 +25,8 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -288,10 +290,55 @@ public class AbsensiImpl implements AbsensiService {
 //        return absensiRepository.save(absensi);
 //    }
 
-//    private long getHoursDifference(Date startDate, Date endDate) {
-//        long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
-//        return TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+
+//    @Override
+//    public Absensi checkUserAlpha(Long userId) {
+//        UserModel userModel = userRepository.findById(userId)
+//                .orElseThrow(() -> new NotFoundException("Id user tidak ditemukan"));
+//
+//        boolean absensiCheck = checkUserAlreadyAbsenToday(userId);
+//        Date today = truncateTime(new Date());
+//
+//        Optional<Absensi> existingAlphaRecord = absensiRepository.findByUserIdAndTanggalAbsenAndStatusAbsen(
+//                userId, today, "Alpha");
+//
+//        if (existingAlphaRecord.isPresent()) {
+//            throw new BadRequestException("User sudah dialpha pada hari ini.");
+//        }
+//
+//        if (!absensiCheck) {
+//            String waktuPulangString = userModel.getShift().getWaktuPulang();
+//
+//            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+//
+//            LocalTime waktuPulang = LocalTime.parse(waktuPulangString, timeFormatter);
+//
+//            LocalTime currentTime = LocalTime.now();
+//
+//            if (currentTime.isAfter(waktuPulang)) {
+//                Absensi absensi = new Absensi();
+//                absensi.setJamMasuk("-");
+//                absensi.setJamPulang("-");
+//                absensi.setLokasiMasuk("-");
+//                absensi.setLokasiPulang("-");
+//                absensi.setFotoMasuk("-");
+//                absensi.setFotoPulang("-");
+//                absensi.setKeteranganTerlambat("-");
+//                absensi.setKeteranganPulangAwal("-");
+//                absensi.setTanggalAbsen(today);
+//                absensi.setUser(userModel);
+//                absensi.setStatusAbsen("Alpha");
+//
+//                return absensiRepository.save(absensi);
+//            }
+//
+//            throw new BadRequestException("user belum terlambat untuk absen Alpha.");
+//        }
+//
+//        throw new BadRequestException("User sudah melakukan absen hari ini");
 //    }
+
 
     @Override
     public Absensi checkUserAlpha(Long userId) {

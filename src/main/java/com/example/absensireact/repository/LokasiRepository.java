@@ -12,6 +12,8 @@ public interface LokasiRepository extends JpaRepository<Lokasi, Long> {
 
     @Query(value = "SELECT * FROM lokasi WHERE id_admin = :idAdmin" , nativeQuery = true)
     List<Lokasi>findbyAdmin(Long idAdmin);
+    @Query(value = "SELECT * FROM lokasi WHERE id_organisasi = :idOrganisasi" , nativeQuery = true)
+    List<Lokasi>findByOrganisasiId(Long idOrganisasi);
     List<Lokasi> findByAdmin(Admin admin);
 
 

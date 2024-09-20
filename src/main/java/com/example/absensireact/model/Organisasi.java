@@ -35,6 +35,9 @@ public class Organisasi {
     @Column(name = "provinsi")
     private String provinsi;
 
+    @Column(name = "deleted")
+    private Integer deleted;
+
     @Column(name = "status")
     private String status;
 
@@ -51,7 +54,7 @@ public class Organisasi {
 
     }
 
-    public Organisasi(Long id, String namaOrganisasi, String alamat, String nomerTelepon, String emailOrganisasi, String kecamatan, String kabupaten, String provinsi, String status, String fotoOrganisasi, Admin admin) {
+    public Organisasi(Long id, String namaOrganisasi, String alamat, String nomerTelepon, String emailOrganisasi, String kecamatan, String kabupaten, String provinsi, String status, String fotoOrganisasi, Integer deleted, Admin admin) {
         this.id = id;
         this.namaOrganisasi = namaOrganisasi;
         this.alamat = alamat;
@@ -62,6 +65,7 @@ public class Organisasi {
         this.provinsi = provinsi;
         this.status = status;
         this.fotoOrganisasi = fotoOrganisasi;
+        this.deleted = deleted;
         this.admin = admin;
     }
 
@@ -143,6 +147,14 @@ public class Organisasi {
 
     public void setFotoOrganisasi(String fotoOrganisasi) {
         this.fotoOrganisasi = fotoOrganisasi;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
     }
 
     public Admin getAdmin() {

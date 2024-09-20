@@ -21,7 +21,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -185,17 +187,39 @@ public class OrangTuaImpl implements OrangTuaService {
     }
 
     @Override
-    public void deleteOrangTua(Long id) {
-        orangTuaRepository.deleteById(id);
+    public Map<String, Boolean> deleteOrangTua(Long id) {
+        try {
+            List<UserModel> users = userRepository.findByIdOrangTua(id);
+            for (UserModel user : users) {
+                user.setOrangTua(null);
+                userRepository.save(user);
+            }
+
+            orangTuaRepository.deleteById(id);
+
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.TRUE);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.FALSE);
+            return res;
+        }
     }
+
+//    @Override
+//    public void deleteOrangTua(Long id) {
+//        orangTuaRepository.deleteById(id);
+//    }
 
     @Override
     public void DeleteOrtuSementara(Long id){
-        Optional<OrangTua> orangtuaOptional = orangtuaRepository.findById(id);
+        Optional<OrangTua> orangtuaOptional = orangTuaRepository.findById(id);
         if (orangtuaOptional.isPresent()) {
             OrangTua orangtua = orangtuaOptional.get();
             orangtua.setDeleted(1);
-            orangtuaRepository.save(orangtua);
+            orangTuaRepository.save(orangtua);
         }
     }
 

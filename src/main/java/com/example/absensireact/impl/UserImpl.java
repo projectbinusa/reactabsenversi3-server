@@ -50,6 +50,9 @@ public class UserImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private AbsensiRepository absensiRepository;
+
+    @Autowired
     private SuperAdminImpl superAdminimpl;
 
     @Autowired
@@ -702,7 +705,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, UserModel updateUser) {
+    public UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserModel updateUser) {
         Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan: " + id);
@@ -723,6 +726,8 @@ public class UserImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("id OrangTua tidak ditemukan: " + idOrangTua)));
         user.setKelas(kelasRepository.findById(idKelas)
                 .orElseThrow(() -> new NotFoundException("id Kelas tidak ditemukan: " + idKelas)));
+        user.setOrganisasi(organisasiRepository.findById(idOrganisasi)
+                .orElseThrow(() -> new NotFoundException("id organisasi tidak ditemukan: " + idOrganisasi)));
 
         return userRepository.save(user);
     }
@@ -904,16 +909,31 @@ public class UserImpl implements UserService {
 
     @Override
     public void delete(Long id) throws IOException {
+        // Cek apakah user dengan ID tersebut ada
         Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             UserModel user = userOptional.get();
+
+            // Hapus semua data absensi yang terkait dengan user
+            List<Absensi> absensiList = absensiRepository.findByUserId(id);
+            for (Absensi absensi : absensiList) {
+                absensiRepository.delete(absensi);
+            }
+
+            // Hapus foto terkait jika ada
             String fotoUrl = user.getFotoUser();
-            String fileName = fotoUrl.substring(fotoUrl.indexOf("/o/") + 3, fotoUrl.indexOf("?alt=media"));
-            deleteFoto(fileName);
+            if (fotoUrl != null && !fotoUrl.isEmpty()) {
+                String fileName = fotoUrl.substring(fotoUrl.indexOf("/o/") + 3, fotoUrl.indexOf("?alt=media"));
+                deleteFoto(fileName);
+            }
+
+            // Setelah semua data terkait dihapus, hapus user
+            userRepository.deleteById(id);
         } else {
             throw new NotFoundException("User not found with id: " + id);
         }
     }
+
 
     @Override
     public void deleteUser(Long id) {

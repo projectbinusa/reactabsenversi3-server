@@ -1,5 +1,6 @@
 package com.example.absensireact.repository;
 
+import com.example.absensireact.model.Kelas;
 import com.example.absensireact.model.OrangTua;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,9 @@ public interface OrangTuaRepository extends JpaRepository<OrangTua, Long> {
 
     @Query(value = "SELECT * FROM orang_tua WHERE email = :email", nativeQuery = true)
     Optional<OrangTua> findByEmail (String email);
+
+    @Query(value = "SELECT * FROM orang_tua WHERE id_admin = :idAdmin", nativeQuery = true)
+    List<OrangTua> findByIdAdmin(Long idAdmin);
 
     Boolean existsByEmail(String email);
     Boolean existsByNama(String nama);

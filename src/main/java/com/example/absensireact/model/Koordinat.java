@@ -11,35 +11,37 @@ public class Koordinat {
     private Long id;
 
     @Column(name = "southEastLat")
-    private double southEastLat;
+    private String southEastLat;
 
     @Column(name = "southEastLng")
-    private double southEastLng;
+    private String southEastLng;
 
     @Column(name = "southWestLat")
-    private double southWestLat;
+    private String southWestLat;
 
     @Column(name = "southWestLng")
-    private double southWestLng;
+    private String southWestLng;
 
     @Column(name = "northEastLat")
-    private double northEastLat;
+    private String northEastLat;
 
     @Column(name = "northEastLng")
-    private double northEastLng;
+    private String northEastLng;
 
     @Column(name = "northWestLat")
-    private double northWestLat;
+    private String northWestLat;
 
     @Column(name = "northWestLng")
-    private double northWestLng;
+    private String northWestLng;
 
     @OneToOne
     @JoinColumn(name = "idOrganiasi")
     private Organisasi organisasi;
 
+    public Koordinat(){
 
-    public Koordinat(Long id, double southEastLat, double southEastLng, double southWestLat, double southWestLng, double northEastLat, double northEastLng, double northWestLat, double northWestLng, Organisasi organisasi) {
+    }
+    public Koordinat(Long id, String southEastLat, String southEastLng, String southWestLat, String southWestLng, String northEastLat, String northEastLng, String northWestLat, String northWestLng, Organisasi organisasi) {
         this.id = id;
         this.southEastLat = southEastLat;
         this.southEastLng = southEastLng;
@@ -52,6 +54,7 @@ public class Koordinat {
         this.organisasi = organisasi;
     }
 
+
     public Long getId() {
         return id;
     }
@@ -60,67 +63,67 @@ public class Koordinat {
         this.id = id;
     }
 
-    public double getSouthEastLat() {
+    public String getSouthEastLat() {
         return southEastLat;
     }
 
-    public void setSouthEastLat(double southEastLat) {
+    public void setSouthEastLat(String southEastLat) {
         this.southEastLat = southEastLat;
     }
 
-    public double getSouthEastLng() {
+    public String getSouthEastLng() {
         return southEastLng;
     }
 
-    public void setSouthEastLng(double southEastLng) {
+    public void setSouthEastLng(String southEastLng) {
         this.southEastLng = southEastLng;
     }
 
-    public double getSouthWestLat() {
+    public String getSouthWestLat() {
         return southWestLat;
     }
 
-    public void setSouthWestLat(double southWestLat) {
+    public void setSouthWestLat(String southWestLat) {
         this.southWestLat = southWestLat;
     }
 
-    public double getSouthWestLng() {
+    public String getSouthWestLng() {
         return southWestLng;
     }
 
-    public void setSouthWestLng(double southWestLng) {
+    public void setSouthWestLng(String southWestLng) {
         this.southWestLng = southWestLng;
     }
 
-    public double getNorthEastLat() {
+    public String getNorthEastLat() {
         return northEastLat;
     }
 
-    public void setNorthEastLat(double northEastLat) {
+    public void setNorthEastLat(String northEastLat) {
         this.northEastLat = northEastLat;
     }
 
-    public double getNorthEastLng() {
+    public String getNorthEastLng() {
         return northEastLng;
     }
 
-    public void setNorthEastLng(double northEastLng) {
+    public void setNorthEastLng(String northEastLng) {
         this.northEastLng = northEastLng;
     }
 
-    public double getNorthWestLat() {
+    public String getNorthWestLat() {
         return northWestLat;
     }
 
-    public void setNorthWestLat(double northWestLat) {
+    public void setNorthWestLat(String northWestLat) {
         this.northWestLat = northWestLat;
     }
 
-    public double getNorthWestLng() {
+    public String getNorthWestLng() {
         return northWestLng;
     }
 
-    public void setNorthWestLng(double northWestLng) {
+    public void setNorthWestLng(String northWestLng) {
         this.northWestLng = northWestLng;
     }
 

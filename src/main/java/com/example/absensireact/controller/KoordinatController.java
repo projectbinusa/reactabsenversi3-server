@@ -29,10 +29,12 @@ public class KoordinatController {
         return koordinat.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/tambahKoordinat")
-    public ResponseEntity<Koordinat> createKoordinat(@RequestBody Koordinat koordinat) {
+
+
+    @PostMapping("/tambahKoordinat/{idOrganisasi}")
+    public ResponseEntity<Koordinat> tambah(@PathVariable Long idOrganisasi , @RequestBody Koordinat koordinat) {
         try {
-            return ResponseEntity.ok(koordinatService.saveKoordinat(koordinat));
+            return ResponseEntity.ok(koordinatService.tambahKoordinat(idOrganisasi , koordinat));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
         }

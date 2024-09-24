@@ -111,7 +111,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
-//                .antMatchers(AUTH_AUTHORIZATION).hasRole("ADMIN")
                 .antMatchers(AUTH_AUTHORIZATION).hasAnyRole( "USER", "ADMIN", "SUPERADMIN", "WALI MURID")
                 .anyRequest()
                 .authenticated().and()

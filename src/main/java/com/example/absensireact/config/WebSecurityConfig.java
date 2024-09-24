@@ -75,8 +75,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/superadmin/validasi_code",
             "/api/superadmin/ubahPassByForgot",
             "/api/orangtua/forgot_password",
-            "/api/orangtua/validasi_code",
-            "/api/orangtua/ubahPassByForgot",
+            "/api/admin/oragnisasi",
+            "/api/admin/",
+            "/api/admin/get",
+            "/api/superadmin/register",
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
@@ -96,7 +98,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/admin/profile/edit/**",
             "/api/admin/profile/upload/**",
             "/api/superadmin/**"
-
     };
 
     @Bean

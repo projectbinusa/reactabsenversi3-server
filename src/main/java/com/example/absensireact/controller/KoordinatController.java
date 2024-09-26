@@ -3,9 +3,7 @@ package com.example.absensireact.controller;
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.impl.KoordinatImpl;
 import com.example.absensireact.model.Koordinat;
-import com.example.absensireact.securityNew.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +18,6 @@ public class KoordinatController {
     @Autowired
     private KoordinatImpl koordinatService;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtill;
-
     @GetMapping("/getAll-Koordinat")
     public List<Koordinat> getAllKoordinat() {
         return koordinatService.getAllKoordinat();
@@ -34,26 +29,12 @@ public class KoordinatController {
         return koordinat.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/getByIdAdmin")
-    public ResponseEntity<List<Koordinat>> getbyAdmin(@RequestParam String token) {
-        Long idAdmin = jwtTokenUtill.getIdFromToken(token);
-        List<Koordinat> koordinatList = koordinatService.getByadminId(idAdmin);
-        if (!koordinatList.isEmpty()) {
-            return ResponseEntity.ok(koordinatList);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
 
 
-
-
-
-    @PostMapping("/tambahKoordinat")
-    public ResponseEntity<Koordinat> tambah(@RequestParam String token , @RequestBody Koordinat koordinat) {
+    @PostMapping("/tambahKoordinat/{idOrganisasi}")
+    public ResponseEntity<Koordinat> tambah(@PathVariable Long idOrganisasi , @RequestBody Koordinat koordinat) {
         try {
-            Long idAdmin = jwtTokenUtill.getIdFromToken(token);
-            return ResponseEntity.ok(koordinatService.tambahKoordinat(idAdmin , koordinat));
+            return ResponseEntity.ok(koordinatService.tambahKoordinat(idOrganisasi , koordinat));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
         }

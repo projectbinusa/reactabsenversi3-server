@@ -35,13 +35,13 @@ public class Koordinat {
     private String northWestLng;
 
     @OneToOne
-    @JoinColumn(name = "idAdmin")
-    private Admin admin;
+    @JoinColumn(name = "idOrganiasi")
+    private Organisasi organisasi;
 
     public Koordinat(){
 
     }
-    public Koordinat(Long id, String southEastLat, String southEastLng, String southWestLat, String southWestLng, String northEastLat, String northEastLng, String northWestLat, String northWestLng, Admin admin) {
+    public Koordinat(Long id, String southEastLat, String southEastLng, String southWestLat, String southWestLng, String northEastLat, String northEastLng, String northWestLat, String northWestLng, Organisasi organisasi) {
         this.id = id;
         this.southEastLat = southEastLat;
         this.southEastLng = southEastLng;
@@ -51,7 +51,7 @@ public class Koordinat {
         this.northEastLng = northEastLng;
         this.northWestLat = northWestLat;
         this.northWestLng = northWestLng;
-        this.admin = admin;
+        this.organisasi = organisasi;
     }
 
 
@@ -127,11 +127,11 @@ public class Koordinat {
         this.northWestLng = northWestLng;
     }
 
-    public Admin getAdmin() {
-        return admin;
+    public Organisasi getOrganisasi() {
+        return organisasi;
     }
 
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
+    public void setOrganisasi(Organisasi organisasi) {
+        this.organisasi = organisasi;
     }
 }

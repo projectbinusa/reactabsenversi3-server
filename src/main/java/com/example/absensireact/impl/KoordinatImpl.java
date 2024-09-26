@@ -1,9 +1,7 @@
 package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Admin;
 import com.example.absensireact.model.Organisasi;
-import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.KoordinatRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +19,8 @@ public class KoordinatImpl {
 
     @Autowired
     private OrganisasiRepository organisasiRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
-
-
     public List<Koordinat> getAllKoordinat() {
         return koordinatRepository.findAll();
-    }
-
-    public List<Koordinat> getByadminId(Long idAdmin) {
-        List<Koordinat> koordinatList = koordinatRepository.findAllByAdminId(idAdmin);
-        if (koordinatList.isEmpty()) {
-            throw new NotFoundException("Tidak ditemukan koordinat yang terkait dengan Admin ID: " + idAdmin);
-        }
-
-        return koordinatList;
     }
 
     public Optional<Koordinat> getKoordinatById(Long id) {
@@ -51,9 +35,10 @@ public class KoordinatImpl {
 //        return koordinatRepository.save(koordinat);
 //    }
 
-    public Koordinat tambahKoordinat(Long idAdmin , Koordinat koordinat) {
-        Admin admin = adminRepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan"));
+    public Koordinat tambahKoordinat(Long idOrganisasi, Koordinat koordinat) {
+        // Validasi jika organisasi dengan id yang diberikan tidak ditemukan
+        Organisasi organisasiValidate = organisasiRepository.findById(idOrganisasi)
+                .orElseThrow(() -> new NotFoundException("Id organisasi tidak ditemukan: " + idOrganisasi));
 
         koordinat.setSouthEastLat(koordinat.getSouthEastLat());
         koordinat.setSouthEastLng(koordinat.getSouthEastLng());
@@ -64,7 +49,7 @@ public class KoordinatImpl {
         koordinat.setNorthWestLat(koordinat.getNorthWestLat());
         koordinat.setNorthWestLng(koordinat.getNorthWestLng());
 
-        koordinat.setAdmin(admin);
+        koordinat.setOrganisasi(organisasiValidate);
 
         return koordinatRepository.save(koordinat);
     }

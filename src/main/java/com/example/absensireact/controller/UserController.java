@@ -123,7 +123,7 @@ public class UserController {
             @RequestParam Long idOrangTua,
             @RequestParam Long idShift,
             @RequestParam Long idKelas
-            ) {
+    ) {
         try {
             UserModel savedUser = userImpl.TambahUserKelas(userDTO, idAdmin, idOrganisasi, idShift, idOrangTua, idKelas);
             return ResponseEntity.ok(savedUser);
@@ -209,11 +209,11 @@ public class UserController {
 
     @PutMapping("/user/editBYSuper/{id}")
     public ResponseEntity<UserModel> editUserBySuper(@PathVariable Long id,
-                                                @RequestParam Long idShift,
-                                                @RequestParam Long idOrangTua,
-                                                @RequestParam Long idKelas,
-                                                @RequestParam Long idOrganisasi,
-                                                @RequestBody UserModel user) {
+                                                     @RequestParam Long idShift,
+                                                     @RequestParam Long idOrangTua,
+                                                     @RequestParam Long idKelas,
+                                                     @RequestParam Long idOrganisasi,
+                                                     @RequestBody UserModel user) {
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);
@@ -335,16 +335,16 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
+    //    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
     @PostMapping("/import/data-siswa/admin/{adminId}")
     public ResponseEntity<String> importUser(@RequestPart("file") MultipartFile file, @PathVariable Long adminId) {
         return adminRepository.findById(adminId).map(admin -> {
-        try {
-            importSiswa.importUser(file, admin);
-            return ResponseEntity.ok("Import berhasil!");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
-        }
+            try {
+                importSiswa.importUser(file, admin);
+                return ResponseEntity.ok("Import berhasil!");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
+            }
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
     }
 
@@ -360,23 +360,23 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
-@PostMapping("/import/data-siswa/admin/{adminId}/kelas/{kelasId}")
-public ResponseEntity<String> importUserperKelas(@RequestPart("file") MultipartFile file, @PathVariable Long adminId, @PathVariable Long kelasId) {
-    return adminRepository.findById(adminId).map(admin ->
-            kelasRepository.findById(kelasId).map(kelas -> {
-                try {
-                    importSiswa.importUserperKelas(file, admin, kelas);
-                    return ResponseEntity.ok("Import berhasil!");
-                } catch (Exception e) {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
-                }
-            }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Kelas dengan ID " + kelasId + " tidak ditemukan"))
-    ).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Admin dengan ID " + adminId + " tidak ditemukan"));
-}
+    //    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
+    @PostMapping("/import/data-siswa/admin/{adminId}/kelas/{kelasId}")
+    public ResponseEntity<String> importUserperKelas(@RequestPart("file") MultipartFile file, @PathVariable Long adminId, @PathVariable Long kelasId) {
+        return adminRepository.findById(adminId).map(admin ->
+                kelasRepository.findById(kelasId).map(kelas -> {
+                    try {
+                        importSiswa.importUserperKelas(file, admin, kelas);
+                        return ResponseEntity.ok("Import berhasil!");
+                    } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
+                    }
+                }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Kelas dengan ID " + kelasId + " tidak ditemukan"))
+        ).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Admin dengan ID " + adminId + " tidak ditemukan"));
+    }
 
 
 

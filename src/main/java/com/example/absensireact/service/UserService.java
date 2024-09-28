@@ -36,7 +36,13 @@ public interface UserService {
 
     List<UserModel> getAllByShift(Long idShift);
 
-    UserModel EditUserBySuper(Long id, Long idJabatan, Long idShift, UserModel updateUser);
+//    UserModel EditUserBySuper(Long id, Long idJabatan, Long idShift, UserModel updateUser);
+
+
+
+    UserModel EditUserByAdmin(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserDTO updateUser);
+
+    UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserDTO updateUser);
 
     UserModel Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua);
 
@@ -52,7 +58,7 @@ public interface UserService {
 
     UserModel ubahUsernamedanemail(Long id, UserModel updateUser);
 
-    UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserModel updateUser);
+
 
     List<UserModel> GetAllKaryawanByIdAdmin(Long idAdmin);
 

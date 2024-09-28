@@ -204,9 +204,26 @@ public class UserController {
                                                 @RequestParam Long idOrangTua,
                                                 @RequestParam Long idKelas,
                                                 @RequestParam Long idOrganisasi,
-                                                @RequestBody UserModel user) {
+                                                @RequestBody UserDTO user) {
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+    }
+
+    @PutMapping("/user/editByAdmin/{id}")
+    public ResponseEntity<UserModel> editUserByAdmin(@PathVariable Long id,
+                                                     @RequestParam Long idShift,
+                                                          @RequestParam Long idOrangTua,
+                                                     @RequestParam Long idKelas,
+                                                     @RequestParam Long idOrganisasi,
+                                                     @RequestBody UserDTO user) {
+        try {
+            UserModel updatedUser = userImpl.EditUserByAdmin(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

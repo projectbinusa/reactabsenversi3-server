@@ -13,6 +13,7 @@ import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.KelasRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
+import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,13 +29,16 @@ import java.util.List;
 import java.util.Optional;
 
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
     UserService userImpl;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
     OrganisasiRepository organisasiRepository;
@@ -178,11 +182,13 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/user/getUserBy/{id}")
-    public ResponseEntity<UserModel> GetUserById (@PathVariable Long id){
-        UserModel user = userImpl.getById(id);
+    @GetMapping("/user/getUserBy")
+    public ResponseEntity<UserModel> GetUserById(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        UserModel user = jwtTokenUtil.getUserFromToken(token);
         return ResponseEntity.ok(user);
     }
+
 
     @PutMapping(path = "/user/edit-password/{id}")
     public CommonResponse<UserModel> putPassword( @RequestBody PasswordDTO password,  @PathVariable Long id ) {

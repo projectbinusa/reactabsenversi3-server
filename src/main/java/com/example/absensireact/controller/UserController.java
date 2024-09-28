@@ -59,9 +59,10 @@ public class UserController {
     private AppConfig appConfig;
 
 
-    @PostMapping("/user/{id}/upload-photo")
-    public ResponseEntity<UserModel> uploadPhoto(@PathVariable Long id, @RequestPart("image") MultipartFile image) throws IOException {
-        UserModel user = userImpl.fotoUser(id, image);
+    @PostMapping("/user/upload-photo")
+    public ResponseEntity<UserModel> uploadPhoto(@RequestBody String token, @RequestPart("image") MultipartFile image) throws IOException {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        UserModel user = userImpl.fotoUser(userId, image);
         return ResponseEntity.ok(user);
     }
     @PostMapping("/user/validasi-code")
@@ -131,9 +132,10 @@ public class UserController {
         }
     }
 
-    @PutMapping("/user/edit-email-username/{id}")
-    public ResponseEntity<UserModel> editemailusername(@PathVariable Long id, @RequestBody UserModel updateUser) {
-        UserModel user = userImpl.ubahUsernamedanemail(id , updateUser );
+    @PutMapping("/user/edit-email-username")
+    public ResponseEntity<UserModel> editemailusername(@RequestBody String token, @RequestBody UserModel updateUser) {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        UserModel user = userImpl.ubahUsernamedanemail(userId , updateUser );
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -190,9 +192,10 @@ public class UserController {
     }
 
 
-    @PutMapping(path = "/user/edit-password/{id}")
-    public CommonResponse<UserModel> putPassword( @RequestBody PasswordDTO password,  @PathVariable Long id ) {
-        return ResponseHelper.ok(userImpl.putPassword(password , id));
+    @PutMapping(path = "/user/edit-password/")
+    public CommonResponse<UserModel> putPassword( @RequestBody PasswordDTO password, @RequestParam String token ) {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        return ResponseHelper.ok(userImpl.putPassword(password , userId));
     }
     @PutMapping("/user/editBY/{id}")
     public ResponseEntity<UserModel> editUser(@PathVariable Long id, @RequestBody  UserModel user ) {
@@ -237,10 +240,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-    @PutMapping("/user/editFotoBY/{id}")
-    public ResponseEntity<UserModel> editFotoUser(@PathVariable Long id, @RequestPart("image") MultipartFile image) {
+    @PutMapping("/user/editFotoBY")
+    public ResponseEntity<UserModel> editFotoUser(@RequestBody String token, @RequestPart("image") MultipartFile image) {
         try {
-            UserModel updatedUser = userImpl.fotoUser(id,image );
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            UserModel updatedUser = userImpl.fotoUser(userId,image );
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -269,22 +273,24 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
         }
     }
-    @DeleteMapping("/user/delete-sementara/{id}")
-    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+    @DeleteMapping("/user/delete-sementara")
+    public ResponseEntity<String> deleteSemenetara(@RequestBody String token) {
         try {
-            userImpl.DeleteUserSementara(id);
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            userImpl.DeleteUserSementara(userId);
             return ResponseEntity.ok("User berhasil dipindahkan ke sampah");
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + token);
         }
     }
-    @PutMapping("/user/pemulihan-user/{id}")
-    public ResponseEntity<String> PemulihanUser(@PathVariable Long id) {
+    @PutMapping("/user/pemulihan-user")
+    public ResponseEntity<String> PemulihanUser(@RequestBody String token) {
         try {
-            userImpl.PemulihanDataUser(id);
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            userImpl.PemulihanDataUser(userId);
             return ResponseEntity.ok("User berhasil Dipulihkan");
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + token);
         }
     }
 

@@ -12,21 +12,15 @@ public class UserDTO {
     private Long id;
 
     private String email;
+
+    private String old_password;
+
+    private String new_password;
+
+    private String confirm_new_password;
     private String password;
     private String username;
-    private String fotoUser;
-    private String startKerja;
-    private String lamaKerja;
-    private String statusKerja;
-    private Organisasi organisasi;
-    private Jabatan jabatan;
-    private Shift shift;
-    private Admin admin;
-    private Kelas kelas;
-    private OrangTua orangTua;
-    private SuperAdmin superAdmin;
 
-    private String role;
 
     public Long getId() {
         return id;
@@ -60,99 +54,27 @@ public class UserDTO {
         this.username = username;
     }
 
-    public String getFotoUser() {
-        return fotoUser;
+    public String getOld_password() {
+        return old_password;
     }
 
-    public void setFotoUser(String fotoUser) {
-        this.fotoUser = fotoUser;
+    public void setOld_password(String old_password) {
+        this.old_password = old_password;
     }
 
-    public String getStartKerja() {
-        return startKerja;
+    public String getNew_password() {
+        return new_password;
     }
 
-    public void setStartKerja(String startKerja) {
-        this.startKerja = startKerja;
+    public void setNew_password(String new_password) {
+        this.new_password = new_password;
     }
 
-    public String getLamaKerja() {
-        return lamaKerja;
+    public String getConfirm_new_password() {
+        return confirm_new_password;
     }
 
-    public void setLamaKerja(String lamaKerja) {
-        this.lamaKerja = lamaKerja;
-    }
-
-    public String getStatusKerja() {
-        return statusKerja;
-    }
-
-    public void setStatusKerja(String statusKerja) {
-        this.statusKerja = statusKerja;
-    }
-
-    public Organisasi getOrganisasi() {
-        return organisasi;
-    }
-
-    public void setOrganisasi(Organisasi organisasi) {
-        this.organisasi = organisasi;
-    }
-
-    public Jabatan getJabatan() {
-        return jabatan;
-    }
-
-    public void setJabatan(Jabatan jabatan) {
-        this.jabatan = jabatan;
-    }
-
-    public Shift getShift() {
-        return shift;
-    }
-
-    public void setShift(Shift shift) {
-        this.shift = shift;
-    }
-
-    public Admin getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
-    }
-
-    public Kelas getKelas() {
-        return kelas;
-    }
-
-    public void setKelas(Kelas kelas) {
-        this.kelas = kelas;
-    }
-
-    public OrangTua getOrangTua() {
-        return orangTua;
-    }
-
-    public void setOrangTua(OrangTua orangTua) {
-        this.orangTua = orangTua;
-    }
-
-    public SuperAdmin getSuperAdmin() {
-        return superAdmin;
-    }
-
-    public void setSuperAdmin(SuperAdmin superAdmin) {
-        this.superAdmin = superAdmin;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setConfirm_new_password(String confirm_new_password) {
+        this.confirm_new_password = confirm_new_password;
     }
 }

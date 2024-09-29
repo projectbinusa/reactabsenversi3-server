@@ -607,10 +607,6 @@ public class UserImpl implements UserService {
         return users;
     }
 
-    @Override
-    public UserModel EditUserBySuper(Long id, Long idJabatan, Long idShift, UserModel updateUser) {
-        return null;
-    }
 
 
     @Override
@@ -705,7 +701,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserModel updateUser) {
+    public UserModel EditUserByAdmin(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserDTO updateUser) {
         Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan: " + id);
@@ -713,10 +709,23 @@ public class UserImpl implements UserService {
 
         UserModel user = userOptional.get();
 
-        // Cek apakah username sudah digunakan oleh user lain
         Optional<UserModel> userByUsername = userRepository.findByUsername(updateUser.getUsername());
         if (userByUsername.isPresent() && !userByUsername.get().getId().equals(id)) {
             throw new IllegalArgumentException("Username sudah digunakan");
+        }
+
+        if (updateUser != null && updateUser.getOld_password() != null) {
+            boolean isOldPasswordCorrect = encoder.matches(updateUser.getOld_password(), user.getPassword());  // Menggunakan password dari user lama
+
+            if (!isOldPasswordCorrect) {
+                throw new NotFoundException("Password lama tidak sesuai");
+            }
+
+            if (updateUser.getNew_password().equals(updateUser.getConfirm_new_password())) {
+                user.setPassword(encoder.encode(updateUser.getNew_password()));
+            } else {
+                throw new BadRequestException("Password baru dan konfirmasi password tidak sesuai");
+            }
         }
 
         user.setUsername(updateUser.getUsername());
@@ -731,6 +740,48 @@ public class UserImpl implements UserService {
 
         return userRepository.save(user);
     }
+
+    @Override
+    public UserModel EditUserBySuper(Long id,  Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserDTO updateUser) {
+        Optional<UserModel> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException("id user tidak ditemukan: " + id);
+        }
+
+        UserModel user = userOptional.get();
+
+        Optional<UserModel> userByUsername = userRepository.findByUsername(updateUser.getUsername());
+        if (userByUsername.isPresent() && !userByUsername.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Username sudah digunakan");
+        }
+
+        if (updateUser != null && updateUser.getOld_password() != null) {
+            boolean isOldPasswordCorrect = encoder.matches(updateUser.getOld_password(), user.getPassword());  // Menggunakan password dari user lama
+
+            if (!isOldPasswordCorrect) {
+                throw new NotFoundException("Password lama tidak sesuai");
+            }
+
+            if (updateUser.getNew_password().equals(updateUser.getConfirm_new_password())) {
+                user.setPassword(encoder.encode(updateUser.getNew_password()));
+            } else {
+                throw new BadRequestException("Password baru dan konfirmasi password tidak sesuai");
+            }
+        }
+
+        user.setUsername(updateUser.getUsername());
+        user.setShift(shiftRepository.findById(idShift)
+                .orElseThrow(() -> new NotFoundException("id Shift tidak ditemukan: " + idShift)));
+        user.setOrangTua(orangTuaRepository.findById(idOrangTua)
+                .orElseThrow(() -> new NotFoundException("id OrangTua tidak ditemukan: " + idOrangTua)));
+        user.setKelas(kelasRepository.findById(idKelas)
+                .orElseThrow(() -> new NotFoundException("id Kelas tidak ditemukan: " + idKelas)));
+        user.setOrganisasi(organisasiRepository.findById(idOrganisasi)
+                .orElseThrow(() -> new NotFoundException("id organisasi tidak ditemukan: " + idOrganisasi)));
+
+        return userRepository.save(user);
+    }
+
 
     @Override
     public UserModel Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua) {

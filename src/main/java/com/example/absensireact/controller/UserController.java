@@ -13,6 +13,7 @@ import com.example.absensireact.model.UserModel;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.KelasRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
+import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,13 +29,16 @@ import java.util.List;
 import java.util.Optional;
 
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
     UserService userImpl;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
     OrganisasiRepository organisasiRepository;
@@ -55,9 +59,10 @@ public class UserController {
     private AppConfig appConfig;
 
 
-    @PostMapping("/user/{id}/upload-photo")
-    public ResponseEntity<UserModel> uploadPhoto(@PathVariable Long id, @RequestPart("image") MultipartFile image) throws IOException {
-        UserModel user = userImpl.fotoUser(id, image);
+    @PostMapping("/user/upload-photo")
+    public ResponseEntity<UserModel> uploadPhoto(@RequestBody String token, @RequestPart("image") MultipartFile image) throws IOException {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        UserModel user = userImpl.fotoUser(userId, image);
         return ResponseEntity.ok(user);
     }
     @PostMapping("/user/validasi-code")
@@ -118,7 +123,7 @@ public class UserController {
             @RequestParam Long idOrangTua,
             @RequestParam Long idShift,
             @RequestParam Long idKelas
-            ) {
+    ) {
         try {
             UserModel savedUser = userImpl.TambahUserKelas(userDTO, idAdmin, idOrganisasi, idShift, idOrangTua, idKelas);
             return ResponseEntity.ok(savedUser);
@@ -127,9 +132,10 @@ public class UserController {
         }
     }
 
-    @PutMapping("/user/edit-email-username/{id}")
-    public ResponseEntity<UserModel> editemailusername(@PathVariable Long id, @RequestBody UserModel updateUser) {
-        UserModel user = userImpl.ubahUsernamedanemail(id , updateUser );
+    @PutMapping("/user/edit-email-username")
+    public ResponseEntity<UserModel> editemailusername(@RequestBody String token, @RequestBody UserModel updateUser) {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        UserModel user = userImpl.ubahUsernamedanemail(userId , updateUser );
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -178,15 +184,17 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
     @GetMapping("/user/getUserBy/{id}")
     public ResponseEntity<UserModel> GetUserById (@PathVariable Long id){
         UserModel user = userImpl.getById(id);
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping(path = "/user/edit-password/{id}")
-    public CommonResponse<UserModel> putPassword( @RequestBody PasswordDTO password,  @PathVariable Long id ) {
-        return ResponseHelper.ok(userImpl.putPassword(password , id));
+    @PutMapping(path = "/user/edit-password/")
+    public CommonResponse<UserModel> putPassword( @RequestBody PasswordDTO password, @RequestParam String token ) {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        return ResponseHelper.ok(userImpl.putPassword(password , userId));
     }
     @PutMapping("/user/editBY/{id}")
     public ResponseEntity<UserModel> editUser(@PathVariable Long id, @RequestBody  UserModel user ) {
@@ -205,6 +213,7 @@ public class UserController {
                                                 @RequestParam Long idKelas,
                                                 @RequestParam Long idOrganisasi,
                                                 @RequestBody UserDTO user) {
+
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);
@@ -248,10 +257,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-    @PutMapping("/user/editFotoBY/{id}")
-    public ResponseEntity<UserModel> editFotoUser(@PathVariable Long id, @RequestPart("image") MultipartFile image) {
+    @PutMapping("/user/editFotoBY")
+    public ResponseEntity<UserModel> editFotoUser(@RequestBody String token, @RequestPart("image") MultipartFile image) {
         try {
-            UserModel updatedUser = userImpl.fotoUser(id,image );
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            UserModel updatedUser = userImpl.fotoUser(userId,image );
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -280,22 +290,24 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
         }
     }
-    @DeleteMapping("/user/delete-sementara/{id}")
-    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+    @DeleteMapping("/user/delete-sementara")
+    public ResponseEntity<String> deleteSemenetara(@RequestBody String token) {
         try {
-            userImpl.DeleteUserSementara(id);
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            userImpl.DeleteUserSementara(userId);
             return ResponseEntity.ok("User berhasil dipindahkan ke sampah");
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + token);
         }
     }
-    @PutMapping("/user/pemulihan-user/{id}")
-    public ResponseEntity<String> PemulihanUser(@PathVariable Long id) {
+    @PutMapping("/user/pemulihan-user")
+    public ResponseEntity<String> PemulihanUser(@RequestBody String token) {
         try {
-            userImpl.PemulihanDataUser(id);
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            userImpl.PemulihanDataUser(userId);
             return ResponseEntity.ok("User berhasil Dipulihkan");
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User tidak ditemukan dengan id: " + token);
         }
     }
 
@@ -340,16 +352,16 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
+    //    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
     @PostMapping("/import/data-siswa/admin/{adminId}")
     public ResponseEntity<String> importUser(@RequestPart("file") MultipartFile file, @PathVariable Long adminId) {
         return adminRepository.findById(adminId).map(admin -> {
-        try {
-            importSiswa.importUser(file, admin);
-            return ResponseEntity.ok("Import berhasil!");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
-        }
+            try {
+                importSiswa.importUser(file, admin);
+                return ResponseEntity.ok("Import berhasil!");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
+            }
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("SuperAdmin not found"));
     }
 
@@ -365,23 +377,23 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
-@PostMapping("/import/data-siswa/admin/{adminId}/kelas/{kelasId}")
-public ResponseEntity<String> importUserperKelas(@RequestPart("file") MultipartFile file, @PathVariable Long adminId, @PathVariable Long kelasId) {
-    return adminRepository.findById(adminId).map(admin ->
-            kelasRepository.findById(kelasId).map(kelas -> {
-                try {
-                    importSiswa.importUserperKelas(file, admin, kelas);
-                    return ResponseEntity.ok("Import berhasil!");
-                } catch (Exception e) {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
-                }
-            }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Kelas dengan ID " + kelasId + " tidak ditemukan"))
-    ).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Admin dengan ID " + adminId + " tidak ditemukan"));
-}
+    //    @PostMapping("/import/data-siswa/admin/{adminId}/jabatan/{idJabatan}/walimurid/{idOrangTua}/shift/{idShift}/organisasi/{idOrganisasi}")
+    @PostMapping("/import/data-siswa/admin/{adminId}/kelas/{kelasId}")
+    public ResponseEntity<String> importUserperKelas(@RequestPart("file") MultipartFile file, @PathVariable Long adminId, @PathVariable Long kelasId) {
+        return adminRepository.findById(adminId).map(admin ->
+                kelasRepository.findById(kelasId).map(kelas -> {
+                    try {
+                        importSiswa.importUserperKelas(file, admin, kelas);
+                        return ResponseEntity.ok("Import berhasil!");
+                    } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
+                    }
+                }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Kelas dengan ID " + kelasId + " tidak ditemukan"))
+        ).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Admin dengan ID " + adminId + " tidak ditemukan"));
+    }
 
 
 

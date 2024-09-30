@@ -27,13 +27,7 @@ public class KoordinatImpl {
         return koordinatRepository.findById(id);
     }
 
-//    public Koordinat saveKoordinat(Long idOrganisasi , Koordinat koordinat) {
-//        Organisasi organisasiValidate = organisasiRepository.findById(idOrganisasi)
-//                        .orElseThrow(() -> new NotFoundException("Id organisasi tidak ditemukan : " + idOrganisasi));
-//        validateKoordinat(koordinat);
-//        koordinat.setOrganisasi(organisasiValidate);
-//        return koordinatRepository.save(koordinat);
-//    }
+
 
     public Koordinat tambahKoordinat(Long idOrganisasi, Koordinat koordinat) {
         // Validasi jika organisasi dengan id yang diberikan tidak ditemukan

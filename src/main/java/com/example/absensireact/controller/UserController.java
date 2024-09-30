@@ -213,10 +213,6 @@ public class UserController {
                                                 @RequestParam Long idKelas,
                                                 @RequestParam Long idOrganisasi,
                                                 @RequestBody UserDTO user) {
-<<<<<<< HEAD
-=======
-
->>>>>>> 662aba18c962c7b84c8fb9e1a9dde5cf29c4fde8
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);

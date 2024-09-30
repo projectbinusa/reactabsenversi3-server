@@ -213,7 +213,6 @@ public class UserController {
                                                 @RequestParam Long idKelas,
                                                 @RequestParam Long idOrganisasi,
                                                 @RequestBody UserDTO user) {
-
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);
@@ -227,7 +226,7 @@ public class UserController {
     @PutMapping("/user/editByAdmin/{id}")
     public ResponseEntity<UserModel> editUserByAdmin(@PathVariable Long id,
                                                      @RequestParam Long idShift,
-                                                          @RequestParam Long idOrangTua,
+                                                     @RequestParam Long idOrangTua,
                                                      @RequestParam Long idKelas,
                                                      @RequestParam Long idOrganisasi,
                                                      @RequestBody UserDTO user) {

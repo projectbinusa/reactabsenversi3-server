@@ -2,6 +2,7 @@ package com.example.absensireact.controller;
 
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.impl.KoordinatImpl;
+import com.example.absensireact.model.Jabatan;
 import com.example.absensireact.model.Koordinat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +30,16 @@ public class KoordinatController {
         return koordinat.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/getByIdAdmin/{idAdmin}")
+    public ResponseEntity<List<Koordinat>> getKoordinatByIdAdmin(@PathVariable Long idAdmin) {
+        return ResponseEntity.ok(koordinatService.getKoordinatByIdAdmin(idAdmin));
+    }
 
 
-    @PostMapping("/tambahKoordinat/{idOrganisasi}")
-    public ResponseEntity<Koordinat> tambah(@PathVariable Long idOrganisasi , @RequestBody Koordinat koordinat) {
+    @PostMapping("/tambahKoordinat/{idAdmin}")
+    public ResponseEntity<Koordinat> tambah(@PathVariable Long idAdmin , @RequestBody Koordinat koordinat) {
         try {
-            return ResponseEntity.ok(koordinatService.tambahKoordinat(idOrganisasi , koordinat));
+            return ResponseEntity.ok(koordinatService.tambahKoordinat(idAdmin , koordinat));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
         }

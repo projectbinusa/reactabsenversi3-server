@@ -2,10 +2,10 @@ package com.example.absensireact.impl;
 
 import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.Admin;
+import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.KoordinatRepository;
-import com.example.absensireact.repository.AdminRepository;
+import com.example.absensireact.repository.OrganisasiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.absensireact.model.Koordinat;
 import org.springframework.stereotype.Service;
@@ -20,31 +20,40 @@ public class KoordinatImpl {
     private KoordinatRepository koordinatRepository;
 
     @Autowired
+    private OrganisasiRepository organisasiRepository;
+
+    @Autowired
     private AdminRepository adminRepository;
+
+
     public List<Koordinat> getAllKoordinat() {
         return koordinatRepository.findAll();
+    }
+
+    public List<Koordinat> getByadminId(Long idAdmin) {
+        List<Koordinat> koordinatList = koordinatRepository.findAllByAdminId(idAdmin);
+        if (koordinatList.isEmpty()) {
+            throw new NotFoundException("Tidak ditemukan koordinat yang terkait dengan Admin ID: " + idAdmin);
+        }
+
+        return koordinatList;
     }
 
     public Optional<Koordinat> getKoordinatById(Long id) {
         return koordinatRepository.findById(id);
     }
 
-    public List<Koordinat> getKoordinatByIdAdmin(Long idAdmin) {
-        return koordinatRepository.findByIdAdmin(idAdmin);
-    }
-
-//    public Koordinat saveKoordinat(Long idAdmin , Koordinat koordinat) {
-//        Admin organisasiValidate = organisasiRepository.findById(idAdmin)
-//                        .orElseThrow(() -> new NotFoundException("Id organisasi tidak ditemukan : " + idAdmin));
+//    public Koordinat saveKoordinat(Long idOrganisasi , Koordinat koordinat) {
+//        Organisasi organisasiValidate = organisasiRepository.findById(idOrganisasi)
+//                        .orElseThrow(() -> new NotFoundException("Id organisasi tidak ditemukan : " + idOrganisasi));
 //        validateKoordinat(koordinat);
-//        koordinat.setAdmin(organisasiValidate);
+//        koordinat.setOrganisasi(organisasiValidate);
 //        return koordinatRepository.save(koordinat);
 //    }
 
-    public Koordinat tambahKoordinat(Long idAdmin, Koordinat koordinat) {
-        // Validasi jika organisasi dengan id yang diberikan tidak ditemukan
-        Admin adminValidate = adminRepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("Id admin tidak ditemukan: " + idAdmin));
+    public Koordinat tambahKoordinat(Long idAdmin , Koordinat koordinat) {
+        Admin admin = adminRepository.findById(idAdmin)
+                .orElseThrow(() -> new NotFoundException("id admin tidak ditemukan"));
 
         koordinat.setSouthEastLat(koordinat.getSouthEastLat());
         koordinat.setSouthEastLng(koordinat.getSouthEastLng());
@@ -55,7 +64,7 @@ public class KoordinatImpl {
         koordinat.setNorthWestLat(koordinat.getNorthWestLat());
         koordinat.setNorthWestLng(koordinat.getNorthWestLng());
 
-        koordinat.setAdmin(adminValidate);
+        koordinat.setAdmin(admin);
 
         return koordinatRepository.save(koordinat);
     }
@@ -88,7 +97,7 @@ public class KoordinatImpl {
 //            koordinat.setNorthEastLng(updatedKoordinat.getNorthEastLng());
 //            koordinat.setNorthWestLat(updatedKoordinat.getNorthWestLat());
 //            koordinat.setNorthWestLng(updatedKoordinat.getNorthWestLng());
-//            koordinat.setAdmin(updatedKoordinat.getAdmin());
+//            koordinat.setOrganisasi(updatedKoordinat.getOrganisasi());
 //            return koordinatRepository.save(koordinat);
 //        }).orElseThrow(() -> new RuntimeException("Koordinat not found with id " + id));
 //    }

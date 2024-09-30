@@ -184,13 +184,12 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/user/getUserBy")
-    public ResponseEntity<UserModel> GetUserById(HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        UserModel user = jwtTokenUtil.getUserFromToken(token);
+    
+    @GetMapping("/user/getUserBy/{id}")
+    public ResponseEntity<UserModel> GetUserById (@PathVariable Long id){
+        UserModel user = userImpl.getById(id);
         return ResponseEntity.ok(user);
     }
-
 
     @PutMapping(path = "/user/edit-password/")
     public CommonResponse<UserModel> putPassword( @RequestBody PasswordDTO password, @RequestParam String token ) {
@@ -214,6 +213,10 @@ public class UserController {
                                                 @RequestParam Long idKelas,
                                                 @RequestParam Long idOrganisasi,
                                                 @RequestBody UserDTO user) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 662aba18c962c7b84c8fb9e1a9dde5cf29c4fde8
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);

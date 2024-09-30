@@ -49,7 +49,7 @@ public interface UserService {
     UserModel TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas);
 
 
-    UserModel editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO);
+    UserModel editUsernameJabatanShift(Long id, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO);
 
     List<UserModel>getAllByOrangTua(Long idOrangTua);
 

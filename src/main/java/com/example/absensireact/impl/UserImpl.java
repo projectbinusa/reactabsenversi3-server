@@ -610,7 +610,7 @@ public class UserImpl implements UserService {
 
 
     @Override
-    public UserModel editUsernameJabatanShift(Long id, Long idJabatan, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO) {
+    public UserModel editUsernameJabatanShift(Long id, Long idShift, Long idOrangTua, Long idKelas, UserDTO updatedUserDTO) {
         Optional<UserModel> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new NotFoundException("id user tidak ditemukan");
@@ -619,10 +619,10 @@ public class UserImpl implements UserService {
         UserModel user = userOptional.get();
         boolean usernameExisting = userRepository.existsByUsername(user.getUsername());
 
-        if (usernameExisting ) {
-            throw new IllegalStateException("Username dengan nama : " + user.getUsername() +  " sudah terdaftar");
-
-        }
+//        if (usernameExisting ) {
+//            throw new IllegalStateException("Username dengan nama : " + user.getUsername() +  " sudah terdaftar");
+//
+//        }
 //        user.setJabatan(jabatanRepository.findById(idJabatan)
 //                .orElseThrow(() -> new NotFoundException("id jabatan tidak ditemukan")));
         user.setShift(shiftRepository.findById(idShift)
@@ -654,24 +654,6 @@ public class UserImpl implements UserService {
         return userList;
     }
 
-    @Override
-    public UserModel putPassword(PasswordDTO passwordDTO, Long id) {
-        UserModel update = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Id Not Found"));
-
-        boolean isOldPasswordCorrect = encoder.matches(passwordDTO.getOld_password(), update.getPassword());
-
-        if (!isOldPasswordCorrect) {
-            throw new NotFoundException("Password lama tidak sesuai");
-        }
-
-        if (passwordDTO.getNew_password().equals(passwordDTO.getConfirm_new_password())) {
-            update.setPassword(encoder.encode(passwordDTO.getNew_password()));
-            return userRepository.save(update);
-        } else {
-            throw new BadRequestException("Password tidak sesuai");
-        }
-    }
 
     @Override
     public UserModel ubahUsernamedanemail(Long id, UserModel updateUser) {
@@ -698,6 +680,25 @@ public class UserImpl implements UserService {
         user.setUsername(updateUser.getUsername());
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public UserModel putPassword(PasswordDTO passwordDTO, Long id) {
+        UserModel update = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Id Not Found"));
+
+        boolean isOldPasswordCorrect = encoder.matches(passwordDTO.getOld_password(), update.getPassword());
+
+        if (!isOldPasswordCorrect) {
+            throw new NotFoundException("Password lama tidak sesuai");
+        }
+
+        if (passwordDTO.getNew_password().equals(passwordDTO.getConfirm_new_password())) {
+            update.setPassword(encoder.encode(passwordDTO.getNew_password()));
+            return userRepository.save(update);
+        } else {
+            throw new BadRequestException("Password tidak sesuai");
+        }
     }
 
     @Override

@@ -41,17 +41,16 @@ public class ExcelDataSiswa {
 
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
-        headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
         styleHeader.setFont(headerFont);
 
-        CellStyle styleLeft = workbook.createCellStyle(); // Mengubah nama menjadi styleLeft
-        styleLeft.setAlignment(HorizontalAlignment.LEFT); // Diubah menjadi kiri
+        CellStyle styleLeft = workbook.createCellStyle();
+        styleLeft.setAlignment(HorizontalAlignment.LEFT);
         styleLeft.setVerticalAlignment(VerticalAlignment.CENTER);
         styleLeft.setBorderTop(BorderStyle.THIN);
         styleLeft.setBorderRight(BorderStyle.THIN);
         styleLeft.setBorderBottom(BorderStyle.THIN);
         styleLeft.setBorderLeft(BorderStyle.THIN);
-
 
         // Fetch data from service
         List<UserModel> siswaList = userService.getAllByAdmin(idAdmin);
@@ -62,7 +61,6 @@ public class ExcelDataSiswa {
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA SISWA");
-//        titleCell.setCellStyle(styleHeader);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 4));
 
         // Header row
@@ -78,22 +76,24 @@ public class ExcelDataSiswa {
         int no = 1;
         for (UserModel siswa : siswaList) {
             Row row = sheet.createRow(rowNum++);
+
+            // Handle null values to ensure export continues even with null data
             row.createCell(0).setCellValue(no++);
             row.getCell(0).setCellStyle(styleLeft);
 
-            row.createCell(1).setCellValue(siswa.getUsername());
+            row.createCell(1).setCellValue(siswa.getUsername() != null ? siswa.getUsername() : "");
             row.getCell(1).setCellStyle(styleLeft);
 
-            row.createCell(2).setCellValue(siswa.getEmail());
+            row.createCell(2).setCellValue(siswa.getEmail() != null ? siswa.getEmail() : "");
             row.getCell(2).setCellStyle(styleLeft);
 
-            row.createCell(3).setCellValue(siswa.getStartKerja());
+            row.createCell(3).setCellValue(siswa.getStartKerja() != null ? siswa.getStartKerja() : "");
             row.getCell(3).setCellStyle(styleLeft);
 
-            row.createCell(4).setCellValue(siswa.getStatusKerja());
+            row.createCell(4).setCellValue(siswa.getStatusKerja() != null ? siswa.getStatusKerja() : "");
             row.getCell(4).setCellStyle(styleLeft);
 
-            row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas());
+            row.createCell(5).setCellValue(siswa.getKelas() != null && siswa.getKelas().getNamaKelas() != null ? siswa.getKelas().getNamaKelas() : "");
             row.getCell(5).setCellStyle(styleLeft);
         }
 
@@ -107,6 +107,7 @@ public class ExcelDataSiswa {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 
     public void exportDataSiswaperKelas(Long idAdmin, Long KlasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
@@ -169,19 +170,19 @@ public class ExcelDataSiswa {
             row.createCell(0).setCellValue(no++);
             row.getCell(0).setCellStyle(styleLeft);
 
-            row.createCell(1).setCellValue(siswa.getUsername());
+            row.createCell(1).setCellValue(siswa.getUsername() != null ? siswa.getUsername() : "");
             row.getCell(1).setCellStyle(styleLeft);
 
-            row.createCell(2).setCellValue(siswa.getEmail());
+            row.createCell(2).setCellValue(siswa.getEmail() != null ? siswa.getEmail() : "");
             row.getCell(2).setCellStyle(styleLeft);
 
-            row.createCell(3).setCellValue(siswa.getStartKerja());
+            row.createCell(3).setCellValue(siswa.getStartKerja() != null ? siswa.getStartKerja() : "");
             row.getCell(3).setCellStyle(styleLeft);
 
-            row.createCell(4).setCellValue(siswa.getStatusKerja());
+            row.createCell(4).setCellValue(siswa.getStatusKerja() != null ? siswa.getStatusKerja() : "");
             row.getCell(4).setCellStyle(styleLeft);
 
-            row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas());
+            row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas() != null ? siswa.getKelas().getNamaKelas() : "");
             row.getCell(5).setCellStyle(styleLeft);
         }
 

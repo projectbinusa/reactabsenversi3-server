@@ -107,7 +107,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
             }
 
             user.setAdmin(admin);
-            user.setRole("Siswa"); // Set status otomatis menjadi "Siswa"
+            user.setRole("USER"); // Set status otomatis menjadi "Siswa"
             userList.add(user);
         }
     }

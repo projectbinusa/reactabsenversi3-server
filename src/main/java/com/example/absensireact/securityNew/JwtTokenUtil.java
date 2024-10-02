@@ -69,16 +69,20 @@ public class JwtTokenUtil implements Serializable {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof SuperAdminDetail) {
             claims.put("id", ((SuperAdminDetail) userDetails).getId());
+            claims.put("email", ((SuperAdminDetail) userDetails).getEmail());
         }
 
         if (userDetails instanceof AdminDetail) {
             claims.put("id", ((AdminDetail) userDetails).getId());
+            claims.put("email", ((AdminDetail) userDetails).getEmail());
         }
         if (userDetails instanceof OrangTuaDetail) {
             claims.put("id", ((OrangTuaDetail) userDetails).getId());
+            claims.put("email", ((OrangTuaDetail) userDetails).getEmail());
         }
         if (userDetails instanceof UserDetail) {
             claims.put("id", ((UserDetail) userDetails).getId());
+            claims.put("email", ((UserDetail) userDetails).getEmail());
         }
 
         Collection<? extends GrantedAuthority> role = userDetails.getAuthorities();

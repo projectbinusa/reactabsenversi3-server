@@ -51,7 +51,7 @@ public class JabatanImpl implements JabatanService {
         jabatan.setAdmin(admin);
         jabatan.setNamaJabatan(jabatan.getNamaJabatan());
         return jabatanRepository.save(jabatan);
-    }
+    }  
 
     @Override
     public List<Jabatan> getJabatanBySuperAdminId(Long idSuperAdmin) {

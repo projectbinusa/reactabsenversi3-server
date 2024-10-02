@@ -213,7 +213,6 @@ public class UserController {
                                                 @RequestParam Long idKelas,
                                                 @RequestParam Long idOrganisasi,
                                                 @RequestBody UserDTO user) {
-
         try {
             UserModel updatedUser = userImpl.EditUserBySuper(id, idShift, idOrangTua, idKelas, idOrganisasi, user);
             return ResponseEntity.ok(updatedUser);
@@ -245,13 +244,12 @@ public class UserController {
     @PutMapping("/user/edit-kar/{id}")
     public ResponseEntity<UserModel> editUser(
             @PathVariable("id") Long id,
-            @RequestParam(required = false) Long idJabatan,
             @RequestParam(required = false) Long idShift,
             @RequestParam(required = false) Long idOrangTua,
             @RequestParam(required = false) Long idKelas,
             @RequestBody UserDTO updatedUserDTO) {
         try {
-            UserModel editedUser = userImpl.editUsernameJabatanShift(id, idJabatan, idShift, idOrangTua, idKelas, updatedUserDTO);
+            UserModel editedUser = userImpl.editUsernameJabatanShift(id, idShift, idOrangTua, idKelas, updatedUserDTO);
             return ResponseEntity.ok(editedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

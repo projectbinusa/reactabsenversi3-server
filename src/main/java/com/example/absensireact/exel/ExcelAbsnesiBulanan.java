@@ -782,7 +782,7 @@ public class ExcelAbsnesiBulanan {
         jumlahRow.createCell(8).setCellValue(totalTidakMasuk); // Total Tidak Masuk
 
         // Apply style to summary row cells
-        for (int i = 4; i <= 9; i++) {
+        for (int i = 4; i <= 9 ; i++) {
             jumlahRow.getCell(i).setCellStyle(styleData);
         }
 

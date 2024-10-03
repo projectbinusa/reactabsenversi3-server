@@ -575,7 +575,7 @@ public class ExcelAbsnesiBulanan {
 
     public void excelAbsensiBulananByKelas(int bulan, int tahun, Long kelasId, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Presensi-harian");
+        Sheet sheet = workbook.createSheet("Presensi-Bulanan");
 
         // Define cell styles
         CellStyle styleHeader = createCellStyle(workbook, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, BorderStyle.THIN, IndexedColors.BLACK.getIndex(), true);
@@ -633,7 +633,7 @@ public class ExcelAbsnesiBulanan {
 
         // Second row for Presensi sub-columns (Hadir, Izin, Terlambat, Izin Tengah Hari, Tidak Masuk)
         Row presensiRow = sheet.createRow(rowNum++);
-        String[] presensiHeaders = {"Hadir", "Izin", "Terlambat", "Izin Tengah Hari", "Tidak Masuk"};
+        String[] presensiHeaders = {"Hadir", "Izin", "Terlambat", "Izin Tengah Hari", "Tidak Masuk" ,"Sakit" };
         for (int i = 0; i < presensiHeaders.length; i++) {
             Cell cell = presensiRow.createCell(4 + i); // Starting from 5th column for sub-columns
             cell.setCellValue(presensiHeaders[i]);
@@ -646,6 +646,7 @@ public class ExcelAbsnesiBulanan {
         int totalTerlambat = 0;
         int totalIzinTengahHari = 0;
         int totalTidakMasuk = 0;
+        int totalSakit = 0 ;
 
         // Data rows
         // Data rows
@@ -664,6 +665,7 @@ public class ExcelAbsnesiBulanan {
             int userTerlambat = 0;
             int userIzinTengahHari = 0;
             int userTidakMasuk = 0;
+            int userSakit = 0 ;
 
             String keterangan = "";
 
@@ -696,8 +698,10 @@ public class ExcelAbsnesiBulanan {
                     } else if (status.equals("izin tengah hari")) {
                         userIzinTengahHari++;
                         keterangan = absensiForDay.getKeteranganPulangAwal();
-                    } else if (status.equals("tidak masuk")) {
+                    } else if (status.equals("Alpha")) {
                         userTidakMasuk++;
+                    }else if (status.equals("Izin")) {
+                        userSakit++;
                     }
                 }
             }
@@ -755,6 +759,11 @@ public class ExcelAbsnesiBulanan {
             tidakMasukCell.setCellStyle(styleData); // Apply border style to "Tidak Masuk" cell
             totalTidakMasuk += userTidakMasuk;
 
+            Cell sakitCell = dataRow.createCell(9);
+            sakitCell.setCellValue(userSakit); // Jumlah sakit
+            sakitCell.setCellStyle(styleData); // Apply border style to "sakit" cell
+            totalSakit += userSakit;
+
 
         }
 
@@ -773,7 +782,7 @@ public class ExcelAbsnesiBulanan {
         jumlahRow.createCell(8).setCellValue(totalTidakMasuk); // Total Tidak Masuk
 
         // Apply style to summary row cells
-        for (int i = 4; i <= 8; i++) {
+        for (int i = 4; i <= 9; i++) {
             jumlahRow.getCell(i).setCellStyle(styleData);
         }
 

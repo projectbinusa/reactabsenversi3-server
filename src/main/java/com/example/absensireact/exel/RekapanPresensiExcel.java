@@ -110,7 +110,7 @@ public class RekapanPresensiExcel {
 
 // Second row for Presensi sub-columns (Hadir, Izin, Terlambat, Izin Tengah Hari, Alpha)
         Row presensiRow = sheet.createRow(rowNum++);
-        String[] presensiHeaders = {"Hadir", "Izin", "Terlambat", "Izin Tengah Hari", "Alpha"};
+        String[] presensiHeaders = {"Hadir", "Izin", "Terlambat", "Izin Tengah Hari", "Alpha" , "Sakit"};
         for (int i = 0; i < presensiHeaders.length; i++) {
             Cell cell = presensiRow.createCell(3 + i); // Starting from 4th column for sub-columns
             cell.setCellValue(presensiHeaders[i]);
@@ -118,7 +118,7 @@ public class RekapanPresensiExcel {
         }
 
 // Apply border to the entire row 4
-        for (int i = 0; i < 8; i++) { // Ensure borders are applied for the entire row (including merged cells)
+        for (int i = 0; i < 9; i++) { // Ensure borders are applied for the entire row (including merged cells)
             Cell cell = presensiRow.getCell(i);
             if (cell == null) { // Create empty cells where necessary
                 cell = presensiRow.createCell(i);
@@ -133,6 +133,8 @@ public class RekapanPresensiExcel {
         int totalTerlambat = 0;
         int totalIzinTengahHari = 0;
         int totalTidakMasuk = 0;
+        int totalSakit= 0;
+        int totalAlpha = 0 ;
 
         // Data rows
         int no = 1; // Initialize row number for "No" column
@@ -149,6 +151,8 @@ public class RekapanPresensiExcel {
             boolean izin = false;
             boolean terlambat = false;
             boolean izinTengahHari = false;
+            boolean sakit = false;
+            boolean alpha = false ;
 
             // Determine status based on status_absen
             for (Absensi absensi : userAbsensi) {
@@ -164,6 +168,12 @@ public class RekapanPresensiExcel {
                 }
                 if ("Izin Tengah Hari".equals(status)) {
                     izinTengahHari = true;
+                }
+                if ("Izin".equals(status)) {
+                    sakit = true;
+                }
+                if ("Alpha".equals(status)) {
+                    alpha = true;
                 }
             }
 
@@ -209,10 +219,15 @@ public class RekapanPresensiExcel {
             izinTengahHariCell.setCellStyle(styleData); // Apply border style to "Izin Tengah Hari" cell
             if (izinTengahHari) totalIzinTengahHari++;
 
-            Cell tidakMasukCell = dataRow.createCell(7);
-            tidakMasukCell.setCellValue(tidakMasuk ? checkmark : empty); // Tidak Masuk
-            tidakMasukCell.setCellStyle(styleData); // Apply border style to "Tidak Masuk" cell
-            if (tidakMasuk) totalTidakMasuk++;
+            Cell alphaCell = dataRow.createCell(7);
+            alphaCell.setCellValue(alpha ? checkmark : empty); // Tidak Masuk
+            alphaCell.setCellStyle(styleData); // Apply border style to "Tidak Masuk" cell
+            if (alpha) totalAlpha++;
+
+            Cell sakitCell = dataRow.createCell(8);
+            sakitCell.setCellValue(sakit ? checkmark : empty); // Tidak Masuk
+            sakitCell.setCellStyle(styleData); // Apply border style to "Tidak Masuk" cell
+            if (sakit) totalSakit++;
         }
 
 // Add summary row (Jumlah)
@@ -233,9 +248,10 @@ public class RekapanPresensiExcel {
         jumlahRow.createCell(5).setCellValue(totalTerlambat); // Total Terlambat
         jumlahRow.createCell(6).setCellValue(totalIzinTengahHari); // Total Izin Tengah Hari
         jumlahRow.createCell(7).setCellValue(totalTidakMasuk); // Total Tidak Masuk
+        jumlahRow.createCell(8).setCellValue(totalSakit); // Total Tidak Masuk
 
 // Apply style to summary row cells (total values)
-        for (int i = 3; i <= 7; i++) {
+        for (int i = 3; i <= 8; i++) {
             Cell cell = jumlahRow.getCell(i);
             if (cell == null) {
                 cell = jumlahRow.createCell(i); // Create cell if not exist
@@ -248,7 +264,7 @@ public class RekapanPresensiExcel {
 
 
 // Adjust column widths
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 9; i++) {
             sheet.autoSizeColumn(i);
         }
 
@@ -261,6 +277,7 @@ public class RekapanPresensiExcel {
         sheet.setColumnWidth(5, 4000); // Terlambat column width
         sheet.setColumnWidth(6, 4000); // Izin Tengah Hari column width
         sheet.setColumnWidth(7, 4000); // Tidak Masuk column width
+        sheet.setColumnWidth(8, 4000); // Tidak Masuk column width
 
         // Write output to response
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

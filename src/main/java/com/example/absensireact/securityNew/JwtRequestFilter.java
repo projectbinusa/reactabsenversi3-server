@@ -47,7 +47,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     JwtTokenUtil jwtTokenUtil;
 
 
-    private String jwtSecret = "absensi";
 
 
     private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);

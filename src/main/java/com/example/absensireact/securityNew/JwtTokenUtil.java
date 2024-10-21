@@ -17,7 +17,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.Serializable;
+import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
 
@@ -30,30 +32,34 @@ public class JwtTokenUtil implements Serializable {
     @Autowired
     private UserRepository userRepository;
 
-    private String secret = "Absensi";
+    @Value("${jwt.secret:Absensi}") // Menggunakan @Value untuk secret
+    private String secret;
 
     public String getEmailFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject); // 'Subject' digunakan untuk menyimpan username/email
+        return getClaimFromToken(token, Claims::getSubject);
     }
 
     public UserModel getUserFromToken(String token) {
-        Long userId = getIdFromToken(token); // Ambil id dari token
+        Long userId = getIdFromToken(token);
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
     }
 
     public Long getIdFromToken(String token) {
         final Claims claims = getAllClaimsFromToken(token);
-        return claims.get("id", Long.class); // Ambil id dari klaim token
+        return claims.get("id", Long.class);
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims); // Ambil klaim sesuai yang diinginkan
+        return claimsResolver.apply(claims);
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody(); // Parsir token menggunakan secret
+        return Jwts.parser()
+                .setSigningKey(secret.getBytes()) // Menggunakan kunci rahasia sebagai byte array
+                .parseClaimsJws(token)
+                .getBody(); // Menggunakan secret yang sama dengan saat membuat token
     }
 
     private Boolean isTokenExpired(String token) {
@@ -65,51 +71,54 @@ public class JwtTokenUtil implements Serializable {
         return getAllClaimsFromToken(token).getExpiration();
     }
 
-    public String generateToken(UserDetails userDetails ) {
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof SuperAdminDetail) {
             claims.put("id", ((SuperAdminDetail) userDetails).getId());
             claims.put("email", ((SuperAdminDetail) userDetails).getEmail());
-        }
-
-        if (userDetails instanceof AdminDetail) {
+        } else if (userDetails instanceof AdminDetail) {
             claims.put("id", ((AdminDetail) userDetails).getId());
             claims.put("email", ((AdminDetail) userDetails).getEmail());
-        }
-        if (userDetails instanceof OrangTuaDetail) {
+        } else if (userDetails instanceof OrangTuaDetail) {
             claims.put("id", ((OrangTuaDetail) userDetails).getId());
             claims.put("email", ((OrangTuaDetail) userDetails).getEmail());
-        }
-        if (userDetails instanceof UserDetail) {
+        } else if (userDetails instanceof UserDetail) {
             claims.put("id", ((UserDetail) userDetails).getId());
             claims.put("email", ((UserDetail) userDetails).getEmail());
         }
 
         Collection<? extends GrantedAuthority> role = userDetails.getAuthorities();
-
-        if (role.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
+        if (role.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             claims.put("isAdmin", true);
-        }
-        if (role.contains(new SimpleGrantedAuthority("ROLE_USER"))){
+        } else if (role.contains(new SimpleGrantedAuthority("ROLE_USER"))) {
             claims.put("isUser", true);
         }
-        return doGenerateToken(claims, userDetails.getUsername());
+
+        String token = doGenerateToken(claims, userDetails.getUsername());
+
+        System.out.println("Generated Token: " + token);
+        System.out.println("Token Claims: " + claims);
+
+        return token;
     }
 
-    // Proses pembuatan token
     private String doGenerateToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder()
-                .setClaims(claims) // Set klaim dengan id dan username
-                .setSubject(subject) // Set subject dengan username
-                .setIssuedAt(new Date(System.currentTimeMillis())) // Waktu pembuatan token
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000)) // Waktu kedaluwarsa token
-                .signWith(SignatureAlgorithm.HS512, secret) // Menandatangani token dengan secret
-                .compact(); // Membuat token final
+        System.out.println("Secret: " + secret);
+
+        String token = Jwts.builder()
+                .setHeaderParam("typ", "JWT")
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .signWith(SignatureAlgorithm.HS512, secret.getBytes()) // Menggunakan secret sebagai byte array
+                .compact();
+
+        return token;
     }
 
-    // Validasi token
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String email = getEmailFromToken(token); // Ambil email dari token
-        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token)); // Validasi email dan cek apakah token sudah kadaluarsa
+        final String email = getEmailFromToken(token);
+        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }

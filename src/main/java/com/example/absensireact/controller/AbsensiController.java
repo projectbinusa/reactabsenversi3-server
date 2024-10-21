@@ -336,14 +336,15 @@ public class AbsensiController {
 
     @PostMapping("/absensi/masuk")
     public ResponseEntity<?> postAbsensiMasuk(@RequestParam String token,
-                                              @RequestParam("image") String image,
+                                              @RequestPart("image") MultipartFile image,
                                               @RequestParam("lokasiMasuk") String lokasiMasuk,
                                               @RequestParam("keteranganTerlambat") String keteranganTerlambat) {
         try {
             Long userId = jwtTokenUtil.getIdFromToken(token);
 
-            // Gunakan userId ini untuk membuat absensi
-            Absensi absensi = absensiService.PostAbsensi(userId, image, lokasiMasuk, keteranganTerlambat);
+            String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
+
+            Absensi absensi = absensiService.PostAbsensi(userId, base64Image, lokasiMasuk, keteranganTerlambat);
 
             return ResponseEntity.ok().body(absensi);
         } catch (IOException | EntityNotFoundException | NotFoundException e) {

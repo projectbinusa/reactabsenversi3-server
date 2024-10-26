@@ -74,7 +74,7 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
                 String namaOrganisasi = getCellValue(organisasiCell);
                 String namaKelas = getCellValue(kelasCell);
                 String namaShift = getCellValue(shiftCell);
-                String namaOrangtua = getCellValue(orangTuaCell);
+                String nama = getCellValue(orangTuaCell);
 
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
@@ -82,8 +82,8 @@ public void importUser(MultipartFile file, Admin admin) throws IOException {
                         .orElseThrow(() -> new NotFoundException("Kelas dengan nama " + namaKelas + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
-                OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangtua)
-                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangtua + " tidak ditemukan"));
+                OrangTua orangTua = orangTuaRepository.findByWaliMurid(nama)
+                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + nama + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
                 user.setKelas(kelas);
@@ -137,14 +137,14 @@ public void importUserperKelas(MultipartFile file, Admin admin, Kelas kelas) thr
             if (organisasiCell != null || orangTuaCell != null || shiftCell != null || namaUserCell != null || emailCell != null) {
                 String namaOrganisasi = getCellValue(organisasiCell);
                 String namaShift = getCellValue(shiftCell);
-                String namaOrangtua = getCellValue(orangTuaCell);
+                String nama = getCellValue(orangTuaCell);
 
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
-                OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangtua)
-                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangtua + " tidak ditemukan"));
+                OrangTua orangTua = orangTuaRepository.findByWaliMurid(nama)
+                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + nama + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
                 user.setShift(shift);

@@ -17,6 +17,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,7 @@ import java.util.logging.Logger;
 
 @Service
 public class AbsensiImpl implements AbsensiService {
+//    private final AbsensiService absensiService;
     static final String DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/absensireact.appspot.com/o/%s?alt=media";
 
     private static final String BASE_URL = "https://s3.lynk2.co/api/s3";
@@ -45,6 +47,8 @@ public class AbsensiImpl implements AbsensiService {
 
     private final AdminRepository adminRepository;
     private final ShiftRepository shiftRepository;
+
+//    private final AbsensiService absensiService;
 
     private final OrangTuaRepository orangTuaRepository;
 
@@ -175,7 +179,7 @@ public class AbsensiImpl implements AbsensiService {
         return startOfWeek.toString() + " - " + endOfWeek.toString();
     }
     @Override
-    public Absensi PostAbsensi(Long userId, String image, String lokasiMasuk, String keteranganTerlambat) throws IOException, ParseException {
+    public Absensi PostAbsensi(Long userId, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
@@ -195,17 +199,16 @@ public class AbsensiImpl implements AbsensiService {
 
             String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
 
-            Absensi absensi = new Absensi();
+//            Absensi absensi = new Absensi();
             absensi.setUser(user);
             absensi.setTanggalAbsen(tanggalHariIni);
             absensi.setJamMasuk(jamMasukString);
             absensi.setJamPulang("-");
-            absensi.setLokasiMasuk(lokasiMasuk);
+            absensi.setLokasiMasuk(absensi.getLokasiMasuk());
             absensi.setLokasiPulang("-");
-            absensi.setKeteranganTerlambat(keteranganTerlambat != null ? keteranganTerlambat : "-");
+            absensi.setKeteranganTerlambat(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganTerlambat() : "-");
             absensi.setStatusAbsen(keterangan);
-
-            absensi.setFotoMasuk(image);
+            absensi.setFotoMasuk(absensi.getFotoMasuk());
 
             return absensiRepository.save(absensi);
         }
@@ -213,35 +216,24 @@ public class AbsensiImpl implements AbsensiService {
 
 
     @Override
-    public Absensi Pulang(Long userId, String image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException {
-        Absensi absensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()))
+    public Absensi Pulang(Long userId, Absensi absensi) throws IOException, ParseException {
+        Absensi existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()))
                 .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
 
-        if (!absensi.getJamPulang().equals("-")) {
+        if (!existingAbsensi.getJamPulang().equals("-")) {
             throw new NotFoundException("User sudah melakukan absensi pulang hari ini.");
         }
 
-        Shift shift = shiftRepository.findById(absensi.getUser().getShift().getId())
-                .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
-
-        SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        Date waktuPulangShift = timeFormatter.parse(shift.getWaktuPulang());
-
         Date pulang = new Date();
-
-        if (pulang.before(waktuPulangShift)) {
-            throw new NotFoundException("User tidak bisa melakukan absensi pulang sebelum waktu yang ditentukan dalam shift.");
-        }
-
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String jamPulangString = formatter.format(pulang);
 
-        absensi.setKeteranganPulangAwal(keteranganPulangAwal != null ? keteranganPulangAwal : "-");
-        absensi.setJamPulang(jamPulangString);
-        absensi.setLokasiPulang(lokasiPulang);
-        absensi.setFotoPulang(image);
+        existingAbsensi.setKeteranganPulangAwal(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganPulang() : "-");
+        existingAbsensi.setJamPulang(jamPulangString);
+        existingAbsensi.setLokasiPulang(absensi.getLokasiPulang());
+        existingAbsensi.setFotoPulang(absensi.getFotoPulang());
 
-        return absensiRepository.save(absensi);
+        return absensiRepository.save(existingAbsensi);
     }
 
 

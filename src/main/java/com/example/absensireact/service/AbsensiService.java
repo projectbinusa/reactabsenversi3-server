@@ -1,6 +1,7 @@
 package com.example.absensireact.service;
 
 import com.example.absensireact.model.Absensi;
+import com.example.absensireact.model.Jabatan;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public interface  AbsensiService {
 //    List<Absensi> getByAdminAndDate(Long adminId, String date);
 //
 //    List<Absensi> getByAdminAndDate(Long adminId, int year, int month, int day);
+//Absensi editAbsensiById(Long idUser, Absensi absensi);
 
     List<Absensi> getAllAbsensi();
 
@@ -35,12 +37,11 @@ public interface  AbsensiService {
 
     Map<String, List<Absensi>> getAbsensiByMingguanPerKelas(Date startDate, Date endDate, Long kelasId);
 
-    Absensi PostAbsensi(Long userId, String image, String lokasiMasuk, String keteranganTerlambat) throws IOException, ParseException;
-
+    Absensi PostAbsensi(Long userId, Absensi absensi) throws IOException, ParseException;
 
 //    Absensi Pulang(Long userId, MultipartFile image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
 
-    Absensi Pulang(Long userId, String image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
+    Absensi Pulang(Long idAbsen, Absensi absensi) throws IOException, ParseException;
 
     boolean checkUserAlreadyAbsenToday(Long userId);
 

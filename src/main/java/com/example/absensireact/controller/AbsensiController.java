@@ -8,6 +8,7 @@ import com.example.absensireact.exel.ExcelAbsensiMingguan;
 import com.example.absensireact.exel.ExcelAbsnesiBulanan;
 import com.example.absensireact.exel.RekapanPresensiExcel;
 import com.example.absensireact.model.Absensi;
+import com.example.absensireact.model.Jabatan;
 import com.example.absensireact.repository.AbsensiRepository;
 import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.AbsensiService;
@@ -27,12 +28,14 @@ import org.threeten.bp.LocalDate;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.NotActiveException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 @CrossOrigin(origins = "*")
@@ -335,35 +338,30 @@ public class AbsensiController {
 
 
     @PostMapping("/absensi/masuk")
-    public ResponseEntity<?> postAbsensiMasuk(@RequestParam String token,
-                                              @RequestPart("image") MultipartFile image,
-                                              @RequestParam("lokasiMasuk") String lokasiMasuk,
-                                              @RequestParam("keteranganTerlambat") String keteranganTerlambat) {
-        try {
+    public ResponseEntity<Absensi> postAbsensiMasuk(@RequestParam String token, @RequestBody Absensi absensi) throws IOException, ParseException {
             Long userId = jwtTokenUtil.getIdFromToken(token);
-
-            String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
-
-            Absensi absensi = absensiService.PostAbsensi(userId, base64Image, lokasiMasuk, keteranganTerlambat);
-
-            return ResponseEntity.ok().body(absensi);
-        } catch (IOException | EntityNotFoundException | NotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        Absensi newJabatan = absensiService.PostAbsensi(userId, absensi);
+        return ResponseEntity.ok(newJabatan);
+//        try {
+//
+//            String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
+//
+//            Absensi absensi = absensiService.PostAbsensi(userId, base64Image, lokasiMasuk, keteranganTerlambat);
+//
+//            return ResponseEntity.ok().body(absensi);
+//        } catch (IOException | EntityNotFoundException | NotFoundException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
     }
      @PutMapping("/absensi/pulang")
-    public ResponseEntity<?> putAbsensiPulang(@RequestParam String token,
-                                              @RequestParam("image") String image,
-                                              @RequestParam("lokasiPulang") String lokasiPulang,
-                                              @RequestParam("keteranganPulangAwal") String keteranganPulangAwal
+    public ResponseEntity<?> putAbsensiPulang(@RequestParam String token, @RequestBody Absensi absensi
      ) {
         try {
             Long userId = jwtTokenUtil.getIdFromToken(token);
-
-            Absensi absensi = absensiService.Pulang(userId, image, lokasiPulang, keteranganPulangAwal);
-            return ResponseEntity.ok().body(absensi);
+            Absensi newJabatan = absensiService.Pulang(userId, absensi);
+            return ResponseEntity.ok(newJabatan);
         } catch (IOException | NotFoundException | ParseException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

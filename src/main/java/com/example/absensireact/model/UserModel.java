@@ -37,7 +37,7 @@ public class UserModel {
     private String status;
 
     @ManyToOne
-    @JoinColumn(name = "idShift")
+    @JoinColumn(name = "id_shift")
     private Shift shift;
 
     @ManyToOne

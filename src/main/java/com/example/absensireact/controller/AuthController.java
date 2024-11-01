@@ -18,12 +18,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@Controller
 @RequestMapping("/api")
 //@CrossOrigin(origins = "http://localhost:3000")
 @CrossOrigin(origins = "*")

@@ -4,6 +4,7 @@ import com.example.absensireact.model.Absensi;
 import com.example.absensireact.model.Jabatan;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -37,13 +38,17 @@ public interface  AbsensiService {
 
     Map<String, List<Absensi>> getAbsensiByMingguanPerKelas(Date startDate, Date endDate, Long kelasId);
 
-    Absensi PostAbsensi(Long userId, Absensi absensi) throws IOException, ParseException;
+    Absensi PostAbsensi(String email, Absensi absensi) throws IOException, ParseException;
+
+    Absensi PostAbsensiById(Long id, Absensi absensi) throws IOException, ParseException;
 
 //    Absensi Pulang(Long userId, MultipartFile image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
 
-    Absensi Pulang(Long idAbsen, Absensi absensi) throws IOException, ParseException;
+    Absensi Pulang(String email, Absensi absensi) throws IOException, ParseException;
 
     boolean checkUserAlreadyAbsenToday(Long userId);
+
+    boolean checkUserAlreadyAbsenTodayByEmail(String email);
 
     Absensi checkUserAlpha(Long userId);
 
@@ -51,8 +56,11 @@ public interface  AbsensiService {
 
     Absensi izin(Long userId, String keteranganIzin)  ;
 
+    Absensi izinByEmail(String email, String keteranganIzin)  ;
 
     Absensi izinTengahHari(Long userId, Absensi keterangaPulangAwal);
+
+    Absensi izinTengahHariByEmail(String email, Absensi keterangaPulangAwal);
 
     List<Absensi>getByStatusAbsen(Long userId, String statusAbsen);
 
@@ -64,6 +72,8 @@ public interface  AbsensiService {
     void deleteAbsensi(Long id) throws IOException;
 
     List<Absensi> getAbsensiByUserId(Long userId);
+
+    List<Absensi> getAbsensiByEmail(String email);
 
     List<Absensi> getAbsensiByKelas(Long kelasId);
 

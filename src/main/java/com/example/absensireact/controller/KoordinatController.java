@@ -5,6 +5,7 @@ import com.example.absensireact.impl.KoordinatImpl;
 import com.example.absensireact.model.Koordinat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/koordinat")
 @CrossOrigin(origins = "*")
+@Controller
 public class KoordinatController {
 
     @Autowired

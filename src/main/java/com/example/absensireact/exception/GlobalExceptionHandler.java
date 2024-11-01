@@ -1,37 +1,38 @@
 package com.example.absensireact.exception;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
+import com.example.absensireact.service.TelegramNotificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RelationExistsException.class)
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleRelationExistsException(RelationExistsException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
+    private final TelegramNotificationService telegramBotService;
+
+    @Autowired
+    public GlobalExceptionHandler(TelegramNotificationService telegramBotService) {
+        this.telegramBotService = telegramBotService;
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
-    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e, HttpServletRequest request) {
+        String errorMessage = String.format(
+                "Error occurred at path: %s\nMessage: %s",
+                request.getRequestURI(),
+                e.getMessage()
+        );
 
-    @ExceptionHandler(BadRequestException.class)
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
-    }
+        // Send error message to Telegram
+        telegramBotService.sendErrorNotification(errorMessage);
 
-    @ExceptionHandler(InternalErrorException.class)
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleInternalErrorException(InternalErrorException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ex.getMessage()));
+        // Log the exception (optional)
+        e.printStackTrace();
+
+        return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
-

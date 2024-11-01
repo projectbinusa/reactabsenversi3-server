@@ -19,6 +19,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
@@ -34,6 +35,7 @@ import java.util.Optional;
 
 @CrossOrigin(origins = "*")
 @RestController
+@Controller
 @RequestMapping("/api")
 public class SuperAdminController {
     private final SuperAdminService superAdminService;

@@ -2,6 +2,7 @@ package com.example.absensireact.repository;
 
 import com.example.absensireact.model.Absensi;
 import com.example.absensireact.model.UserModel;
+import org.hibernate.internal.util.StringHelper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,8 +42,15 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
     List<Absensi> findByMonth(@Param("month") int month);
     @Query(value = "SELECT * FROM absensi WHERE user_id = :userId" , nativeQuery = true)
     List<Absensi>findByUserId (Long userId);
+
     @Query(value = "SELECT * FROM absensi WHERE user_id = :userId" , nativeQuery = true)
     List<Absensi>findabsensiByUserId (Long userId);
+
+    @Query(value = "SELECT * FROM absensi WHERE user_email = :email" , nativeQuery = true)
+    List<Absensi>findAbsensiByEmail (@Param("email") String email);
+
+    @Query(value = "SELECT * FROM absensi WHERE user_email = :email AND DATE(tanggal_absen) = :tanggalAbsen", nativeQuery = true)
+    Optional<Absensi> findByUserEmailAndTanggalAbsen(String email, Date tanggalAbsen);
 
     @Query(value = "SELECT * FROM absensi WHERE user_id = :userId AND DATE(tanggal_absen) = :tanggalAbsen", nativeQuery = true)
     Optional<Absensi> findByUserIdAndTanggalAbsen(Long userId, Date tanggalAbsen);

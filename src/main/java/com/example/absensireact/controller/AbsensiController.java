@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,9 +52,6 @@ public class AbsensiController {
     private RekapanPresensiExcel rekapanPresensiExcel;
 
     @Autowired
-    private ExcelAbsnesiBulanan excelAbsnesiBulanan;
-
-    @Autowired
     private final AbsensiService absensiService;
 
     @Autowired
@@ -65,7 +63,7 @@ public class AbsensiController {
 
 
     @Autowired
-    public AbsensiController(AbsensiService absensiService , AbsensiRepository absensiRepository) {
+    public AbsensiController(AbsensiService absensiService, AbsensiRepository absensiRepository) {
         this.absensiService = absensiService;
 
         this.absensiRepository = absensiRepository;
@@ -78,12 +76,13 @@ public class AbsensiController {
     private ExcelAbsensiMingguan excelAbsensiMingguan;
 
     @GetMapping("/absensi/export/absensi-bulanan-simpel")
-    public void exportAbsensiBulananSimpel(@RequestParam("month") int month,@RequestParam("year") int year ,HttpServletResponse response) throws IOException, ParseException {
-        excelAbsensiBulanan.excelAbsensiBulananSimpel(month, year,response);
+    public void exportAbsensiBulananSimpel(@RequestParam("month") int month, @RequestParam("year") int year, HttpServletResponse response) throws IOException, ParseException {
+        excelAbsensiBulanan.excelAbsensiBulananSimpel(month, year, response);
     }
-   @GetMapping("/absensi/export/absensi-rekapan-perkaryawan")
+
+    @GetMapping("/absensi/export/absensi-rekapan-perkaryawan")
     public void exportAbsensiRekapanPerkaryawan(@RequestParam("userId") Long userId, HttpServletResponse response) throws IOException {
-        absensiExportService.excelAbsensiRekapanPerkaryawan(userId,response);
+        absensiExportService.excelAbsensiRekapanPerkaryawan(userId, response);
     }
 
     @GetMapping("/absensi/export/absensi-bulanan")
@@ -97,7 +96,7 @@ public class AbsensiController {
             @RequestParam("tanggalAkhir") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAkhir,
             HttpServletResponse response) throws IOException {
         if (tanggalAwal == null || tanggalAkhir == null) {
-         throw new NotActiveException("Tanggal tidak valid");
+            throw new NotActiveException("Tanggal tidak valid");
         }
         excelAbsensiMingguan.excelAbsensiMingguan(tanggalAwal, tanggalAkhir, response);
     }
@@ -124,6 +123,7 @@ public class AbsensiController {
         Map<String, List<Absensi>> absensiMingguan = absensiService.getAbsensiByMingguan(tanggalAwal, tanggalAkhir);
         return ResponseEntity.ok(absensiMingguan);
     }
+
     @GetMapping("/absensi/rekap-mingguan-per-kelas")
     public ResponseEntity<Map<String, List<Absensi>>> getAbsensiMingguanPerKelas(
             @RequestParam("tanggalAwal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggalAwal,
@@ -161,9 +161,9 @@ public class AbsensiController {
 
 
     @GetMapping("/absensi/get-absensi-bulan-simpel")
-    public ResponseEntity<List<Absensi>> getAbsensiByBulanSimpel(@RequestParam("bulan") int bulan , @RequestParam Long idAdmin) {
+    public ResponseEntity<List<Absensi>> getAbsensiByBulanSimpel(@RequestParam("bulan") int bulan, @RequestParam Long idAdmin) {
         try {
-            List<Absensi> absensiList = absensiService.getAbsensiByBulanSimpel(bulan , idAdmin);
+            List<Absensi> absensiList = absensiService.getAbsensiByBulanSimpel(bulan, idAdmin);
             return ResponseEntity.ok(absensiList);
         } catch (Exception e) {
             e.printStackTrace();
@@ -228,8 +228,17 @@ public class AbsensiController {
         return new ResponseEntity<>(absensi, HttpStatus.OK);
     }
 
+    @GetMapping("/absensi/get")
+    public ResponseEntity<List<Absensi>> getAbsensiByToken(@RequestParam String token) {
+        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+        List<Absensi> absensi = absensiService.getAbsensiByEmail(userEmail);
+        if (absensi.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(absensi, HttpStatus.OK);
+    }
 
-     @GetMapping("/absensi/admin/{adminId}")
+    @GetMapping("/absensi/admin/{adminId}")
     public ResponseEntity<List<Absensi>> getAllByAdmin(@PathVariable Long adminId) {
         try {
             List<Absensi> absensiList = absensiService.getAllByAdmin(adminId);
@@ -241,14 +250,23 @@ public class AbsensiController {
         }
     }
 
-    @GetMapping("/absensi/checkAbsensi/{userId}")
-    public ResponseEntity<String> checkAbsensiToday(@PathVariable Long userId) {
-        if (absensiService.checkUserAlreadyAbsenToday(userId)) {
-            return ResponseEntity.status(HttpStatus.OK).body("Pengguna sudah melakukan absensi hari ini.");
+    @GetMapping("/absensi/checkAbsensi")
+    public ResponseEntity<String> checkAbsensiToday(@RequestParam String token) {
+        // Dapatkan userId dan email dari token
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+
+        boolean alreadyAbsen;
+        if (userId != null) {
+            alreadyAbsen = absensiService.checkUserAlreadyAbsenToday(userId);
         } else {
-            return ResponseEntity.status(HttpStatus.OK).body("Pengguna belum melakukan absensi hari ini.");
+            alreadyAbsen = absensiService.checkUserAlreadyAbsenTodayByEmail(userEmail);
         }
+
+        String message = alreadyAbsen ? "Pengguna sudah melakukan absensi hari ini." : "Pengguna belum melakukan absensi hari ini.";
+        return ResponseEntity.status(HttpStatus.OK).body(message);
     }
+
 
     @GetMapping("/absensi/checkIzin/{userId}")
     public ResponseEntity<String> hasTakenLeave(@PathVariable Long userId) {
@@ -302,11 +320,13 @@ public class AbsensiController {
         List<Absensi> allAbsensi = absensiService.getAllAbsensi();
         return new ResponseEntity<>(allAbsensi, HttpStatus.OK);
     }
+
     @GetMapping("/absensi/getizin/{userId}")
     public ResponseEntity<List<Absensi>> getAbsensiByStatusIzin(@PathVariable Long userId) {
         List<Absensi> absensiList = absensiService.getByStatusAbsen(userId, "Izin");
         return new ResponseEntity<>(absensiList, HttpStatus.OK);
     }
+
     @GetMapping("/absensi/getData/{id}")
     public ResponseEntity<Absensi> getAbsensiById(@PathVariable Long id) {
         Optional<Absensi> absensi = absensiService.getAbsensiById(id);
@@ -319,53 +339,70 @@ public class AbsensiController {
         String keteranganIzin = body.get("keteranganIzin");
         try {
             Long userId = jwtTokenUtil.getIdFromToken(token);
-
-            return absensiService.izin(userId, keteranganIzin);
+            String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+            Absensi newIzin;
+            if (userId == 0) {
+                System.out.println("Email yang diambil dari token: " + userEmail);
+                newIzin = absensiService.izinByEmail(userEmail, keteranganIzin);
+            } else {
+                System.out.println("User ID yang diambil dari token: " + userId);
+                newIzin = absensiService.izin(userId, keteranganIzin);
+            }
+            return newIzin;
+//            return absensiService.izin(userId, keteranganIzin);
         } catch (Exception e) {
             throw new RuntimeException("Error during absensi processing: " + e.getMessage(), e);
         }
     }
+
     @PutMapping("/absensi/izin-tengah-hari")
-    public Absensi izinTengahHari(@RequestParam String token, @RequestBody Absensi keterangaPulangAwal)  {
+    public Absensi izinTengahHari(@RequestParam String token, @RequestBody Absensi keterangaPulangAwal) {
         try {
             Long userId = jwtTokenUtil.getIdFromToken(token);
-
-            return absensiService.izinTengahHari(userId, keterangaPulangAwal);
+            String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+            Absensi newAbsensi;
+            if (userId == 0) {
+                System.out.println("Email yang diambil dari token: " + userEmail);
+                newAbsensi = absensiService.izinTengahHariByEmail(userEmail, keterangaPulangAwal);
+            } else {
+                System.out.println("User ID yang diambil dari token: " + userId);
+                newAbsensi = absensiService.izinTengahHari(userId, keterangaPulangAwal);
+            }
+            return newAbsensi;
+//            return absensiService.izinTengahHari(userId, keterangaPulangAwal);
         } catch (Exception e) {
             throw new RuntimeException("Error during absensi processing: " + e.getMessage(), e);
         }
     }
-
 
     @PostMapping("/absensi/masuk")
     public ResponseEntity<Absensi> postAbsensiMasuk(@RequestParam String token, @RequestBody Absensi absensi) throws IOException, ParseException {
-            Long userId = jwtTokenUtil.getIdFromToken(token);
-        Absensi newJabatan = absensiService.PostAbsensi(userId, absensi);
-        return ResponseEntity.ok(newJabatan);
-//        try {
-//
-//            String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
-//
-//            Absensi absensi = absensiService.PostAbsensi(userId, base64Image, lokasiMasuk, keteranganTerlambat);
-//
-//            return ResponseEntity.ok().body(absensi);
-//        } catch (IOException | EntityNotFoundException | NotFoundException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        } catch (ParseException e) {
-//            throw new RuntimeException(e);
-//        }
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+        System.out.println("userid token: " + userId);
+        Absensi newAbsensi;
+        if (userId == 0) {
+            System.out.println("Email yang diambil dari token: " + userEmail);
+            newAbsensi = absensiService.PostAbsensi(userEmail, absensi);
+        } else {
+            System.out.println("User ID yang diambil dari token: " + userId);
+            newAbsensi = absensiService.PostAbsensiById(userId, absensi);
+        }
+        return ResponseEntity.ok(newAbsensi);
     }
-     @PutMapping("/absensi/pulang")
+
+    @PutMapping("/absensi/pulang")
     public ResponseEntity<?> putAbsensiPulang(@RequestParam String token, @RequestBody Absensi absensi
-     ) {
+    ) {
         try {
-            Long userId = jwtTokenUtil.getIdFromToken(token);
-            Absensi newJabatan = absensiService.Pulang(userId, absensi);
+            String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+            Absensi newJabatan = absensiService.Pulang(userEmail, absensi);
             return ResponseEntity.ok(newJabatan);
         } catch (IOException | NotFoundException | ParseException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @PutMapping("/absensi/update/{id}")
     public ResponseEntity<Absensi> updateAbsensi(@PathVariable Long id, @RequestBody Absensi absensi) {
         Absensi updatedAbsensi = absensiService.updateAbsensi(id, absensi);
@@ -432,7 +469,7 @@ public class AbsensiController {
         }
     }
 
-        @GetMapping("/absensi/bulanan/kelas/{kelasId}")
+    @GetMapping("/absensi/bulanan/kelas/{kelasId}")
     public ResponseEntity<Map<String, List<Absensi>>> getAbsensiByBulananPerKelas(
             @PathVariable Long kelasId,
             @RequestParam int bulan,

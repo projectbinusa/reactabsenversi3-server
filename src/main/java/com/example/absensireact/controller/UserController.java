@@ -18,6 +18,7 @@ import com.example.absensireact.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +33,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
+@Controller
 public class UserController {
 
     @Autowired
@@ -75,15 +77,19 @@ public class UserController {
     }
 
     @PutMapping("/user/ubahPassByForgot")
-    public void resetPassword(@RequestBody ResetPassDTO resetPassDTO) {
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPassDTO resetPassDTO) {
         try {
             userImpl.ubahPassByForgot(resetPassDTO);
+            return ResponseEntity.ok("Password has been successfully reset.");
         } catch (NotFoundException e) {
-            throw new BadRequestException("Email not found.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email not found.");
         } catch (BadRequestException e) {
-            throw new BadRequestException("Password does not match.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password does not match.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
+
 
     @PostMapping("/user/forgot_password")
     public CommonResponse<ForGotPass> sendEmail(@RequestBody ForGotPass forGotPass) throws MessagingException {

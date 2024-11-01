@@ -14,6 +14,9 @@ import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.AbsensiService;
 import io.swagger.annotations.ApiParam;
 import org.apache.tomcat.util.buf.UDecoder;
+//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,7 +40,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -59,7 +62,7 @@ public class AbsensiController {
 
     private final AbsensiRepository absensiRepository;
 
-    private static final Logger logger = Logger.getLogger(AbsensiController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(AbsensiController.class);
 
 
     @Autowired
@@ -179,7 +182,7 @@ public class AbsensiController {
             tanggalAbsen = formatter.parse(tanggalAbsenStr);
             logger.info("Parsed date: " + tanggalAbsen);
         } catch (ParseException e) {
-            logger.severe("Failed to parse date: " + e.getMessage());
+            logger.error("Failed to parse date: " + e.getMessage());
             // handle exception, possibly return an error response
         }
 
@@ -199,7 +202,7 @@ public class AbsensiController {
             tanggalAbsen = formatter.parse(tanggalAbsenStr);
             logger.info("Parsed date: " + tanggalAbsen);
         } catch (ParseException e) {
-            logger.severe("Failed to parse date: " + e.getMessage());
+            logger.error("Failed to parse date: " + e.getMessage());
             return Collections.emptyList();
         }
 
@@ -464,7 +467,7 @@ public class AbsensiController {
             // Call service method to get the data and export to Excel
             excelAbsensiBulanan.excelAbsensiBulananByKelas(bulan, tahun, kelasId, response);
         } catch (IOException e) {
-            logger.severe("Failed to export Excel: " + e.getMessage());
+            logger.error("Failed to export Excel: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

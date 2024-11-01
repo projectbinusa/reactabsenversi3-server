@@ -49,7 +49,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
+//    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
 
 //    @Override
@@ -80,6 +80,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 //
 //        filterChain.doFilter(request, response);
 //    }
+private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -95,7 +96,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwtToken = requestTokenHeader.substring(7);
             try {
                 username = jwtTokenUtil.getEmailFromToken(jwtToken);
-                userId = jwtTokenUtil.getIdFromToken(jwtToken); // Ambil id dari token
+//                userId = jwtTokenUtil.getIdFromToken(jwtToken); // Ambil id dari token
             } catch (IllegalArgumentException e) {
                 System.out.println("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {

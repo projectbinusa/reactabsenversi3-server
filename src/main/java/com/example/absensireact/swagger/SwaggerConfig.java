@@ -19,20 +19,28 @@ import java.util.List;
 
 @Configuration
 @EnableSwagger2
-@EnableWebMvc
+//@EnableWebMvc
 public class SwaggerConfig {
-
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.example.absensireact.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.example.absensireact.controller")) // Ganti dengan package Anda
                 .paths(PathSelectors.any())
-                .build()
-                .apiInfo( apiInfo())
-                .securitySchemes(Arrays.asList(apiKey()))
-                .securityContexts(Arrays.asList(securityContext()));
+                .build();
     }
+
+//    @Bean
+//    public Docket api() {
+//        return new Docket(DocumentationType.SWAGGER_2)
+//                .select()
+//                .apis(RequestHandlerSelectors.basePackage("com.example.absensireact.controller"))
+//                .paths(PathSelectors.any())
+//                .build()
+//                .apiInfo( apiInfo())
+//                .securitySchemes(Arrays.asList(apiKey()))
+//                .securityContexts(Arrays.asList(securityContext()));
+//    }
 
 
     @Bean

@@ -63,6 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             // API controller
+            "/actuator/**",
             "/api/login",
             "/api/user/register",
             "/api/user/forgot_password",

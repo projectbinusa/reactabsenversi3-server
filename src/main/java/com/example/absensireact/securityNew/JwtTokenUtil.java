@@ -35,6 +35,12 @@ public class JwtTokenUtil implements Serializable {
     @Value("${jwt.secret:Absensi}") // Menggunakan @Value untuk secret
     private String secret;
 
+    //ini untuk email
+    public String getUsernameFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("email", String.class));
+    }
+
+//ini untuk username
     public String getEmailFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }

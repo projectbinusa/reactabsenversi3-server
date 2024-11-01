@@ -59,13 +59,16 @@ public class Absensi {
     @JoinColumn(name = "userId")
     private UserModel  user;
 
+    @Column(name = "userEmail") // Add this line
+    private String userEmail;
+
 
 
     public Absensi() {
 
     }
 
-    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, Date attendanceDate) {
+    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, String userEmail) {
         this.id = id;
         this.tanggalAbsen = tanggalAbsen;
         this.jamMasuk = jamMasuk;
@@ -81,6 +84,7 @@ public class Absensi {
         this.status = status;
         this.statusAbsen = statusAbsen;
         this.user = user;
+        this.userEmail = userEmail;
     }
 
     public Long getId() {
@@ -203,5 +207,11 @@ public class Absensi {
         this.user = user;
     }
 
+    public String getUserEmail() {
+        return userEmail;
+    }
 
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 }

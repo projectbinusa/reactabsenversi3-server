@@ -65,7 +65,7 @@ public class AuthService  {
             return OrangTuaDetail.buildOrangTua(orangTuaOptional.get());
         }
 
-        throw new UsernameNotFoundException("User not found with username: " + username);
+        throw new UsernameNotFoundException("User not found with username1: " + username);
     }
 
 

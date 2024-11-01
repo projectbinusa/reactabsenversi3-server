@@ -178,14 +178,50 @@ public class AbsensiImpl implements AbsensiService {
         Date endOfWeek = calendar.getTime();
         return startOfWeek.toString() + " - " + endOfWeek.toString();
     }
+
     @Override
-    public Absensi PostAbsensi(Long userId, Absensi absensi) throws IOException, ParseException {
+    public Absensi PostAbsensi(String email, Absensi absensi) throws IOException, ParseException {
+        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        if (existingAbsensi.isPresent()) {
+            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        } else {
+            UserModel user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("User dengan email: " + email + " tidak ditemukan."));
+            Shift shift = shiftRepository.findById(user.getShift().getId())
+                    .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
+
+            Date tanggalHariIni = truncateTime(new Date());
+            Date masuk = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            String jamMasukString = formatter.format(masuk);
+
+            SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            Date waktuMasukShift = timeFormatter.parse(shift.getWaktuMasuk());
+
+            String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
+
+            absensi.setUserEmail(email); // Set email directly
+            absensi.setTanggalAbsen(tanggalHariIni);
+            absensi.setJamMasuk(jamMasukString);
+            absensi.setJamPulang("-");
+            absensi.setLokasiMasuk(absensi.getLokasiMasuk());
+            absensi.setLokasiPulang("-");
+            absensi.setKeteranganTerlambat(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganTerlambat() : "-");
+            absensi.setStatusAbsen(keterangan);
+            absensi.setFotoMasuk(absensi.getFotoMasuk());
+
+            return absensiRepository.save(absensi);
+        }
+    }
+
+    @Override
+    public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
         } else {
             UserModel user = userRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("User dengan ID " + userId + " tidak ditemukan."));
+                    .orElseThrow(() -> new EntityNotFoundException("User dengan id: " + userId + " tidak ditemukan."));
             Shift shift = shiftRepository.findById(user.getShift().getId())
                     .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
 
@@ -200,7 +236,8 @@ public class AbsensiImpl implements AbsensiService {
             String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
 
 //            Absensi absensi = new Absensi();
-            absensi.setUser(user);
+//            absensi.setUser(user);
+            absensi.setUserEmail(user.getEmail());
             absensi.setTanggalAbsen(tanggalHariIni);
             absensi.setJamMasuk(jamMasukString);
             absensi.setJamPulang("-");
@@ -216,8 +253,8 @@ public class AbsensiImpl implements AbsensiService {
 
 
     @Override
-    public Absensi Pulang(Long userId, Absensi absensi) throws IOException, ParseException {
-        Absensi existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()))
+    public Absensi Pulang(String email, Absensi absensi) throws IOException, ParseException {
+        Absensi existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()))
                 .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
 
         if (!existingAbsensi.getJamPulang().equals("-")) {
@@ -240,6 +277,13 @@ public class AbsensiImpl implements AbsensiService {
     @Override
     public boolean checkUserAlreadyAbsenToday(Long userId) {
         Optional<Absensi> absensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        return absensi.isPresent();
+    }
+
+
+    @Override
+    public boolean checkUserAlreadyAbsenTodayByEmail(String email) {
+        Optional<Absensi> absensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
         return absensi.isPresent();
     }
 
@@ -381,7 +425,7 @@ public class AbsensiImpl implements AbsensiService {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
         } else {
             UserModel user = userRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("User dengan ID " + userId + " tidak ditemukan."));
+                    .orElseThrow(() -> new EntityNotFoundException("User dengan ID: " + userId + " tidak ditemukan."));
 
             Date tanggalHariIni = truncateTime(new Date());
             Absensi absensi = new Absensi();
@@ -396,8 +440,47 @@ public class AbsensiImpl implements AbsensiService {
         }
     }
     @Override
+    public Absensi izinByEmail(String email, String keteranganIzin) {
+        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        if (existingAbsensi.isPresent()) {
+            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        } else {
+            UserModel user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("User dengan email " + email + " tidak ditemukan."));
+
+            Date tanggalHariIni = truncateTime(new Date());
+            Absensi absensi = new Absensi();
+            absensi.setUserEmail(email);
+            absensi.setTanggalAbsen(tanggalHariIni);
+            absensi.setJamMasuk("-");
+            absensi.setJamPulang("-");
+            absensi.setKeteranganIzin(keteranganIzin);
+            absensi.setStatusAbsen("Izin");
+
+            return absensiRepository.save(absensi);
+        }
+    }
+
+    @Override
     public Absensi izinTengahHari(Long userId , Absensi keterangaPulangAwal )   {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        if (existingAbsensi.isPresent()) {
+            Absensi absensi = existingAbsensi.get();
+            Date masuk = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+            String jamPulang = formatter.format(masuk);
+            absensi.setJamPulang(jamPulang);
+            absensi.setKeteranganPulangAwal(keterangaPulangAwal.getKeteranganPulangAwal());
+            absensi.setStatusAbsen("Izin Tengah Hari");
+            return absensiRepository.save(absensi);
+        } else {
+            throw new NotFoundException("User belum melakukan absensi masuk pada hari ini.");
+        }
+    }
+
+ @Override
+    public Absensi izinTengahHariByEmail(String email , Absensi keterangaPulangAwal )   {
+        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             Absensi absensi = existingAbsensi.get();
             Date masuk = new Date();
@@ -471,6 +554,12 @@ public class AbsensiImpl implements AbsensiService {
     @Override
     public List<Absensi> getAbsensiByUserId(Long userId) {
         return absensiRepository.findabsensiByUserId(userId);
+    }
+
+    @Override
+    public List<Absensi> getAbsensiByEmail(String email) {
+        System.out.println("Email dari token: " + email);
+        return absensiRepository.findAbsensiByEmail(email);
     }
 
     private Date truncateTime(Date date) {

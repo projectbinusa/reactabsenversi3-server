@@ -44,7 +44,7 @@ public interface UserService {
 
     UserModel EditUserBySuper(Long id, Long idShift, Long idOrangTua, Long idKelas, Long idOrganisasi, UserDTO updateUser);
 
-    UserModel Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua);
+    UserModel Tambahkaryawan(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idKelas, Long idShift, Long idOrangTua);
 
     UserModel TambahUserKelas(UserDTO userDTO, Long idAdmin, Long idOrganisasi, Long idShift, Long idOrangTua, Long idKelas);
 

@@ -112,9 +112,10 @@ public class UserController {
             @PathVariable Long idAdmin,
             @RequestParam Long idOrganisasi,
             @RequestParam Long idOrangTua,
+            @RequestParam Long idKelas,
             @RequestParam Long idShift) {
         try {
-            UserModel savedUser = userImpl.Tambahkaryawan(userDTO, idAdmin, idOrganisasi, idShift, idOrangTua);
+            UserModel savedUser = userImpl.Tambahkaryawan(userDTO, idAdmin, idOrganisasi, idKelas, idShift, idOrangTua);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -348,7 +349,7 @@ public class UserController {
     @GetMapping("/download/template-excel-siswa")
     public ResponseEntity<Void> templateExcelSiswa(HttpServletResponse response) {
         try {
-            excelDataSiswa.templateExcelSiswa(response);
+            excelDataSiswa.templateExcelSiswaPerKelas(response);
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();

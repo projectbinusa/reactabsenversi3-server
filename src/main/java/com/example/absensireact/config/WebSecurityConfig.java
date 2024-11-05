@@ -80,11 +80,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/admin/",
             "/api/admin/get",
             "/api/superadmin/register",
+            "/api/absensi/masuk",
+            "/api/absensi/pulang",
+            "/api/absensi/checkAbsensi",
+            "/api/absensi/izin",
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
             "/api/user/**",
-            "/api/absensi/**",
             "/api/karyawan/**",
             "/api/admin/**",
             "/api/organisasi/**",

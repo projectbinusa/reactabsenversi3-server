@@ -84,11 +84,11 @@ public class ImportSiswa {
             Cell orangTuaCell = row.getCell(4);
             Cell shiftCell = row.getCell(5);
             Cell organisasiCell = row.getCell(6);
-            Cell kelasCell = row.getCell(7);
+//            Cell kelasCell = row.getCell(7);
 
             // Cek jika ada sel penting yang kosong
             if (namaUserCell == null || emailCell == null || passwordCell == null ||
-                    orangTuaCell == null || shiftCell == null || organisasiCell == null || kelasCell == null) {
+                    orangTuaCell == null || shiftCell == null || organisasiCell == null) {
                 System.out.println("Data kosong terdeteksi di baris: " + (i + 1));
                 continue; // Lewati baris ini dan lanjutkan ke baris berikutnya
             }
@@ -101,22 +101,22 @@ public class ImportSiswa {
 
             // Set organisasi, kelas, shift, dan orang tua berdasarkan data yang valid
             String namaOrganisasi = getCellValue(organisasiCell);
-            String namaKelas = getCellValue(kelasCell);
+//            String namaKelas = getCellValue(kelasCell);
             String namaShift = getCellValue(shiftCell);
             String namaOrangTua = getCellValue(orangTuaCell);
 
             try {
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
-                Kelas kelas = kelasRepository.findByNamaKelas(namaKelas)
-                        .orElseThrow(() -> new NotFoundException("Kelas dengan nama " + namaKelas + " tidak ditemukan"));
+//                Kelas kelas = kelasRepository.findByNamaKelas(namaKelas)
+//                        .orElseThrow(() -> new NotFoundException("Kelas dengan nama " + namaKelas + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
                 OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangTua)
                         .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangTua + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
-                user.setKelas(kelas);
+//                user.setKelas(kelas);
                 user.setShift(shift);
                 user.setOrangTua(orangTua);
                 user.setAdmin(admin);

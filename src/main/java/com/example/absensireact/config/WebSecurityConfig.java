@@ -84,6 +84,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/absensi/pulang",
             "/api/absensi/checkAbsensi",
             "/api/absensi/izin",
+            "/api/absensi/**",
+
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
@@ -97,6 +99,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/shift/**",
             "/api/lokasi/**",
             "/api/jabatan/**",
+            "/api/absensi/**",
             "/api/notifications/**",
             "/api/tokens/**",
             "/api/admin/profile/editDetail/**",

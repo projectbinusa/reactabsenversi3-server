@@ -68,20 +68,22 @@ public class AbsensiImpl implements AbsensiService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new NotFoundException("Id Admin tidak ditemukan dengan id: " + adminId));
 
+        // Ambil semua pengguna yang terkait dengan admin ini, termasuk pengguna dengan user_id NULL
         List<UserModel> users = userRepository.findByadminIdAbsensi(admin.getId());
 
         if (users.isEmpty()) {
             throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
         }
 
+        // Inisialisasi absensiList untuk menyimpan data absensi
         List<Absensi> absensiList = new ArrayList<>();
         for (UserModel user : users) {
+            // Tambahkan semua data absensi untuk setiap user ke dalam list
             absensiList.addAll(absensiRepository.findByUser(user));
         }
 
         return absensiList;
     }
-
 
 
 

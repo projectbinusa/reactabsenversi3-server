@@ -18,8 +18,9 @@ public interface UserRepository extends JpaRepository<UserModel , Long> {
     @Query(value = "SELECT * FROM user WHERE id_jabatan = :idJabatan" , nativeQuery = true)
     Optional<UserModel> findByJabatanId(Long idJabatan);
 
-    @Query(value = "SELECT * FROM user WHERE id_admin = :adminId" , nativeQuery = true)
-    List<UserModel> findByadminIdAbsensi (Long adminId);
+    @Query(value = "SELECT * FROM user WHERE id_admin = :adminId OR id IS NULL", nativeQuery = true)
+    List<UserModel> findByadminIdAbsensi(Long adminId);
+
     @Query(value = "SELECT * FROM user WHERE id_admin = :adminId" , nativeQuery = true)
     List<UserModel> find (Long adminId);
 

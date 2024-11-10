@@ -198,7 +198,8 @@ public class AbsensiImpl implements AbsensiService {
 
             String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
 
-            absensi.setUserEmail(email); // Set email directly
+            absensi.setUserEmail(email);
+            absensi.setUser(user);
             absensi.setTanggalAbsen(tanggalHariIni);
             absensi.setJamMasuk(jamMasukString);
             absensi.setJamPulang("-");
@@ -213,7 +214,7 @@ public class AbsensiImpl implements AbsensiService {
     }
 
     @Override
-    public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
+        public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
@@ -235,7 +236,7 @@ public class AbsensiImpl implements AbsensiService {
 
 //            Absensi absensi = new Absensi();
 //            absensi.setUser(user);
-            absensi.setUserEmail(user.getEmail());
+            absensi.setUser(user);
             absensi.setTanggalAbsen(tanggalHariIni);
             absensi.setJamMasuk(jamMasukString);
             absensi.setJamPulang("-");

@@ -32,7 +32,6 @@ import org.threeten.bp.LocalDate;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.NotActiveException;

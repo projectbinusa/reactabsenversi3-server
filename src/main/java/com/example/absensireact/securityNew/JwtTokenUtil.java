@@ -32,7 +32,7 @@ public class JwtTokenUtil implements Serializable {
     @Autowired
     private UserRepository userRepository;
 
-    @Value("${jwt.secret:ABSENSI}") // Menggunakan @Value untuk secret
+    @Value("${jwt.secret:Absensi}") // Menggunakan @Value untuk secret
     private String secret;
 
     //ini untuk email

@@ -84,7 +84,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/absensi/pulang",
             "/api/absensi/checkAbsensi",
             "/api/absensi/izin",
-            "/api/absensi/**",
+            "/absensi/checkIzin/{userId}",
+//            "/api/absensi/**",
 
     };
 
@@ -105,7 +106,37 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/admin/profile/editDetail/**",
             "/api/admin/profile/edit/**",
             "/api/admin/profile/upload/**",
-            "/api/superadmin/**"
+            "/api/superadmin/**",
+            "/absensi/export/absensi-bulanan-simpel",
+            "/absensi/export/absensi-rekapan-perkaryawan",
+            "/absensi/export/absensi-bulanan",
+            "/absensi/export/absensi-mingguan",
+            "/absensi/export/mingguan/by-kelas",
+            "/absensi/rekap-mingguan",
+            "/absensi/rekap-mingguan-per-kelas",
+            "absensi/rekap-perkaryawan/export",
+            "/absensi/get-absensi-bulan-simpel",
+            "/absensi/get-absensi-bulan",
+            "/absensi/by-tanggal",
+            "/absensi/export/harian",
+            "/absensi/getByUserId/{userId}",
+            "/absensi/get",
+            "/absensi/admin/{adminId}",
+            "/absensi/check-alpha",
+            "/absensi/getAll",
+            "/absensi/getData/{id}",
+            "/absensi/getizin/{userId}",
+            "/absensi/izin-tengah-hari",
+            "/absensi/update/{id}",
+            "/absensi/delete/{id}",
+            "/absensi/by-kelas/{kelasId}",
+            "/export/absensi/by-kelas/{kelasId}",
+            "/absensi/export/harian/by-kelas",
+            "/absensi/export/bulanan/by-kelas",
+            "/absensi/bulanan/kelas/{kelasId}",
+            "/absensi/harian/by-kelas/{kelasId}",
+            "/absensi/by-orang-tua/{orangTuaId}",
+            "/absensi/izin/by-orangTua/{idOrangTua}"
     };
 
     @Bean

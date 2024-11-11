@@ -245,6 +245,7 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setKeteranganTerlambat(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganTerlambat() : "-");
             absensi.setStatusAbsen(keterangan);
             absensi.setFotoMasuk(absensi.getFotoMasuk());
+            absensi.setUserEmail(user.getEmail());
 
             return absensiRepository.save(absensi);
         }

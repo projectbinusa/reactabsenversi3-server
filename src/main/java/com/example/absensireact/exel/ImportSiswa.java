@@ -103,7 +103,7 @@ public class ImportSiswa {
             String namaOrganisasi = getCellValue(organisasiCell);
 //            String namaKelas = getCellValue(kelasCell);
             String namaShift = getCellValue(shiftCell);
-            String namaOrangTua = getCellValue(orangTuaCell);
+            String namaOrangTua = orangTuaCell != null ? getCellValue(orangTuaCell) : null;
 
             try {
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)

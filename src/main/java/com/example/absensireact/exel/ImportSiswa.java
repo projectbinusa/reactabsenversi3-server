@@ -84,11 +84,10 @@ public class ImportSiswa {
             Cell orangTuaCell = row.getCell(4);
             Cell shiftCell = row.getCell(5);
             Cell organisasiCell = row.getCell(6);
-//            Cell kelasCell = row.getCell(7);
 
-            // Cek jika ada sel penting yang kosong
+            // Cek jika ada sel penting yang kosong (kecuali kolom Orang Tua)
             if (namaUserCell == null || emailCell == null || passwordCell == null ||
-                    orangTuaCell == null || shiftCell == null || organisasiCell == null) {
+                    shiftCell == null || organisasiCell == null) {
                 System.out.println("Data kosong terdeteksi di baris: " + (i + 1));
                 continue; // Lewati baris ini dan lanjutkan ke baris berikutnya
             }
@@ -101,24 +100,27 @@ public class ImportSiswa {
 
             // Set organisasi, kelas, shift, dan orang tua berdasarkan data yang valid
             String namaOrganisasi = getCellValue(organisasiCell);
-//            String namaKelas = getCellValue(kelasCell);
             String namaShift = getCellValue(shiftCell);
             String namaOrangTua = orangTuaCell != null ? getCellValue(orangTuaCell) : null;
 
             try {
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
-//                Kelas kelas = kelasRepository.findByNamaKelas(namaKelas)
-//                        .orElseThrow(() -> new NotFoundException("Kelas dengan nama " + namaKelas + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
-                OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangTua)
-                        .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangTua + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
-//                user.setKelas(kelas);
                 user.setShift(shift);
-                user.setOrangTua(orangTua);
+
+                // Set orang tua hanya jika kolom orang tua tidak kosong
+                if (namaOrangTua != null && !namaOrangTua.isEmpty()) {
+                    OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangTua)
+                            .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangTua + " tidak ditemukan"));
+                    user.setOrangTua(orangTua);
+                } else {
+                    System.out.println("Kolom Orang Tua kosong di baris: " + (row.getRowNum() + 1));
+                }
+
                 user.setAdmin(admin);
                 user.setRole("USER"); // Set status otomatis menjadi "Siswa"
                 userList.add(user);
@@ -139,6 +141,7 @@ public class ImportSiswa {
             System.out.println("Tidak ada data user yang valid untuk disimpan.");
         }
     }
+
 
     //    @Transactional
     public void importUserperKelas(MultipartFile file, Admin admin, Kelas kelas) throws IOException {
@@ -179,9 +182,12 @@ public class ImportSiswa {
             user.setPassword(encoder.encode(passwordCell.getStringCellValue()));
 
             try {
+//                String namaUser = getCellValue(namaUserCell);
+//                String email = getCellValue(emailCell);
+//                String password = getCellValue(passwordCell);
                 String namaOrganisasi = getCellValue(organisasiCell);
                 String namaShift = getCellValue(shiftCell);
-                String namaOrangTua = getCellValue(orangTuaCell);
+                String namaOrangTua = orangTuaCell != null ? getCellValue(orangTuaCell) : null;
 
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
@@ -229,11 +235,17 @@ public class ImportSiswa {
 
 
     private String getCellValue(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
         switch (cell.getCellType()) {
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf((int) cell.getNumericCellValue());
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue().toString(); // Format tanggal jika diperlukan
+                }
+                return String.valueOf(cell.getNumericCellValue());
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
@@ -242,6 +254,7 @@ public class ImportSiswa {
                 return "";
         }
     }
+
 
 //    private Long getLongCellValue(Cell cell) {
 //        if (cell == null) {

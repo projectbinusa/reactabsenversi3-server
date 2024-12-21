@@ -455,6 +455,45 @@ public class AbsensiController {
         }
     }
 
+    @GetMapping("/absensi/rekap/harian/by-kelas")
+    public ResponseEntity<?> getAbsensiPerHari(
+            @RequestParam("tanggal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date tanggal,
+            @RequestParam("kelasId") Long kelasId) {
+        try {
+            Object hasilRekap = absensiService.getAbsensiPerHari(tanggal, kelasId);
+
+            // Respons sukses
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", hasilRekap
+            ));
+        } catch (NotFoundException e) {
+            // Respons jika kelas tidak ditemukan
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            // Respons untuk error lainnya
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "error",
+                    "message", "Terjadi kesalahan saat memproses data absensi."
+            ));
+        }
+    }
+    @GetMapping("/absensi/rekap/harian/all-kelas/per-hari")
+    public ResponseEntity<?> getAbsensiPerHari(@RequestParam("tanggal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggal) {
+        try {
+            // Panggil service untuk mendapatkan data absensi semua kelas
+            List<Map<String, Object>> absensiData = absensiService.getAbsensiPerHari(tanggal);
+
+            // Kembalikan respons dengan status 200 OK
+            return ResponseEntity.ok(absensiData);
+        } catch (Exception e) {
+            // Tangani error dan kembalikan status 500 dengan pesan error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan: " + e.getMessage());
+        }
+    }
     @GetMapping("/absensi/export/bulanan/by-kelas")
     public void exportAbsensiBulananByKelas(
             @RequestParam("bulan") int bulan,

@@ -136,6 +136,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/absensi/export/bulanan/by-kelas",
             "/api/absensi/bulanan/kelas/{kelasId}",
             "/api/absensi/harian/by-kelas/{kelasId}",
+            "/api/absensi/rekap/harian/by-kelas/{kelasId}",
             "/api/absensi/by-orang-tua/{orangTuaId}",
             "/api/absensi/izin/by-orangTua/{idOrangTua}"
     };

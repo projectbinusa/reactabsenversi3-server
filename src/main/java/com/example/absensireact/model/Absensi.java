@@ -59,6 +59,10 @@ public class Absensi {
     @JoinColumn(name = "userId")
     private UserModel  user;
 
+    @OneToOne
+    @JoinColumn(name = "shiftId")
+    private Shift shift;
+
     @Column(name = "userEmail") // Add this line
     private String userEmail;
 
@@ -68,7 +72,7 @@ public class Absensi {
 
     }
 
-    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, String userEmail) {
+    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, Shift shift ,  String userEmail) {
         this.id = id;
         this.tanggalAbsen = tanggalAbsen;
         this.jamMasuk = jamMasuk;
@@ -84,6 +88,7 @@ public class Absensi {
         this.status = status;
         this.statusAbsen = statusAbsen;
         this.user = user;
+        this.shift = shift;
         this.userEmail = userEmail;
     }
 
@@ -205,6 +210,14 @@ public class Absensi {
 
     public void setUser(UserModel user) {
         this.user = user;
+    }
+
+    public Shift getShift() {
+        return shift;
+    }
+
+    public void setShift(Shift shift) {
+        this.shift = shift;
     }
 
     public String getUserEmail() {

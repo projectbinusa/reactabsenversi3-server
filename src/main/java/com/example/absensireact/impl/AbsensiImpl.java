@@ -12,12 +12,10 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,8 +24,6 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -48,17 +44,20 @@ public class AbsensiImpl implements AbsensiService {
     private final AdminRepository adminRepository;
     private final ShiftRepository shiftRepository;
 
+    private final KelasRepository kelasRepository;
+
 //    private final AbsensiService absensiService;
 
     private final OrangTuaRepository orangTuaRepository;
 
 
 
-    public AbsensiImpl(AbsensiRepository absensiRepository, UserRepository userRepository, AdminRepository adminRepository, ShiftRepository shiftRepository, OrangTuaRepository orangTuaRepository) throws IOException {
+    public AbsensiImpl(AbsensiRepository absensiRepository, UserRepository userRepository, AdminRepository adminRepository, ShiftRepository shiftRepository, KelasRepository kelasRepository, OrangTuaRepository orangTuaRepository) throws IOException {
         this.absensiRepository = absensiRepository;
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.shiftRepository = shiftRepository;
+        this.kelasRepository = kelasRepository;
         this.orangTuaRepository = orangTuaRepository;
     }
 
@@ -684,6 +683,108 @@ public class AbsensiImpl implements AbsensiService {
         LocalDate date = new java.sql.Date(tanggalAbsen.getTime()).toLocalDate();
         return date.getYear() + "-" + String.format("%02d", date.getMonthValue());
     }
+    @Override
+    public List<Map<String, Object>> getAbsensiPerHari(Date tanggal) {
+        // Ambil semua kelas
+        List<Kelas> kelasList = kelasRepository.findAll();
+
+        // Atur start dan end of the day
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(tanggal);
+
+        // Set start of the day
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfDay = calendar.getTime();
+
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        Date endOfDay = calendar.getTime();
+
+        // List untuk menampung hasil
+        List<Map<String, Object>> responseList = new ArrayList<>();
+
+        // Loop untuk setiap kelas
+        for (Kelas kelas : kelasList) {
+            Long kelasId = kelas.getId();
+
+            // Hitung total siswa dalam kelas
+            int jumlahTotalSiswa = userRepository.findByKelasId(kelasId).size();
+
+            // Ambil data absensi berdasarkan tanggal dan kelas
+            List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+
+            // Hitung jumlah hadir
+            int jumlahHadir = (int) absensiList.stream()
+                    .map(Absensi::getUser)
+                    .distinct()
+                    .count();
+
+            // Hitung jumlah tidak hadir
+            int jumlahTidakHadir = jumlahTotalSiswa - jumlahHadir;
+
+            // Buat respons dalam bentuk map
+            Map<String, Object> response = new HashMap<>();
+            response.put("kelasId", kelas.getId());
+            response.put("kelasName", kelas.getNamaKelas());
+            response.put("jumlahSiswa", jumlahTotalSiswa);
+            response.put("hadir", jumlahHadir);
+            response.put("tidakHadir", jumlahTidakHadir);
+
+            // Tambahkan ke responseList
+            responseList.add(response);
+        }
+
+        return responseList;
+    }
+
+    @Override
+    public Map<String, Object> getAbsensiPerHari(Date tanggal, Long kelasId) {
+        // Ambil informasi kelas berdasarkan ID
+        Kelas kelas = kelasRepository.findById(kelasId)
+                .orElseThrow(() -> new NotFoundException("Kelas dengan ID " + kelasId + " tidak ditemukan."));
+
+        // Hitung total siswa dalam kelas
+        int jumlahTotalSiswa = userRepository.findByKelasId(kelasId).size();
+
+        // Atur start dan end of the day
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(tanggal);
+
+        // Set start of the day
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfDay = calendar.getTime();
+
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        Date endOfDay = calendar.getTime();
+
+        List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+
+        int jumlahHadir = (int) absensiList.stream()
+                .map(Absensi::getUser)
+                .distinct()
+                .count();
+
+        int jumlahTidakHadir = jumlahTotalSiswa - jumlahHadir;
+
+        // Buat respons dalam bentuk map
+        Map<String, Object> response = new HashMap<>();
+        response.put("kelasId", kelas.getId());
+        response.put("kelasName", kelas.getNamaKelas());
+        response.put("jumlahSiswa", jumlahTotalSiswa);
+        response.put("hadir", jumlahHadir);
+        response.put("tidakHadir", jumlahTidakHadir);
+
+        return response;
+    }
+
+
 
     @Override
     public Map<String, List<Absensi>> getAbsensiHarianByKelas(Date tanggal, Long kelasId) {

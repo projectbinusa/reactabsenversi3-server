@@ -11,6 +11,8 @@ import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
+
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -46,14 +48,6 @@ public class RekapanPresensiExcel {
         // Define cell styles
         CellStyle styleHeader = createCellStyle(workbook, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, BorderStyle.THIN, IndexedColors.BLACK.getIndex(), true);
         CellStyle styleData = createCellStyle(workbook, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, BorderStyle.THIN, IndexedColors.BLACK.getIndex(), false);
-        CellStyle styleCheckmark = createCellStyle(workbook, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, BorderStyle.THIN, IndexedColors.BLACK.getIndex(), false);
-
-        Font fontCheckmark = workbook.createFont();
-        fontCheckmark.setFontHeightInPoints((short) 12);
-        styleCheckmark.setFont(fontCheckmark);
-
-        String checkmark = "\u2714"; // Unicode for checkmark
-        String empty = ""; // Empty cell for unchecked
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(tanggal);
@@ -61,19 +55,15 @@ public class RekapanPresensiExcel {
         int month = calendar.get(Calendar.MONTH) + 1;
         int year = calendar.get(Calendar.YEAR);
 
+        // Fetch all users in the class
+        List<UserModel> allUsers = absensiRepository.findAllUsersByKelasId(kelasId);
+
+        // Fetch absences for the specific date
         List<Absensi> absensiList = absensiRepository.findByKelasIdAndDate(kelasId, day, month, year);
 
-        // Map to get user by username
-        Map<String, UserModel> userMap = new HashMap<>();
-        for (Absensi absensi : absensiList) {
-            UserModel user = absensi.getUser();
-            userMap.put(user.getUsername(), user);
-        }
-
-        Map<String, List<Absensi>> userAbsensiMap = new HashMap<>();
-        for (Absensi absensi : absensiList) {
-            userAbsensiMap.computeIfAbsent(absensi.getUser().getUsername(), k -> new ArrayList<>()).add(absensi);
-        }
+        // Map absences by user ID for quick lookup
+        Map<Long, List<Absensi>> absensiMap = absensiList.stream()
+                .collect(Collectors.groupingBy(absensi -> absensi.getUser().getId()));
 
         int rowNum = 0;
 
@@ -82,202 +72,137 @@ public class RekapanPresensiExcel {
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA PRESENSI HARIAN : " + day + " " + getMonthName(month) + " " + year);
         titleCell.setCellStyle(styleHeader);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 8)); // Merging cells for title
-        applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 8), workbook); // Apply border for merged cells
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 8));
+        applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 8), workbook);
         rowNum++;
 
-        // Header row (first row for "No", "Nama", "Kelas", and "Presensi")
+        // Header row
         Row headerRow = sheet.createRow(rowNum++);
         String[] headers = {"No", "Nama", "Kelas", "Presensi"};
-        for (int i = 0; i < 3; i++) { // Loop for "No", "Nama", "Kelas" columns
+        for (int i = 0; i < 3; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styleHeader);
         }
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum, 0, 2));
+        applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum, 0, 2), workbook);
 
-// Merge "No", "Nama", and "Kelas" columns from row 3 to 4
-        for (int i = 0; i < 3; i++) {
-            sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum, i, i)); // Merge columns 0 (No), 1 (Nama), and 2 (Kelas)
-            applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum, i, i), workbook); // Apply border to merged cells
-        }
-
-// Add "Presensi" header with merged cells
         Cell presensiCell = headerRow.createCell(3);
-        presensiCell.setCellValue(headers[3]); // Set "Presensi" header
+        presensiCell.setCellValue(headers[3]);
         presensiCell.setCellStyle(styleHeader);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 3, 8)); // Merge Presensi cell for sub-columns
-        applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum - 1, 3, 8), workbook); // Apply border for merged cells
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 3, 8));
+        applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum - 1, 3, 8), workbook);
 
-// Second row for Presensi sub-columns (Hadir, Izin, Terlambat, Izin Tengah Hari, Alpha)
         Row presensiRow = sheet.createRow(rowNum++);
-        String[] presensiHeaders = {"Hadir", "Izin", "Terlambat", "Izin Tengah Hari", "Alpha" , "Sakit"};
+        String[] presensiHeaders = {"Hadir", "Izin", "Terlambat", "Izin Tengah Hari", "Alpha", "Sakit"};
         for (int i = 0; i < presensiHeaders.length; i++) {
-            Cell cell = presensiRow.createCell(3 + i); // Starting from 4th column for sub-columns
+            Cell cell = presensiRow.createCell(3 + i);
             cell.setCellValue(presensiHeaders[i]);
             cell.setCellStyle(styleHeader);
         }
 
-// Apply border to the entire row 4
-        for (int i = 0; i < 9; i++) { // Ensure borders are applied for the entire row (including merged cells)
-            Cell cell = presensiRow.getCell(i);
-            if (cell == null) { // Create empty cells where necessary
-                cell = presensiRow.createCell(i);
-            }
-            cell.setCellStyle(styleHeader); // Apply border style to every cell in row 4
-        }
-
-
-        // Initialize counters for summary row (Jumlah)
-        int totalHadir = 0;
-        int totalIzin = 0;
-        int totalTerlambat = 0;
-        int totalIzinTengahHari = 0;
-        int totalTidakMasuk = 0;
-        int totalSakit= 0;
-        int totalAlpha = 0 ;
+        // Counters for summary row
+        int totalHadir = 0, totalIzin = 0, totalTerlambat = 0, totalIzinTengahHari = 0, totalAlpha = 0, totalSakit = 0;
 
         // Data rows
-        int no = 1; // Initialize row number for "No" column
-        for (Map.Entry<String, UserModel> entry : userMap.entrySet()) {
-            String userName = entry.getKey();
-            UserModel userModel = entry.getValue();
-            List<Absensi> userAbsensi = userAbsensiMap.getOrDefault(userName, new ArrayList<>());
-
-            // Retrieve kelas from User
-            String kelas = userModel.getKelas() != null ? userModel.getKelas().getNamaKelas() : "Unknown";
-
-            // Initialize variables for status
-            boolean hadir = false;
-            boolean izin = false;
-            boolean terlambat = false;
-            boolean izinTengahHari = false;
-            boolean sakit = false;
-            boolean alpha = false ;
-
-            // Determine status based on status_absen
-            for (Absensi absensi : userAbsensi) {
-                String status = absensi.getStatusAbsen();
-                if ("Hadir".equals(status) || "Izin Tengah Hari".equals(status) || "Lebih Awal".equals(status) || "Terlambat".equals(status)) {
-                    hadir = true;
-                }
-                if ("Izin".equals(status)) {
-                    izin = true;
-                }
-                if ("Terlambat".equals(status)) {
-                    terlambat = true;
-                }
-                if ("Izin Tengah Hari".equals(status)) {
-                    izinTengahHari = true;
-                }
-                if ("Izin".equals(status)) {
-                    sakit = true;
-                }
-                if ("Alpha".equals(status)) {
-                    alpha = true;
-                }
-            }
-
-            // If no attendance record found for user, mark as "Tidak Masuk"
-            boolean tidakMasuk = userAbsensi.isEmpty();
-
-            // Add data row
+        int no = 1;
+        for (UserModel user : allUsers) {
             Row dataRow = sheet.createRow(rowNum++);
 
-            // "No" column
+            // User data
             Cell noCell = dataRow.createCell(0);
             noCell.setCellValue(no++);
-            noCell.setCellStyle(styleData);  // Apply border style to "No" cell
+            noCell.setCellStyle(styleData);
 
-            // "Nama" column
             Cell namaCell = dataRow.createCell(1);
-            namaCell.setCellValue(userName);
-            namaCell.setCellStyle(styleData);  // Apply border style to "Nama" cell
+            namaCell.setCellValue(user.getUsername());
+            namaCell.setCellStyle(styleData);
 
-            // "Kelas" column
             Cell kelasCell = dataRow.createCell(2);
-            kelasCell.setCellValue(kelas);
-            kelasCell.setCellStyle(styleData);  // Apply border style to "Kelas" cell
+            kelasCell.setCellValue(user.getKelas() != null ? user.getKelas().getNamaKelas() : "Unknown");
+            kelasCell.setCellStyle(styleData);
 
-            // "Presensi" sub-columns
+            // Absence data
+            List<Absensi> userAbsensi = absensiMap.getOrDefault(user.getId(), Collections.emptyList());
+            boolean hadir = userAbsensi.stream().anyMatch(a -> "Hadir".equals(a.getStatusAbsen()));
+            boolean izin = userAbsensi.stream().anyMatch(a -> "Izin".equals(a.getStatusAbsen()));
+            boolean terlambat = userAbsensi.stream().anyMatch(a -> "Terlambat".equals(a.getStatusAbsen()));
+            boolean izinTengahHari = userAbsensi.stream().anyMatch(a -> "Izin Tengah Hari".equals(a.getStatusAbsen()));
+            boolean alpha = userAbsensi.isEmpty();
+            boolean sakit = userAbsensi.stream().anyMatch(a -> "Sakit".equals(a.getStatusAbsen()));
+
+            // Fill attendance columns and update totals
             Cell hadirCell = dataRow.createCell(3);
-            hadirCell.setCellValue(hadir ? checkmark : empty); // Hadir
-            hadirCell.setCellStyle(styleData); // Apply border style to "Hadir" cell
-            if (hadir) totalHadir++;
+            if (hadir) {
+                hadirCell.setCellValue("✔");
+                totalHadir++;
+            }
+            hadirCell.setCellStyle(styleData);
 
             Cell izinCell = dataRow.createCell(4);
-            izinCell.setCellValue(izin ? checkmark : empty); // Izin
-            izinCell.setCellStyle(styleData); // Apply border style to "Izin" cell
-            if (izin) totalIzin++;
+            if (izin) {
+                izinCell.setCellValue("✔");
+                totalIzin++;
+            }
+            izinCell.setCellStyle(styleData);
 
             Cell terlambatCell = dataRow.createCell(5);
-            terlambatCell.setCellValue(terlambat ? checkmark : empty); // Terlambat
-            terlambatCell.setCellStyle(styleData); // Apply border style to "Terlambat" cell
-            if (terlambat) totalTerlambat++;
+            if (terlambat) {
+                terlambatCell.setCellValue("✔");
+                totalTerlambat++;
+            }
+            terlambatCell.setCellStyle(styleData);
 
             Cell izinTengahHariCell = dataRow.createCell(6);
-            izinTengahHariCell.setCellValue(izinTengahHari ? checkmark : empty); // Izin Tengah Hari
-            izinTengahHariCell.setCellStyle(styleData); // Apply border style to "Izin Tengah Hari" cell
-            if (izinTengahHari) totalIzinTengahHari++;
+            if (izinTengahHari) {
+                izinTengahHariCell.setCellValue("✔");
+                totalIzinTengahHari++;
+            }
+            izinTengahHariCell.setCellStyle(styleData);
 
             Cell alphaCell = dataRow.createCell(7);
-            alphaCell.setCellValue(alpha ? checkmark : empty); // Tidak Masuk
-            alphaCell.setCellStyle(styleData); // Apply border style to "Tidak Masuk" cell
-            if (alpha) totalAlpha++;
+            if (alpha) {
+                alphaCell.setCellValue("✔");
+                totalAlpha++;
+            }
+            alphaCell.setCellStyle(styleData);
 
             Cell sakitCell = dataRow.createCell(8);
-            sakitCell.setCellValue(sakit ? checkmark : empty); // Tidak Masuk
-            sakitCell.setCellStyle(styleData); // Apply border style to "Tidak Masuk" cell
-            if (sakit) totalSakit++;
+            if (sakit) {
+                sakitCell.setCellValue("✔");
+                totalSakit++;
+            }
+            sakitCell.setCellStyle(styleData);
         }
 
-// Add summary row (Jumlah)
+        // Add summary row
         Row jumlahRow = sheet.createRow(rowNum++);
-
-// Merge cells for "Jumlah" label (from column 0 to column 2)
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2));
         applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2), workbook);
 
-// Set "Jumlah" label in the merged cells
-        Cell jumlahLabelCell = jumlahRow.createCell(0); // Now in column 0 after merging
+        Cell jumlahLabelCell = jumlahRow.createCell(0);
         jumlahLabelCell.setCellValue("Jumlah");
         jumlahLabelCell.setCellStyle(styleHeader);
 
-// Set total values for "Hadir", "Izin", "Terlambat", "Izin Tengah Hari", and "Tidak Masuk"
-        jumlahRow.createCell(3).setCellValue(totalHadir); // Total Hadir
-        jumlahRow.createCell(4).setCellValue(totalIzin); // Total Izin
-        jumlahRow.createCell(5).setCellValue(totalTerlambat); // Total Terlambat
-        jumlahRow.createCell(6).setCellValue(totalIzinTengahHari); // Total Izin Tengah Hari
-        jumlahRow.createCell(7).setCellValue(totalTidakMasuk); // Total Tidak Masuk
-        jumlahRow.createCell(8).setCellValue(totalSakit); // Total Tidak Masuk
+        jumlahRow.createCell(3).setCellValue(totalHadir);
+        jumlahRow.createCell(4).setCellValue(totalIzin);
+        jumlahRow.createCell(5).setCellValue(totalTerlambat);
+        jumlahRow.createCell(6).setCellValue(totalIzinTengahHari);
+        jumlahRow.createCell(7).setCellValue(totalAlpha);
+        jumlahRow.createCell(8).setCellValue(totalSakit);
 
-// Apply style to summary row cells (total values)
         for (int i = 3; i <= 8; i++) {
             Cell cell = jumlahRow.getCell(i);
             if (cell == null) {
-                cell = jumlahRow.createCell(i); // Create cell if not exist
+                cell = jumlahRow.createCell(i);
             }
-            cell.setCellStyle(styleData); // Apply data style with borders
-        }
-
-// Adjust borders for the merged "Jumlah" label
-        applyBorderToMergedCells(sheet, new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2), workbook);
-
-
-// Adjust column widths
-        for (int i = 0; i < 9; i++) {
-            sheet.autoSizeColumn(i);
+            cell.setCellStyle(styleData);
         }
 
         // Adjust column widths
-        sheet.setColumnWidth(0, 2000); // No column width
-        sheet.setColumnWidth(1, 4000); // Nama column width
-        sheet.setColumnWidth(2, 4000); // Kelas column width
-        sheet.setColumnWidth(3, 4000); // Hadir column width
-        sheet.setColumnWidth(4, 4000); // Izin column width
-        sheet.setColumnWidth(5, 4000); // Terlambat column width
-        sheet.setColumnWidth(6, 4000); // Izin Tengah Hari column width
-        sheet.setColumnWidth(7, 4000); // Tidak Masuk column width
-        sheet.setColumnWidth(8, 4000); // Tidak Masuk column width
+        for (int i = 0; i < 9; i++) {
+            sheet.autoSizeColumn(i);
+        }
 
         // Write output to response
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -285,6 +210,7 @@ public class RekapanPresensiExcel {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 
 
 

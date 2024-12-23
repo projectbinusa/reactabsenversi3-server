@@ -88,5 +88,7 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
             "WHERE o.id = :idOrangTua AND a.status_absen = 'Izin'", nativeQuery = true)
     List<Absensi> getStatusAbsenIzinByOrangTua(@Param("idOrangTua") Long idOrangTua);
 
+    @Query("SELECT u FROM UserModel u WHERE u.kelas.id = :kelasId AND u.deleted = 0")
+    List<UserModel> findAllUsersByKelasId(@Param("kelasId") Long kelasId);
 
 }

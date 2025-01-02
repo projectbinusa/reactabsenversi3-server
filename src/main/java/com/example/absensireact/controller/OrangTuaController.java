@@ -97,7 +97,7 @@ public class OrangTuaController {
         }
     }
 
-    @PutMapping("/orang-tua/edit-email-username/{id}")
+    @PutMapping("/edit-email-username/{id}")
     public ResponseEntity<OrangTua> editemailusername(@PathVariable Long id, @RequestBody OrangTua updateOrangTua) {
         OrangTua orangTua = orangTuaImpl.ubahUsernamedanemail(id , updateOrangTua );
         return new ResponseEntity<>(orangTua, HttpStatus.OK);

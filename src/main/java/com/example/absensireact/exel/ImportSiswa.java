@@ -61,10 +61,9 @@ public class ImportSiswa {
         Sheet sheet = workbook.getSheetAt(0);
 
         List<UserModel> userList = new ArrayList<>();
-        for (int i = 3; i <= sheet.getLastRowNum(); i++) {
+        for (int i = 5; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
 
-            // Jika baris kosong, lanjutkan ke baris berikutnya
             if (row == null || isRowEmpty(row)) {
                 System.out.println("Baris kosong terdeteksi di baris: " + (i + 1));
                 continue;
@@ -84,10 +83,11 @@ public class ImportSiswa {
             Cell orangTuaCell = row.getCell(4);
             Cell shiftCell = row.getCell(5);
             Cell organisasiCell = row.getCell(6);
+            Cell kelasCell = row.getCell(7);
 
             // Cek jika ada sel penting yang kosong (kecuali kolom Orang Tua)
             if (namaUserCell == null || emailCell == null || passwordCell == null ||
-                    shiftCell == null || organisasiCell == null) {
+                    shiftCell == null || organisasiCell == null || kelasCell == null) {
                 System.out.println("Data kosong terdeteksi di baris: " + (i + 1));
                 continue; // Lewati baris ini dan lanjutkan ke baris berikutnya
             }
@@ -100,6 +100,7 @@ public class ImportSiswa {
 
             // Set organisasi, kelas, shift, dan orang tua berdasarkan data yang valid
             String namaOrganisasi = getCellValue(organisasiCell);
+            String kelas = getCellValue(kelasCell);
             String namaShift = getCellValue(shiftCell);
             String namaOrangTua = orangTuaCell != null ? getCellValue(orangTuaCell) : null;
 
@@ -108,6 +109,8 @@ public class ImportSiswa {
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
+                 Kelas kelas1 = kelasRepository.findByNamaKelas(kelas)
+                        .orElseThrow(() -> new NotFoundException("Kelas :  " + namaShift + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
                 user.setShift(shift);
@@ -122,6 +125,7 @@ public class ImportSiswa {
                 }
 
                 user.setAdmin(admin);
+                user.setKelas(kelas1);
                 user.setRole("USER"); // Set status otomatis menjadi "Siswa"
                 userList.add(user);
 
@@ -141,6 +145,7 @@ public class ImportSiswa {
             System.out.println("Tidak ada data user yang valid untuk disimpan.");
         }
     }
+
 
 
     //    @Transactional

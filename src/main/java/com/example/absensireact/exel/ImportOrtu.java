@@ -60,6 +60,9 @@ public class ImportOrtu {
                 String email = getCellStringValue(row.getCell(2));
                 String password = getCellStringValue(row.getCell(3));
 
+                System.out.println("Row " + rowNum + ": Nama=" + nama + ", Email=" + email + ", Password=" + password);
+
+
                 if (email == null || nama == null || password == null) {
                     errorMessages.add("Row " + rowNum + ": Missing data in one or more required columns.");
                     continue;

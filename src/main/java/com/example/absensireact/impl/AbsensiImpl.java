@@ -24,6 +24,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -213,6 +214,47 @@ public class AbsensiImpl implements AbsensiService {
     }
 
     @Override
+    public Absensi PostAbsensiSmart(String email, Absensi absensi) throws IOException, ParseException {
+        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        if (existingAbsensi.isPresent()) {
+            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        } else {
+            UserModel user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("User dengan email: " + email + " tidak ditemukan."));
+            Shift shift = shiftRepository.findById(user.getShift().getId())
+                    .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
+
+            Date tanggalHariIni = truncateTime(new Date());
+            Date masuk = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            String jamMasukString = formatter.format(masuk);
+
+            SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+//            Date waktuMasukShift = timeFormatter.parse(absensi.getJamShift());
+//
+//            String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
+            LocalTime waktuMasukShift = LocalTime.parse(absensi.getJamShift());
+            LocalTime waktuMasuk = LocalTime.parse(jamMasukString);
+
+            String keterangan = waktuMasuk.isBefore(waktuMasukShift) ? "Lebih Awal" : "Terlambat";
+
+            absensi.setUserEmail(email);
+            absensi.setUser(user);
+            absensi.setTanggalAbsen(tanggalHariIni);
+            absensi.setJamMasuk(jamMasukString);
+            absensi.setJamShift(absensi.getJamShift());
+            absensi.setJamPulang("-");
+            absensi.setLokasiMasuk(absensi.getLokasiMasuk());
+            absensi.setLokasiPulang("-");
+            absensi.setKeteranganTerlambat(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganTerlambat() : "-");
+            absensi.setStatusAbsen(keterangan);
+            absensi.setFotoMasuk(absensi.getFotoMasuk());
+
+            return absensiRepository.save(absensi);
+        }
+    }
+
+    @Override
         public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
@@ -238,6 +280,45 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setUser(user);
             absensi.setTanggalAbsen(tanggalHariIni);
             absensi.setJamMasuk(jamMasukString);
+            absensi.setJamPulang("-");
+            absensi.setLokasiMasuk(absensi.getLokasiMasuk());
+            absensi.setLokasiPulang("-");
+            absensi.setKeteranganTerlambat(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganTerlambat() : "-");
+            absensi.setStatusAbsen(keterangan);
+            absensi.setFotoMasuk(absensi.getFotoMasuk());
+            absensi.setUserEmail(user.getEmail());
+
+            return absensiRepository.save(absensi);
+        }
+    }
+
+    @Override
+        public Absensi PostAbsensiSmartById(Long userId, Absensi absensi) throws IOException, ParseException {
+        Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        if (existingAbsensi.isPresent()) {
+            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        } else {
+            UserModel user = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("User dengan id: " + userId + " tidak ditemukan."));
+            Shift shift = shiftRepository.findById(user.getShift().getId())
+                    .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
+
+            Date tanggalHariIni = truncateTime(new Date());
+            Date masuk = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            String jamMasukString = formatter.format(masuk);
+
+            SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            Date waktuMasukShift = timeFormatter.parse(absensi.getJamShift());
+
+            String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
+
+//            Absensi absensi = new Absensi();
+//            absensi.setUser(user);
+            absensi.setUser(user);
+            absensi.setTanggalAbsen(tanggalHariIni);
+            absensi.setJamMasuk(jamMasukString);
+            absensi.setJamShift(absensi.getJamShift());
             absensi.setJamPulang("-");
             absensi.setLokasiMasuk(absensi.getLokasiMasuk());
             absensi.setLokasiPulang("-");

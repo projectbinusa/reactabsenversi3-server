@@ -382,13 +382,42 @@ public class AbsensiController {
         Long userId = jwtTokenUtil.getIdFromToken(token);
         String userEmail = jwtTokenUtil.getUsernameFromToken(token);
         System.out.println("userid token: " + userId);
+
+        Absensi newAbsensi;
+        if (absensi.getJamShift() == null || absensi.getJamShift().isEmpty()) {
+            if (userId == 0) {
+                System.out.println("Email yang diambil dari token: " + userEmail);
+                newAbsensi = absensiService.PostAbsensi(userEmail, absensi);
+            } else {
+                System.out.println("User ID yang diambil dari token: " + userId);
+                newAbsensi = absensiService.PostAbsensiById(userId, absensi);
+            }
+        } else {
+            if (userId == 0) {
+                System.out.println("Email yang diambil dari token: " + userEmail);
+                newAbsensi = absensiService.PostAbsensiSmart(userEmail, absensi);
+            } else {
+                System.out.println("User ID yang diambil dari token: " + userId);
+                newAbsensi = absensiService.PostAbsensiSmartById(userId, absensi);
+            }
+        }
+
+        return ResponseEntity.ok(newAbsensi);
+    }
+
+
+    @PostMapping("/absensi/smart/masuk")
+    public ResponseEntity<Absensi> postAbsensiSmartMasuk(@RequestParam String token, @RequestBody Absensi absensi) throws IOException, ParseException {
+        Long userId = jwtTokenUtil.getIdFromToken(token);
+        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+        System.out.println("userid token: " + userId);
         Absensi newAbsensi;
         if (userId == 0) {
             System.out.println("Email yang diambil dari token: " + userEmail);
-            newAbsensi = absensiService.PostAbsensi(userEmail, absensi);
+            newAbsensi = absensiService.PostAbsensiSmart(userEmail, absensi);
         } else {
             System.out.println("User ID yang diambil dari token: " + userId);
-            newAbsensi = absensiService.PostAbsensiById(userId, absensi);
+            newAbsensi = absensiService.PostAbsensiSmartById(userId, absensi);
         }
         return ResponseEntity.ok(newAbsensi);
     }

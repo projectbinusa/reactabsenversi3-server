@@ -40,7 +40,11 @@ public interface  AbsensiService {
 
     Absensi PostAbsensi(String email, Absensi absensi) throws IOException, ParseException;
 
+    Absensi PostAbsensiSmart(String email, Absensi absensi) throws IOException, ParseException;
+
     Absensi PostAbsensiById(Long id, Absensi absensi) throws IOException, ParseException;
+
+    Absensi PostAbsensiSmartById(Long id, Absensi absensi) throws IOException, ParseException;
 
 //    Absensi Pulang(Long userId, MultipartFile image, String lokasiPulang, String keteranganPulangAwal) throws IOException, ParseException;
 

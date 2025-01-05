@@ -4,7 +4,6 @@ package com.example.absensireact.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -39,6 +38,9 @@ public class Absensi {
     @Column(name = "jamPulang")
     private String jamPulang;
 
+    @Column(name = "jamShift")
+    private String jamShift;
+
     @Column(name = "keteranganTerlambat")
     private String keteranganTerlambat;
 
@@ -72,7 +74,7 @@ public class Absensi {
 
     }
 
-    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, Shift shift ,  String userEmail) {
+    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String jamShift, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, Shift shift, String userEmail) {
         this.id = id;
         this.tanggalAbsen = tanggalAbsen;
         this.jamMasuk = jamMasuk;
@@ -82,6 +84,7 @@ public class Absensi {
         this.keteranganIzin = keteranganIzin;
         this.keteranganPulangAwal = keteranganPulangAwal;
         this.jamPulang = jamPulang;
+        this.jamShift = jamShift;
         this.keteranganTerlambat = keteranganTerlambat;
         this.fotoMasuk = fotoMasuk;
         this.fotoPulang = fotoPulang;
@@ -91,6 +94,26 @@ public class Absensi {
         this.shift = shift;
         this.userEmail = userEmail;
     }
+
+    //    public Absensi(Long id, Date tanggalAbsen, String jamMasuk, String lokasiMasuk, String lokasiPulang, String keteranganPulang, String keteranganIzin, String keteranganPulangAwal, String jamPulang, String keteranganTerlambat, String fotoMasuk, String fotoPulang, String status, String statusAbsen, UserModel user, Shift shift ,  String userEmail) {
+//        this.id = id;
+//        this.tanggalAbsen = tanggalAbsen;
+//        this.jamMasuk = jamMasuk;
+//        this.lokasiMasuk = lokasiMasuk;
+//        this.lokasiPulang = lokasiPulang;
+//        this.keteranganPulang = keteranganPulang;
+//        this.keteranganIzin = keteranganIzin;
+//        this.keteranganPulangAwal = keteranganPulangAwal;
+//        this.jamPulang = jamPulang;
+//        this.keteranganTerlambat = keteranganTerlambat;
+//        this.fotoMasuk = fotoMasuk;
+//        this.fotoPulang = fotoPulang;
+//        this.status = status;
+//        this.statusAbsen = statusAbsen;
+//        this.user = user;
+//        this.shift = shift;
+//        this.userEmail = userEmail;
+//    }
 
     public Long getId() {
         return id;
@@ -226,5 +249,13 @@ public class Absensi {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public String getJamShift() {
+        return jamShift;
+    }
+
+    public void setJamShift(String jamShift) {
+        this.jamShift = jamShift;
     }
 }

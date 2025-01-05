@@ -55,7 +55,6 @@ public class ImportOrtu {
                 if (rowNum++ < 2) {
                     continue;
                 }
-
                 String nama = getCellStringValue(row.getCell(1));
                 String email = getCellStringValue(row.getCell(2));
                 String password = getCellStringValue(row.getCell(3));

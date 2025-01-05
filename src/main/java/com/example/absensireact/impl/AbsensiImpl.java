@@ -24,6 +24,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -229,9 +230,13 @@ public class AbsensiImpl implements AbsensiService {
             String jamMasukString = formatter.format(masuk);
 
             SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            Date waktuMasukShift = timeFormatter.parse(absensi.getJamShift());
+//            Date waktuMasukShift = timeFormatter.parse(absensi.getJamShift());
+//
+//            String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
+            LocalTime waktuMasukShift = LocalTime.parse(absensi.getJamShift());
+            LocalTime waktuMasuk = LocalTime.parse(jamMasukString);
 
-            String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
+            String keterangan = waktuMasuk.isBefore(waktuMasukShift) ? "Lebih Awal" : "Terlambat";
 
             absensi.setUserEmail(email);
             absensi.setUser(user);

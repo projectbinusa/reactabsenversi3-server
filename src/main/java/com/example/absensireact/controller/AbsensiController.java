@@ -233,7 +233,7 @@ public class AbsensiController {
     @GetMapping("/absensi/get")
     public ResponseEntity<?> getAbsensiByToken(@RequestParam String token) {
         String userEmail = jwtTokenUtil.getUsernameFromToken(token);
-            List<Absensi> absensi = absensiService.getAbsensiByEmail(userEmail);
+        List<Absensi> absensi = absensiService.getAbsensiByEmail(userEmail);
         if (absensi.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

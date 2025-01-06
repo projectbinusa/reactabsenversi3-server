@@ -181,13 +181,13 @@ public class AbsensiImpl implements AbsensiService {
     public Absensi PostAbsensi(String email, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
-            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            return null;
         } else {
             UserModel user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan email: " + email + " tidak ditemukan."));
             Shift shift = shiftRepository.findById(user.getShift().getId())
                     .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
-
             Date tanggalHariIni = truncateTime(new Date());
             Date masuk = new Date();
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -216,8 +216,10 @@ public class AbsensiImpl implements AbsensiService {
     @Override
     public Absensi PostAbsensiSmart(String email, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+
         if (existingAbsensi.isPresent()) {
-            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            return null;
         } else {
             UserModel user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan email: " + email + " tidak ditemukan."));
@@ -229,10 +231,6 @@ public class AbsensiImpl implements AbsensiService {
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
             String jamMasukString = formatter.format(masuk);
 
-            SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-//            Date waktuMasukShift = timeFormatter.parse(absensi.getJamShift());
-//
-//            String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
             LocalTime waktuMasukShift = LocalTime.parse(absensi.getJamShift());
             LocalTime waktuMasuk = LocalTime.parse(jamMasukString);
 
@@ -253,6 +251,7 @@ public class AbsensiImpl implements AbsensiService {
             return absensiRepository.save(absensi);
         }
     }
+
 
     @Override
         public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {

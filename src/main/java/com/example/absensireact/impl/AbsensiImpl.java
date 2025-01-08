@@ -727,7 +727,10 @@ public class AbsensiImpl implements AbsensiService {
 //        return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
 //    }
 
-
+    @Override
+    public List<Object[]> getAbsensiDataGroupedByRole() {
+        return absensiRepository.findAbsensiGroupedByRole();
+    }
 
     @Override
     public List<Absensi> getAbsensiByKelas(Long kelasId) {

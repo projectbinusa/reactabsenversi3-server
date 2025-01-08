@@ -523,6 +523,25 @@ public class AbsensiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan: " + e.getMessage());
         }
     }
+
+//    @GetMapping("/absensi/rekap/harian/all-kelas/per-hari")
+//    public ResponseEntity<?> getAbsensiPerHariByGrup(@RequestParam("tanggal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggal) {
+//        try {
+//            // Panggil service untuk mendapatkan data absensi semua kelas
+//            List<Map<String, Object>> absensiData = absensiService.getAbsensiPerHari(tanggal);
+//
+//            // Kembalikan respons dengan status 200 OK
+//            return ResponseEntity.ok(absensiData);
+//        } catch (Exception e) {
+//            // Tangani error dan kembalikan status 500 dengan pesan error
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan: " + e.getMessage());
+//        }
+//    }
+    @GetMapping("/absensi/get-data/group-by-role")
+    public ResponseEntity<List<Object[]>> getAbsensiGroupedByRole() {
+        List<Object[]> groupedData = absensiService.getAbsensiDataGroupedByRole();
+        return ResponseEntity.ok(groupedData);
+    }
     @GetMapping("/absensi/export/bulanan/by-kelas")
     public void exportAbsensiBulananByKelas(
             @RequestParam("bulan") int bulan,

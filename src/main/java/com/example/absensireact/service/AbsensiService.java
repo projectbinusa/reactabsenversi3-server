@@ -79,6 +79,8 @@ public interface  AbsensiService {
 
     List<Absensi> getAbsensiByEmail(String email);
 
+    List<Object[]> getAbsensiDataGroupedByRole();
+
     List<Absensi> getAbsensiByKelas(Long kelasId);
 
     Map<String, List<Absensi>> getAbsensiByBulananPerKelas(int bulan, int tahun, Long kelasId);

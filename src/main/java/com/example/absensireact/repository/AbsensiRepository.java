@@ -18,6 +18,15 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
 
     Optional<Absensi> findByUserIdAndTanggalAbsenAndStatusAbsen(Long userId, Date tanggalAbsen, String statusAbsen);
 
+    @Query("SELECT a.user.role, COUNT(a), "
+            + "SUM(CASE WHEN a.status = 'Hadir' THEN 1 ELSE 0 END), "
+            + "SUM(CASE WHEN a.status = 'Izin' THEN 1 ELSE 0 END), "
+            + "SUM(CASE WHEN a.status = 'Hadir' THEN 1 ELSE 0 END) * 100.0 / COUNT(a) "
+            + "FROM Absensi a "
+            + "WHERE a.user.id IS NOT NULL "
+            + "GROUP BY a.user.role")
+    List<Object[]> findAbsensiGroupedByRole();
+
     @Query(value = "SELECT * FROM absensi WHERE user_id = userId AND tanggal_absen = tanggalAbsen" , nativeQuery = true)
     boolean existsByUserIdAndTanggalAbsen(Long userId, Date tanggalAbsen);
 

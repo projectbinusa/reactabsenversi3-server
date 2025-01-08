@@ -431,6 +431,92 @@ public class RekapanPresensiExcel {
         workbook.close();
     }
 
+//    export harian terbaru
+public void excelAbsensiByGrup( HttpServletResponse response) throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Presensi Harian All");
+
+    // Font dan Style untuk Header
+    Font headerFont = workbook.createFont();
+    headerFont.setBold(true);
+    headerFont.setColor(IndexedColors.WHITE.getIndex());
+
+    CellStyle headerStyle = workbook.createCellStyle();
+    headerStyle.setAlignment(HorizontalAlignment.CENTER);
+    headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+    headerStyle.setBorderTop(BorderStyle.THIN);
+    headerStyle.setBorderBottom(BorderStyle.THIN);
+    headerStyle.setBorderLeft(BorderStyle.THIN);
+    headerStyle.setBorderRight(BorderStyle.THIN);
+    headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    headerStyle.setFont(headerFont);
+
+    // Font dan Style untuk Data
+    CellStyle dataStyle = workbook.createCellStyle();
+    dataStyle.setAlignment(HorizontalAlignment.CENTER);
+    dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+    dataStyle.setBorderTop(BorderStyle.THIN);
+    dataStyle.setBorderBottom(BorderStyle.THIN);
+    dataStyle.setBorderLeft(BorderStyle.THIN);
+    dataStyle.setBorderRight(BorderStyle.THIN);
+
+    // Style untuk kolom Prosentase (%)
+    CellStyle percentageStyle = workbook.createCellStyle();
+    percentageStyle.cloneStyleFrom(dataStyle);
+    percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00%"));
+
+    // Header kolom
+    String[] headers = {"No.", "Role", "Total Absensi", "Hadir", "Izin", "Prosentase (%)"};
+    Row headerRow = sheet.createRow(0);
+    for (int i = 0; i < headers.length; i++) {
+        Cell cell = headerRow.createCell(i);
+        cell.setCellValue(headers[i]);
+        cell.setCellStyle(headerStyle);
+    }
+
+    // Mendapatkan data dari database
+    List<Object[]> data = absensiRepository.findAbsensiGroupedByRole();
+
+    // Mengisi data
+    int rowNum = 1;
+    for (Object[] rowData : data) {
+        Row row = sheet.createRow(rowNum++);
+        for (int i = 0; i < rowData.length; i++) {
+            Cell cell = row.createCell(i);
+
+            if (rowData[i] instanceof Double) {
+                cell.setCellValue((Double) rowData[i]);
+                if (i == 5) { // Kolom Prosentase (%)
+                    cell.setCellStyle(percentageStyle);
+                } else {
+                    cell.setCellStyle(dataStyle);
+                }
+            } else if (rowData[i] instanceof Long) {
+                cell.setCellValue((Long) rowData[i]);
+                cell.setCellStyle(dataStyle);
+            } else if (rowData[i] instanceof Integer) {
+                cell.setCellValue((Integer) rowData[i]);
+                cell.setCellStyle(dataStyle);
+            } else if (rowData[i] instanceof String) {
+                cell.setCellValue((String) rowData[i]);
+                cell.setCellStyle(dataStyle);
+            }
+        }
+    }
+
+    // Mengatur lebar kolom otomatis
+    for (int i = 0; i < headers.length; i++) {
+        sheet.autoSizeColumn(i);
+    }
+
+    // Menyiapkan response untuk download file
+    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    response.setHeader("Content-Disposition", "attachment; filename=PresensiPerKelas.xlsx");
+    workbook.write(response.getOutputStream());
+    workbook.close();
+}
+
 //    public void excelAbsensiBulananByKelas(Long kelasId, int month, int year, HttpServletResponse response) throws IOException {
 //        Workbook workbook = new XSSFWorkbook();
 //        Sheet sheet = workbook.createSheet("Absensi-Bulanan");

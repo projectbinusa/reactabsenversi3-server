@@ -12,6 +12,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -27,6 +28,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.logging.Logger;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
 
 
 @Service
@@ -767,9 +771,9 @@ public class AbsensiImpl implements AbsensiService {
         return date.getYear() + "-" + String.format("%02d", date.getMonthValue());
     }
     @Override
-    public List<Map<String, Object>> getAbsensiPerHari(Date tanggal) {
+    public List<Map<String, Object>> getAbsensiPerHariKelas(Date tanggal, Long idAdmin) {
         // Ambil semua kelas
-        List<Kelas> kelasList = kelasRepository.findAll();
+        List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
 
         // Atur start dan end of the day
         Calendar calendar = Calendar.getInstance();
@@ -821,6 +825,124 @@ public class AbsensiImpl implements AbsensiService {
         }
 
         return responseList;
+    }
+
+    @Override
+    public byte[] exportAbsensiPerHariKelasToExcel(Date tanggal, Long idAdmin) throws IOException {
+        List<Map<String, Object>> absensiData = getAbsensiPerHariKelas(tanggal, idAdmin);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Absensi");
+        int rowNum = 0;
+
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"No.", "Kelas", "Total Siswa", "Hadir", "Tidak Hadir", "Presentase (%)"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(createHeaderStyle(workbook));
+        }
+
+        int totalSiswa = 0, totalHadir = 0, totalTidakHadir = 0;
+        List<Map<String, Object>> guruData = new ArrayList<>();
+
+        for (int i = 0; i < absensiData.size(); i++) {
+            Map<String, Object> data = absensiData.get(i);
+
+            if ("GURU".equalsIgnoreCase((String) data.get("kelasName"))) {
+                guruData.add(data);
+                continue;
+            }
+
+            Row row = sheet.createRow(rowNum++);
+            int colNum = 0;
+
+            row.createCell(colNum++).setCellValue(i + 1);
+            row.createCell(colNum++).setCellValue((String) data.get("kelasName"));
+            int jumlahSiswa = (int) data.get("jumlahSiswa");
+            int hadir = (int) data.get("hadir");
+            int tidakHadir = (int) data.get("tidakHadir");
+            double prosentase = jumlahSiswa > 0 ? (hadir * 100.0) / jumlahSiswa : 0;
+
+            row.createCell(colNum++).setCellValue(jumlahSiswa);
+            row.createCell(colNum++).setCellValue(hadir);
+            row.createCell(colNum++).setCellValue(tidakHadir);
+            row.createCell(colNum).setCellValue(String.format("%.2f", prosentase));
+
+            totalSiswa += jumlahSiswa;
+            totalHadir += hadir;
+            totalTidakHadir += tidakHadir;
+        }
+
+        Row totalRow = sheet.createRow(rowNum++);
+
+        Cell totalCell = totalRow.createCell(0);
+        totalCell.setCellValue("Total");
+        CellStyle totalTitleStyle = workbook.createCellStyle();
+        Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        boldFont.setColor(IndexedColors.WHITE.getIndex());
+        totalTitleStyle.setFont(boldFont);
+        totalTitleStyle.setFillForegroundColor(IndexedColors.BLACK.getIndex());
+        totalTitleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        totalTitleStyle.setAlignment(HorizontalAlignment.CENTER);
+        totalCell.setCellStyle(totalTitleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 1));
+
+        CellStyle totalDataStyle = workbook.createCellStyle();
+        totalDataStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        totalDataStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        Font totalDataFont = workbook.createFont();
+        totalDataFont.setColor(IndexedColors.WHITE.getIndex());
+        totalDataStyle.setFont(totalDataFont);
+
+        totalRow.createCell(2).setCellValue(totalSiswa);
+        totalRow.createCell(3).setCellValue(totalHadir);
+        totalRow.createCell(4).setCellValue(totalTidakHadir);
+        double totalProsentase = totalSiswa > 0 ? (totalHadir * 100.0) / totalSiswa : 0;
+        totalRow.createCell(5).setCellValue(String.format("%.2f", totalProsentase));
+
+        for (int i = 2; i <= 5; i++) {
+            totalRow.getCell(i).setCellStyle(totalDataStyle);
+        }
+
+        for (Map<String, Object> data : guruData) {
+            Row row = sheet.createRow(rowNum++);
+            int colNum = 0;
+
+            row.createCell(colNum++).setCellValue(" ");
+            row.createCell(colNum++).setCellValue((String) data.get("kelasName"));
+            int jumlahSiswa = (int) data.get("jumlahSiswa");
+            int hadir = (int) data.get("hadir");
+            int tidakHadir = (int) data.get("tidakHadir");
+            double prosentase = jumlahSiswa > 0 ? (hadir * 100.0) / jumlahSiswa : 0;
+
+            row.createCell(colNum++).setCellValue(jumlahSiswa);
+            row.createCell(colNum++).setCellValue(hadir);
+            row.createCell(colNum++).setCellValue(tidakHadir);
+            row.createCell(colNum).setCellValue(String.format("%.2f", prosentase));
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        return outputStream.toByteArray();
+    }
+
+
+    private CellStyle createHeaderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        style.setFont(font);
+        return style;
     }
 
     @Override

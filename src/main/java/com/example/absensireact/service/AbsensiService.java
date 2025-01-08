@@ -85,8 +85,10 @@ public interface  AbsensiService {
 
     Map<String, List<Absensi>> getAbsensiByBulananPerKelas(int bulan, int tahun, Long kelasId);
 
+    List<Map<String, Object>> getAbsensiPerHariKelas(Date tanggal, Long idAdmin);
 
-    List<Map<String, Object>> getAbsensiPerHari(Date tanggal);
+    byte[] exportAbsensiPerHariKelasToExcel(Date tanggal, Long idAdmin) throws IOException;
+
 
     Map<String, Object> getAbsensiPerHari(Date tanggal, Long kelasId);
 

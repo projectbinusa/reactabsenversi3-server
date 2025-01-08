@@ -457,6 +457,7 @@ public class AbsensiController {
         return new ResponseEntity<>(absensiList, HttpStatus.OK);
     }
 
+
     @GetMapping("/export/absensi/by-kelas/{kelasId}")
     public void exportAbsensiByKelas(
             @ApiParam(value = "ID of the class", required = true) @PathVariable("kelasId") Long kelasId,
@@ -511,16 +512,34 @@ public class AbsensiController {
         }
     }
     @GetMapping("/absensi/rekap/harian/all-kelas/per-hari")
-    public ResponseEntity<?> getAbsensiPerHari(@RequestParam("tanggal") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tanggal) {
+    public ResponseEntity<?> getAbsensiPerHariKelas(@RequestParam("tanggal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date tanggal, @RequestParam("idAdmin") Long idAdmin) {
         try {
             // Panggil service untuk mendapatkan data absensi semua kelas
-            List<Map<String, Object>> absensiData = absensiService.getAbsensiPerHari(tanggal);
+            List<Map<String, Object>> absensiData = absensiService.getAbsensiPerHariKelas(tanggal, idAdmin);
 
             // Kembalikan respons dengan status 200 OK
             return ResponseEntity.ok(absensiData);
         } catch (Exception e) {
             // Tangani error dan kembalikan status 500 dengan pesan error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/absensi/export/harian/all-kelas/per-hari")
+    public ResponseEntity<byte[]> exportAbsensiToExcel(
+            @RequestParam("tanggal") String tanggal,
+            @RequestParam("idAdmin") Long idAdmin
+    ) {
+        try {
+            Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(tanggal);
+            byte[] excelFile = absensiService.exportAbsensiPerHariKelasToExcel(parsedDate, idAdmin);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=absensi.xlsx");
+            return new ResponseEntity<>(excelFile, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

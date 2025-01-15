@@ -463,7 +463,7 @@ public class ExcelDataAdmin {
         sheet.autoSizeColumn(0); // Kolom "No"
         sheet.setColumnWidth(1, 9000); // Lebar kolom Nama
         for (int i = 2; i <= maxTanggal + 2; i++) {
-            sheet.setColumnWidth(i, 1800); // Ukuran lebar kolom
+            sheet.setColumnWidth(i, 2000); // Ukuran lebar kolom
         }
 
         // Menyimpan file

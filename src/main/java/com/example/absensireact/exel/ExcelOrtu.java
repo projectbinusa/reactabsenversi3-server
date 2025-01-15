@@ -76,8 +76,11 @@ public class ExcelOrtu {
         int no = 1;
         for (OrangTua orangTua : orangTuaList) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(no++);
-            row.getCell(0).setCellStyle(styleLeft); // Menggunakan styleLeft
+//            row.createCell(0).setCellValue(no++);
+//            row.getCell(0).setCellStyle(styleLeft); // Menggunakan styleLeft
+
+            row.createCell(0).setCellValue(orangTua.getId());
+            row.getCell(0).setCellStyle(styleLeft);
 
             row.createCell(1).setCellValue(orangTua.getEmail());
             row.getCell(1).setCellStyle(styleLeft); // Menggunakan styleLeft

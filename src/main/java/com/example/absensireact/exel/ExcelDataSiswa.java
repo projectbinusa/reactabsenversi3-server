@@ -65,7 +65,7 @@ public class ExcelDataSiswa {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar", "Kelas"};
+        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar", "Kelas", "Password", "OrangTua", "Waktu Pembelajaran", "Nama Organisasi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -95,6 +95,18 @@ public class ExcelDataSiswa {
 
             row.createCell(5).setCellValue(siswa.getKelas() != null && siswa.getKelas().getNamaKelas() != null ? siswa.getKelas().getNamaKelas() : "");
             row.getCell(5).setCellStyle(styleLeft);
+
+            row.createCell(6).setCellValue(siswa.getPassword() != null ? siswa.getPassword() : "");
+            row.getCell(6).setCellStyle(styleLeft);
+
+            row.createCell(7).setCellValue(siswa.getOrangTua() != null && siswa.getOrangTua().getNama() != null ? siswa.getOrangTua().getNama() : "");
+            row.getCell(7).setCellStyle(styleLeft);
+
+            row.createCell(8).setCellValue(siswa.getShift() != null && siswa.getShift().getNamaShift() != null ? siswa.getShift().getNamaShift() : "");
+            row.getCell(8).setCellStyle(styleLeft);
+
+            row.createCell(9).setCellValue(siswa.getOrganisasi() != null && siswa.getOrganisasi().getNamaOrganisasi() != null ? siswa.getOrganisasi().getNamaOrganisasi() : "");
+            row.getCell(9).setCellStyle(styleLeft);
         }
 
         // Adjust column width
@@ -156,7 +168,7 @@ public class ExcelDataSiswa {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar", "Kelas"};
+        String[] headers = {"No", "Nama Siswa", "Email", "Start Belajar", "Status Belajar", "Kelas", "Password", "OrangTua", "Waktu Pembelajaran", "Nama Organisasi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -184,6 +196,18 @@ public class ExcelDataSiswa {
 
             row.createCell(5).setCellValue(siswa.getKelas().getNamaKelas() != null ? siswa.getKelas().getNamaKelas() : "");
             row.getCell(5).setCellStyle(styleLeft);
+
+            row.createCell(6).setCellValue(siswa.getPassword() != null ? siswa.getPassword() : "");
+            row.getCell(6).setCellStyle(styleLeft);
+
+            row.createCell(7).setCellValue(siswa.getOrangTua().getNama() != null ? siswa.getOrangTua().getNama() : "");
+            row.getCell(7).setCellStyle(styleLeft);
+
+            row.createCell(8).setCellValue(siswa.getShift().getNamaShift() != null ? siswa.getShift().getNamaShift() : "");
+            row.getCell(8).setCellStyle(styleLeft);
+
+            row.createCell(9).setCellValue(siswa.getOrganisasi().getNamaOrganisasi() != null ? siswa.getOrganisasi().getNamaOrganisasi() : "");
+            row.getCell(9).setCellStyle(styleLeft);
         }
 
         // Adjust column width

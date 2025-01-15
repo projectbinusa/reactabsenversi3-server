@@ -1,12 +1,8 @@
 package com.example.absensireact.exel;
 
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.model.Admin;
-import com.example.absensireact.model.Kelas;
-import com.example.absensireact.model.Organisasi;
-import com.example.absensireact.repository.AdminRepository;
-import com.example.absensireact.repository.KelasRepository;
-import com.example.absensireact.repository.OrganisasiRepository;
+import com.example.absensireact.model.*;
+import com.example.absensireact.repository.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -18,8 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class ExcelDataAdmin {
 
@@ -27,14 +25,140 @@ public class ExcelDataAdmin {
     private AdminRepository adminRepository;
 
     @Autowired
-    private OrganisasiRepository organisasiRepository;
+    private AbsensiRepository absensiRepository;
 
+    @Autowired
+    private OrganisasiRepository organisasiRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private KelasRepository kelasRepository;
 
+    //    Guru
+    public void exportGuru(Long idAdmin, Long idKelas, int bulan, int tahun, HttpServletResponse response) throws IOException {
+        // Create a new workbook
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("DATA ABSENSI GURU");
+
+        // Define cell styles
+        CellStyle styleTitle = workbook.createCellStyle();
+        styleTitle.setAlignment(HorizontalAlignment.CENTER);
+        styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        styleTitle.setFont(titleFont);
+
+        CellStyle styleHeader = workbook.createCellStyle();
+        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader.setBorderTop(BorderStyle.THIN);
+        styleHeader.setBorderRight(BorderStyle.THIN);
+        styleHeader.setBorderBottom(BorderStyle.THIN);
+        styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_GREEN.index);
+
+        CellStyle styleData = workbook.createCellStyle();
+        styleData.setAlignment(HorizontalAlignment.CENTER);
+        styleData.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleData.setBorderTop(BorderStyle.THIN);
+        styleData.setBorderRight(BorderStyle.THIN);
+        styleData.setBorderBottom(BorderStyle.THIN);
+        styleData.setBorderLeft(BorderStyle.THIN);
+
+        CellStyle styleDataNumber = workbook.createCellStyle();
+        styleDataNumber.cloneStyleFrom(styleData);
+        styleDataNumber.setDataFormat(workbook.createDataFormat().getFormat("0")); // Set format for numbers
+
+        CellStyle styleTotal = workbook.createCellStyle();
+        styleTotal.cloneStyleFrom(styleData);
+        styleTotal.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
+
+        // Fetch absensi data
+        List<Absensi> absensiList = absensiRepository.findByKelasIdAndBulan(idKelas, bulan, tahun);
+
+        // Assuming userRepository.findByIdAdminAndKelasId returns a single user
+        UserModel user = (UserModel) userRepository.findByIdAdminAndKelasId(idAdmin, idKelas);
+
+        int rowNum = 0;
+
+        // Title row
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA ABSENSI GURU");
+        titleCell.setCellStyle(styleTitle);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 15)); // Merge title cells
+
+        // Header row
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"No", "Nama", "TANGGAL", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "TOTAL"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styleHeader);
+            if (i == 2) { // Merge "TANGGAL" cells (assuming index 2)
+                sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 2, 14));
+            }
+        }
+
+        // Data rows
+        int userRowNum = 1;
+        for (Absensi absensi : absensiList) {
+            Row dataRow = sheet.createRow(rowNum++);
+
+            // No
+            Cell cellNo = dataRow.createCell(0);
+            cellNo.setCellValue(userRowNum++); // Assuming a way to get a sequential number
+            cellNo.setCellStyle(styleDataNumber);
+
+            // Nama
+            Cell cellNama = dataRow.createCell(1);
+            cellNama.setCellValue(absensi.getUser().getUsername()); // Assuming a 'getNamaPengguna' method
+            cellNama.setCellStyle(styleData);
+
+            // Checkmarks for attendance (assuming 'isHadirPadaTanggal' method)
+            for (int i = 2; i <= 14; i++) {
+                String tanggalString = Integer.toString(i - 1); // Konversi integer ke string
+                Cell cellDate = dataRow.createCell(i);
+//                String statusAbsen = absensi.getStatusAbsen(tanggalString); // Mendapatkan status absen
+//
+//                if (!statusAbsen.equalsIgnoreCase("Izin") && !statusAbsen.equalsIgnoreCase("Izin Setengah Hari")) {
+//                    cellDate.setCellValue("✓");
+//                } else {
+//                    cellDate.setCellValue(statusAbsen);
+//                }
+
+                cellDate.setCellStyle(styleData);
+            }
+
+            // Total
+            Cell cellTotal = dataRow.createCell(15);
+            cellTotal.setCellValue((Date) absensiList); // Assuming a 'getTotalKehadiran' method
+            cellTotal.setCellStyle(styleTotal);
+        }
+
+        // Adjust column width
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Write to response
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=export_absensi_guru.xlsx");
+            workbook.write(response.getOutputStream());
+        } catch (IOException e) {
+            // Handle exceptions
+            e.printStackTrace();
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     //    Organisasi
-
     public void exportOrganisasi(Long idAdmin, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("DATA ORGANISASI");
@@ -78,7 +202,7 @@ public class ExcelDataAdmin {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No","Admin","Nama Organisasi", "Alamat","Telepon", "Email"};
+        String[] headers = {"No", "Admin", "Nama Organisasi", "Alamat", "Telepon", "Email"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -143,7 +267,6 @@ public class ExcelDataAdmin {
                 Cell emailCell = row.getCell(5);
 
 
-
                 if (namaOrganisasiCell != null) {
                     organisasi.setNamaOrganisasi(getCellValue(namaOrganisasiCell));
                 }
@@ -170,6 +293,7 @@ public class ExcelDataAdmin {
         organisasiRepository.saveAll(organisasiList);
         workbook.close();
     }
+
     public static void downloadTemplateImportOrganisasi(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Template Organisasi");
@@ -201,7 +325,7 @@ public class ExcelDataAdmin {
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"Nama Organisasi","Alamat" ,"Telepon" , "Email"};
+        String[] headers = {"Nama Organisasi", "Alamat", "Telepon", "Email"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -224,91 +348,89 @@ public class ExcelDataAdmin {
     }
 
 
-//    Kelasss
-public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOException {
-    Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("DATA KELAS");
+    //    Kelasss
+    public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("DATA KELAS");
 
-    // Cell styles
-    CellStyle styleHeader = workbook.createCellStyle();
-    styleHeader.setAlignment(HorizontalAlignment.LEFT);  // Align header to the left
-    styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
-    styleHeader.setBorderTop(BorderStyle.THIN);
-    styleHeader.setBorderRight(BorderStyle.THIN);
-    styleHeader.setBorderBottom(BorderStyle.THIN);
-    styleHeader.setBorderLeft(BorderStyle.THIN);
-    styleHeader.setFillForegroundColor(IndexedColors.BLUE.getIndex());
-    styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-    Font headerFont = workbook.createFont();
-    headerFont.setBold(true);
-    headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
-    styleHeader.setFont(headerFont);
+        // Cell styles
+        CellStyle styleHeader = workbook.createCellStyle();
+        styleHeader.setAlignment(HorizontalAlignment.LEFT);  // Align header to the left
+        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader.setBorderTop(BorderStyle.THIN);
+        styleHeader.setBorderRight(BorderStyle.THIN);
+        styleHeader.setBorderBottom(BorderStyle.THIN);
+        styleHeader.setBorderLeft(BorderStyle.THIN);
+        styleHeader.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());  // Set font color to white
+        styleHeader.setFont(headerFont);
 
-    CellStyle styleTitle = workbook.createCellStyle();
-    styleTitle.setAlignment(HorizontalAlignment.LEFT);  // Align title to the left
-    styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
-    Font titleFont = workbook.createFont();
-    titleFont.setBold(true);
-    styleTitle.setFont(titleFont);
+        CellStyle styleTitle = workbook.createCellStyle();
+        styleTitle.setAlignment(HorizontalAlignment.LEFT);  // Align title to the left
+        styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        styleTitle.setFont(titleFont);
 
-    CellStyle styleLeftAlign = workbook.createCellStyle();
-    styleLeftAlign.setAlignment(HorizontalAlignment.LEFT);  // Align data to the left
-    styleLeftAlign.setVerticalAlignment(VerticalAlignment.CENTER);
-    styleLeftAlign.setBorderTop(BorderStyle.THIN);
-    styleLeftAlign.setBorderRight(BorderStyle.THIN);
-    styleLeftAlign.setBorderBottom(BorderStyle.THIN);
-    styleLeftAlign.setBorderLeft(BorderStyle.THIN);
+        CellStyle styleLeftAlign = workbook.createCellStyle();
+        styleLeftAlign.setAlignment(HorizontalAlignment.LEFT);  // Align data to the left
+        styleLeftAlign.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleLeftAlign.setBorderTop(BorderStyle.THIN);
+        styleLeftAlign.setBorderRight(BorderStyle.THIN);
+        styleLeftAlign.setBorderBottom(BorderStyle.THIN);
+        styleLeftAlign.setBorderLeft(BorderStyle.THIN);
 
-    List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
+        List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
 
-    int rowNum = 0;
+        int rowNum = 0;
 
-    // Title row
-    Row titleRow = sheet.createRow(rowNum++);
-    Cell titleCell = titleRow.createCell(0);
-    titleCell.setCellValue("DATA KELAS");
-    titleCell.setCellStyle(styleTitle);
-    sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for title
-    rowNum++;
+        // Title row
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA KELAS");
+        titleCell.setCellStyle(styleTitle);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 2)); // Merging cells for title
+        rowNum++;
 
-    // Header row
-    Row headerRow = sheet.createRow(rowNum++);
-    String[] headers = {"No", "Nama Kelas", "Organisasi"};
-    for (int i = 0; i < headers.length; i++) {
-        Cell cell = headerRow.createCell(i);
-        cell.setCellValue(headers[i]);
-        cell.setCellStyle(styleHeader);
+        // Header row
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"No", "Nama Kelas", "Organisasi"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styleHeader);
+        }
+
+        // Data rows
+        int userRowNum = 1;
+        for (Kelas kelas : kelasList) {
+            Row row = sheet.createRow(rowNum++);
+            Cell cell0 = row.createCell(0);
+            cell0.setCellValue(userRowNum++);
+            cell0.setCellStyle(styleLeftAlign); // Use the left-aligned style
+
+            Cell cell1 = row.createCell(1);
+            cell1.setCellValue(kelas.getNamaKelas());
+            cell1.setCellStyle(styleLeftAlign);
+
+            Cell cell2 = row.createCell(2);
+            cell2.setCellValue(kelas.getOrganisasi().getNamaOrganisasi());
+            cell2.setCellStyle(styleLeftAlign);
+        }
+
+        // Adjust column width
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=ExportKelas.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
-
-    // Data rows
-    int userRowNum = 1;
-    for (Kelas kelas : kelasList) {
-        Row row = sheet.createRow(rowNum++);
-        Cell cell0 = row.createCell(0);
-        cell0.setCellValue(userRowNum++);
-        cell0.setCellStyle(styleLeftAlign); // Use the left-aligned style
-
-        Cell cell1 = row.createCell(1);
-        cell1.setCellValue(kelas.getNamaKelas());
-        cell1.setCellStyle(styleLeftAlign);
-
-        Cell cell2 = row.createCell(2);
-        cell2.setCellValue(kelas.getOrganisasi().getNamaOrganisasi());
-        cell2.setCellStyle(styleLeftAlign);
-    }
-
-    // Adjust column width
-    for (int i = 0; i < headers.length; i++) {
-        sheet.autoSizeColumn(i);
-    }
-
-    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    response.setHeader("Content-Disposition", "attachment; filename=ExportKelas.xlsx");
-    workbook.write(response.getOutputStream());
-    workbook.close();
-}
-
-
 
 
     public void importKelas(MultipartFile file, Admin admin) throws IOException {
@@ -404,7 +526,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
 
         // Header row
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Kelas","Organisasi"};
+        String[] headers = {"No", "Nama Kelas", "Organisasi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -431,7 +553,7 @@ public void exportKelas(Long idAdmin, HttpServletResponse response) throws IOExc
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf((int)cell.getNumericCellValue());
+                return String.valueOf((int) cell.getNumericCellValue());
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:

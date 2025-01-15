@@ -111,6 +111,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/absensi/export/absensi-bulanan-simpel",
             "/api/absensi/export/absensi-rekapan-perkaryawan",
             "/api/absensi/export/absensi-bulanan",
+            "/api/absensi/export/bulanan-guru/by-kelas",
             "/api/absensi/export/absensi-mingguan",
             "/api/absensi/export/mingguan/by-kelas",
             "/api/absensi/rekap-mingguan",
@@ -143,7 +144,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/absensi/izin/by-orangTua/{idOrangTua}"
     };
 
-    @Bean
+    @Bean 
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();

@@ -3,10 +3,7 @@ package com.example.absensireact.controller;
 
 import com.example.absensireact.exception.BadRequestException;
 import com.example.absensireact.exception.NotFoundException;
-import com.example.absensireact.exel.AbsensiExportService;
-import com.example.absensireact.exel.ExcelAbsensiMingguan;
-import com.example.absensireact.exel.ExcelAbsnesiBulanan;
-import com.example.absensireact.exel.RekapanPresensiExcel;
+import com.example.absensireact.exel.*;
 import com.example.absensireact.model.Absensi;
 import com.example.absensireact.model.Jabatan;
 import com.example.absensireact.repository.AbsensiRepository;
@@ -73,6 +70,9 @@ public class AbsensiController {
 
     @Autowired
     private ExcelAbsnesiBulanan excelAbsensiBulanan;
+
+    @Autowired
+    private ExcelDataAdmin excelDataAdmin;
 
     @Autowired
     private ExcelAbsensiMingguan excelAbsensiMingguan;
@@ -571,6 +571,23 @@ public class AbsensiController {
         try {
             // Call service method to get the data and export to Excel
             excelAbsensiBulanan.excelAbsensiBulananByKelas(bulan, tahun, kelasId, response);
+        } catch (IOException e) {
+            logger.error("Failed to export Excel: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/absensi/export/bulanan-guru/by-kelas")
+    public void exportAbsensiGuruBulananByKelas(
+            @RequestParam("kelasId") Long kelasId,
+            @RequestParam("idAdmin") Long idAdmin,
+            @RequestParam("bulan") int bulan,
+            @RequestParam("tahun") int tahun,
+            HttpServletResponse response) {
+
+        try {
+            // Call service method to get the data and export to Excel
+            excelDataAdmin.exportGuru( idAdmin, kelasId, bulan, tahun, response);
         } catch (IOException e) {
             logger.error("Failed to export Excel: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

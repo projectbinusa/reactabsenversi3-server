@@ -14,11 +14,18 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.apache.poi.hssf.record.aggregates.RowRecordsAggregate.createRow;
+import static org.apache.poi.ss.util.CellUtil.createCell;
 
 @Service
 public class ExcelDataAdmin {
@@ -37,187 +44,7 @@ public class ExcelDataAdmin {
     private KelasRepository kelasRepository;
 
     //    Guru
-//public void exportGuru(Long idAdmin, Long idKelas, int bulan, int tahun, HttpServletResponse response) throws IOException {
-//    // Create a new workbook
-//    Workbook workbook = new XSSFWorkbook();
-//    Sheet sheet = workbook.createSheet("DATA ABSENSI GURU");
-//
-//    // Define cell styles
-//    CellStyle styleTitle = workbook.createCellStyle();
-//    styleTitle.setAlignment(HorizontalAlignment.CENTER);
-//    styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
-//    Font titleFont = workbook.createFont();
-//    titleFont.setBold(true);
-//    styleTitle.setFont(titleFont);
-//
-//    CellStyle styleHeader = workbook.createCellStyle();
-//    styleHeader.setAlignment(HorizontalAlignment.CENTER);
-//    styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
-//    styleHeader.setBorderTop(BorderStyle.THIN);
-//    styleHeader.setBorderRight(BorderStyle.THIN);
-//    styleHeader.setBorderBottom(BorderStyle.THIN);
-//    styleHeader.setBorderLeft(BorderStyle.THIN);
-//    styleHeader.setFillForegroundColor(IndexedColors.LIGHT_GREEN.index);
-//    styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//
-//    CellStyle styleData = workbook.createCellStyle();
-//    styleData.setAlignment(HorizontalAlignment.CENTER);
-//    styleData.setVerticalAlignment(VerticalAlignment.CENTER);
-//    styleData.setBorderTop(BorderStyle.THIN);
-//    styleData.setBorderRight(BorderStyle.THIN);
-//    styleData.setBorderBottom(BorderStyle.THIN);
-//    styleData.setBorderLeft(BorderStyle.THIN);
-//
-//    CellStyle styleTotal = workbook.createCellStyle();
-//    styleTotal.cloneStyleFrom(styleData);
-//    styleTotal.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
-//    styleTotal.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//
-//    // Fetch absensi data
-//    List<Absensi> absensiList = absensiRepository.findByKelasIdAndBulan(idKelas, bulan, tahun);
-//
-//    // Group absensi data by user
-//    Map<String, List<Absensi>> absensiByUser = absensiList.stream()
-//            .collect(Collectors.groupingBy(absensi -> absensi.getUser().getUsername()));
-//
-//    // Find maximum date in the absensi data
-//    int maxTanggal = absensiList.stream()
-//            .mapToInt(absensi -> {
-//                LocalDate localDate = absensi.getTanggalAbsen().toInstant()
-//                        .atZone(ZoneId.systemDefault())
-//                        .toLocalDate();
-//                return localDate.getDayOfMonth();
-//            })
-//            .max()
-//            .orElse(31); // Default to 31 if no data is present
-//
-//    int rowNum = 0;
-//
-//    // Title row
-//    Row titleRow = sheet.createRow(rowNum++);
-//    Cell titleCell = titleRow.createCell(0);
-//    titleCell.setCellValue("DATA ABSENSI GURU DAN KARYAWAN SMK BINA NUSANTARA SEMARANG");
-//    titleCell.setCellStyle(styleTitle);
-//    sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxTanggal + 2)); // Adjust for the actual number of days
-//
-//    // Header row
-//    Row headerRow = sheet.createRow(rowNum++);
-//    String[] headers = new String[maxTanggal + 3];  // Adjusted for the removal of the Total Kehadiran column
-//    headers[0] = "No";
-//    headers[1] = "Nama";
-//    for (int i = 1; i <= maxTanggal; i++) {
-//        headers[i + 1] = String.valueOf(i);
-//    }
-//    headers[maxTanggal + 2] = "TOTAL";
-//    for (int i = 0; i < headers.length; i++) {
-//        if (headers[i] != null) {
-//            Cell cell = headerRow.createCell(i);
-//            cell.setCellValue(headers[i]);
-//            cell.setCellStyle(styleHeader);
-//        }
-//    }
-//
-//    // Data rows
-//    int no = 1;
-//    for (Map.Entry<String, List<Absensi>> entry : absensiByUser.entrySet()) {
-//        String username = entry.getKey();
-//        List<Absensi> userAbsensi = entry.getValue();
-//
-//        Row dataRow = sheet.createRow(rowNum++);
-//
-//        // No
-//        Cell cellNo = dataRow.createCell(0);
-//        cellNo.setCellValue(no++);
-//        cellNo.setCellStyle(styleData);
-//
-//        // Nama
-//        Cell cellNama = dataRow.createCell(1);
-//        cellNama.setCellValue(username);
-//        cellNama.setCellStyle(styleData);
-//
-//        // Kehadiran per tanggal
-//        int totalKehadiran = 0;
-//        for (int i = 1; i <= maxTanggal; i++) {
-//            final int tanggal = i; // Declare as final to be used in lambda expression
-//            Cell cellTanggal = dataRow.createCell(i + 1);
-//
-//            // Find absensi for this date
-//            boolean isPresent = userAbsensi.stream()
-//                    .anyMatch(absensi -> {
-//                        LocalDate localDate = absensi.getTanggalAbsen().toInstant()
-//                                .atZone(ZoneId.systemDefault())
-//                                .toLocalDate();
-//                        return localDate.getDayOfMonth() == tanggal; // Use the final variable
-//                    });
-//
-//            if (isPresent) {
-//                totalKehadiran++;
-//                cellTanggal.setCellValue("✓");
-//            } else {
-//                cellTanggal.setCellValue("");
-//            }
-//            cellTanggal.setCellStyle(styleData);
-//        }
-//
-//        // Total Kehadiran
-//        Cell cellTotal = dataRow.createCell(maxTanggal + 2); // Adjusted column for total attendance
-//        cellTotal.setCellValue(totalKehadiran);
-//        cellTotal.setCellStyle(styleTotal);
-//    }
-//
-//    // Add row for total attendance in column B
-//    Row totalRow = sheet.createRow(rowNum++);
-//    Cell totalLabelCell = totalRow.createCell(0);
-//    totalLabelCell.setCellValue("TOTAL KESELURUHAN");
-//    totalLabelCell.setCellStyle(styleTotal);
-//
-//    // Calculate total attendance for each day and display in each respective column
-//    for (int i = 1; i <= maxTanggal; i++) {
-//        final int tanggal = i;
-//        int totalForDay = 0;
-//        for (List<Absensi> userAbsensi : absensiByUser.values()) {
-//            // Count attendance for this date
-//            boolean isPresent = userAbsensi.stream()
-//                    .anyMatch(absensi -> {
-//                        LocalDate localDate = absensi.getTanggalAbsen().toInstant()
-//                                .atZone(ZoneId.systemDefault())
-//                                .toLocalDate();
-//                        return localDate.getDayOfMonth() == tanggal;
-//                    });
-//            if (isPresent) {
-//                totalForDay++;
-//            }
-//        }
-//        // Add the total attendance for this day to the total row in the respective column
-//        Cell cellForDay = totalRow.createCell(i + 1);
-//        cellForDay.setCellValue(totalForDay);
-//        cellForDay.setCellStyle(styleTotal);
-//    }
-//
-//    // Add total row for overall attendance
-//    int grandTotal = 0;
-//    for (int i = 1; i <= maxTanggal; i++) {
-//        grandTotal += sheet.getRow(rowNum - 1).getCell(i + 1).getNumericCellValue();
-//    }
-//
-//    Cell grandTotalCell = totalRow.createCell(maxTanggal + 2);
-//    grandTotalCell.setCellValue(grandTotal);
-//    grandTotalCell.setCellStyle(styleTotal);
-//
-//    // Adjust column width
-//    for (int i = 0; i < headers.length; i++) {
-//        sheet.autoSizeColumn(i);
-//    }
-//
-//    // Write to response
-//    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//    response.setHeader("Content-Disposition", "attachment; filename=export_absensi_guru.xlsx");
-//    try (OutputStream out = response.getOutputStream()) {
-//        workbook.write(out);
-//    } finally {
-//        workbook.close();
-//    }
-//}
+
     public void exportGuru(Long idAdmin, Long idKelas, int bulan, int tahun, HttpServletResponse response) throws IOException {
         // Membuat workbook baru
         Workbook workbook = new XSSFWorkbook();
@@ -239,7 +66,6 @@ public class ExcelDataAdmin {
         Font titleFontTotal = workbook.createFont();
         titleFontTotal.setBold(true);
         styleTitleTotal.setFont(titleFontTotal);
-
 
         CellStyle styleHeader = workbook.createCellStyle();
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
@@ -272,30 +98,12 @@ public class ExcelDataAdmin {
         styleTotal.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
         styleTotal.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        CellStyle styleTotalRow = workbook.createCellStyle();
-        styleTotalRow.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex()); // Light yellow background
-        styleTotalRow.setFillPattern(FillPatternType.SOLID_FOREGROUND); // Solid fill for the background color
-        styleTotalRow.setAlignment(HorizontalAlignment.CENTER); // Center alignment for the text
-        styleTotalRow.setVerticalAlignment(VerticalAlignment.CENTER);
-
-        byte[] lightBrownRGB = new byte[]{(byte) 224, (byte) 178, (byte) 128}; // Light Brown RGB (Hex: #E0B280)
-        XSSFColor lightBrownColor = new XSSFColor(lightBrownRGB, null);
-        CellStyle styleHoliday = workbook.createCellStyle();
-        styleHoliday.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
-        styleHoliday.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        Font holidayFont = workbook.createFont();
-        holidayFont.setColor(IndexedColors.WHITE.getIndex());
-        styleHoliday.setFont(holidayFont);
-        styleHoliday.setAlignment(HorizontalAlignment.CENTER);
-        styleHoliday.setVerticalAlignment(VerticalAlignment.CENTER);
-
-
         // Mengambil data absensi
         List<Absensi> absensiList = absensiRepository.findByKelasIdAndBulan(idKelas, bulan, tahun);
 
         // Mengelompokkan absensi berdasarkan user
-        Map<String, List<Absensi>> absensiByUser = absensiList.stream()
-                .collect(Collectors.groupingBy(absensi -> absensi.getUser().getUsername()));
+        Map<String, List<Absensi>> absensiByUser  = absensiList.stream()
+                .collect(Collectors.groupingBy(absensi -> absensi.getUser ().getUsername()));
 
         // Mencari tanggal maksimum dalam data absensi
         int maxTanggal = absensiList.stream()
@@ -319,27 +127,32 @@ public class ExcelDataAdmin {
 
         // Baris header
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = new String[maxTanggal + 4];  // Menyesuaikan untuk kolom "Tidak Hadir"
+        String[] headers = new String[maxTanggal + 4];  // Menyesuaikan untuk kolom "Tidak Hadir" dan persentase
         headers[0] = "No";
         headers[1] = "Nama";
         for (int i = 1; i <= maxTanggal; i++) {
-            headers[i + 1] = String.valueOf(i);  // Menampilkan tanggal 1 hingga 31
+            headers[i + 1] = String.valueOf(i);
         }
-        headers[maxTanggal + 2] = "TOTAL HADIR";  // Kolom total kehadiran
-        headers[maxTanggal + 3] = "TIDAK HADIR"; // Kolom baru untuk tidak hadir
+        headers[maxTanggal + 2] = " HADIR";
+        headers[maxTanggal + 3] = " TIDAK HADIR";
+
         for (int i = 0; i < headers.length; i++) {
-            if (headers[i] != null) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(styleHeader);
-            }
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styleHeader);
         }
+
+        // Daftar hari libur nasional
+        Map<Integer, List<Integer>> holidays = new HashMap<>();
+        holidays.put(1, Arrays.asList(1)); // 1 Januari
+        holidays.put(5, Arrays.asList(1)); // 1 Mei
+        // Tambahkan hari libur lainnya sesuai kebutuhan
 
         // Data rows
         int no = 1;
         int[] totalPerHari = new int[maxTanggal];
         int totalKeseluruhanHadir = 0;  // Untuk menghitung total kehadiran keseluruhan
-        for (Map.Entry<String, List<Absensi>> entry : absensiByUser.entrySet()) {
+        for (Map.Entry<String, List<Absensi>> entry : absensiByUser .entrySet()) {
             String username = entry.getKey();
             List<Absensi> userAbsensi = entry.getValue();
 
@@ -362,18 +175,6 @@ public class ExcelDataAdmin {
                 final int tanggal = i; // Variabel final agar bisa digunakan di lambda
                 Cell cellTanggal = dataRow.createCell(i + 1);
 
-                if (totalPerHari[i - 1] == 0) {
-                    for (int j = 2; j < rowNum - 1; j++) { // Iterasi semua baris (dimulai dari baris data)
-                        Row row = sheet.getRow(j);
-                        if (row != null) {
-                            Cell cell = row.getCell(i + 1); // Kolom tanggal
-                            if (cell != null) {
-                                cell.setCellStyle(styleHoliday); // Terapkan gaya hari libur
-                            }
-                        }
-                    }
-                }
-
                 // Mencari absensi untuk tanggal ini
                 boolean isPresent = userAbsensi.stream()
                         .anyMatch(absensi -> {
@@ -383,13 +184,21 @@ public class ExcelDataAdmin {
                             return localDate.getDayOfMonth() == tanggal;
                         });
 
+                // Cek apakah tanggal ini adalah hari libur atau akhir pekan
+                LocalDate currentDate = LocalDate.of(tahun, bulan, tanggal);
+                boolean isHoliday = holidays.getOrDefault(currentDate.getMonthValue(), Collections.emptyList())
+                        .contains(currentDate.getDayOfMonth());
+                boolean isWeekend = currentDate.getDayOfWeek() == DayOfWeek.SATURDAY || currentDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+
                 if (isPresent) {
                     totalKehadiran++;
                     totalPerHari[i - 1]++;
                     cellTanggal.setCellValue("✓");
-                } else {
+                } else if (!isHoliday && !isWeekend) { // Hanya hitung tidak hadir jika bukan hari libur atau akhir pekan
                     totalTidakHadir++; // Menambah jumlah tidak hadir
                     cellTanggal.setCellValue("-");
+                } else {
+                    cellTanggal.setCellValue("S/M"); // Menandai hari libur atau akhir pekan
                 }
                 cellTanggal.setCellStyle(styleData);
             }
@@ -406,6 +215,7 @@ public class ExcelDataAdmin {
             totalKeseluruhanHadir += totalKehadiran;  // Menambahkan total hadir per user ke total keseluruhan
         }
 
+        // Baris total
         Row totalRow = sheet.createRow(rowNum++);
         Cell totalCell = totalRow.createCell(0);
         totalCell.setCellValue("TOTAL KESELURUHAN");
@@ -414,50 +224,31 @@ public class ExcelDataAdmin {
 
         for (int i = 1; i <= maxTanggal; i++) {
             Cell cellTotalPerHari = totalRow.createCell(i + 1);
-            int totalTidakHadirPerHari = absensiByUser.size() - totalPerHari[i - 1];
+            int totalTidakHadirPerHari = absensiByUser .size() - totalPerHari[i - 1];
             String hadirTidakHadir = totalPerHari[i - 1] + "/" + totalTidakHadirPerHari; // Format total hadir/tidak hadir
             cellTotalPerHari.setCellValue(hadirTidakHadir);
             cellTotalPerHari.setCellStyle(styleTotal);
         }
 
+        // Menghitung total hadir dan tidak hadir untuk seluruh data
+        int totalTidakHadirKeseluruhan = (absensiByUser .size() * maxTanggal) - totalKeseluruhanHadir;
 
-// Menghitung total hadir dan tidak hadir untuk seluruh data
-        int totalTidakHadirKeseluruhan = (absensiByUser.size() * maxTanggal) - totalKeseluruhanHadir;
-
-// Format total kehadiran dan ketidakhadiran dalam format "total hadir/total tidak hadir"
+        // Format total kehadiran dan ketidakhadiran dalam format "total hadir/total tidak hadir"
         String totalHadirTidakHadir = totalKeseluruhanHadir + "/" + totalTidakHadirKeseluruhan;
 
-// Menampilkan total keseluruhan hadir/tidak hadir dalam satu kolom
+        // Menampilkan total keseluruhan hadir/tidak hadir dalam satu kolom
         Cell cellTotalKeseluruhanHadirTidakHadir = totalRow.createCell(maxTanggal + 2);
         cellTotalKeseluruhanHadirTidakHadir.setCellValue(totalHadirTidakHadir);
         cellTotalKeseluruhanHadirTidakHadir.setCellStyle(styleTotal);
 
-// Menghapus kolom "Tidak Hadir" di baris total karena sudah digabungkan
-
-
+        // Menghapus kolom "Tidak Hadir" di baris total karena sudah digabungkan
         Cell cellTotalKeseluruhanHadir = totalRow.createCell(maxTanggal + 2);
         cellTotalKeseluruhanHadir.setCellValue(totalKeseluruhanHadir);
         cellTotalKeseluruhanHadir.setCellStyle(styleTotal);
 
         Cell cellTotalKeseluruhanTidakHadir = totalRow.createCell(maxTanggal + 3);
-        cellTotalKeseluruhanTidakHadir.setCellValue(absensiByUser.size() * maxTanggal - totalKeseluruhanHadir);  // Menghitung total tidak hadir secara keseluruhan
+        cellTotalKeseluruhanTidakHadir.setCellValue(absensiByUser .size() * maxTanggal - totalKeseluruhanHadir);  // Menghitung total tidak hadir secara keseluruhan
         cellTotalKeseluruhanTidakHadir.setCellStyle(styleTotal);
-
-        Row percentageRow = sheet.createRow(rowNum++);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 1));  // Gabungkan kolom A dan B
-        Cell percentageCell = percentageRow.createCell(0);
-        percentageCell.setCellValue("PERSENTASE KEHADIRAN");
-        percentageCell.setCellStyle(styleTitleTotal);
-
-
-        // Menghitung persentase kehadiran
-        for (int i = 1; i <= maxTanggal; i++) {
-            Cell cell = percentageRow.createCell(i + 1);
-            double percentage = (double) totalPerHari[i - 1] / absensiByUser.size() * 100;
-            cell.setCellValue(String.format("%.2f%%", percentage));
-            cell.setCellStyle(styleTotal);
-        }
-
 
         // Mengatur ukuran kolom
         sheet.autoSizeColumn(0); // Kolom "No"
@@ -472,19 +263,6 @@ public class ExcelDataAdmin {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
-
-    private String getColumnLetter(int columnIndex) {
-        int temp = columnIndex;
-        StringBuilder columnLetter = new StringBuilder();
-        while (temp >= 0) {
-            columnLetter.insert(0, (char) ('A' + temp % 26));
-            temp = (temp / 26) - 1;
-        }
-        return columnLetter.toString();
-    }
-
-
-
     public void exportOrganisasi(Long idAdmin, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("DATA ORGANISASI");

@@ -80,7 +80,7 @@ public class ExcelDataAdmin {
         CellStyle styleData1 = workbook.createCellStyle();
         styleData1.setAlignment(HorizontalAlignment.LEFT);
         styleData1.setVerticalAlignment(VerticalAlignment.CENTER);
-        styleData1.setBorderTop(BorderStyle.THIN);
+        styleData1 .setBorderTop(BorderStyle.THIN);
         styleData1.setBorderRight(BorderStyle.THIN);
         styleData1.setBorderBottom(BorderStyle.THIN);
         styleData1.setBorderLeft(BorderStyle.THIN);
@@ -133,8 +133,8 @@ public class ExcelDataAdmin {
         for (int i = 1; i <= maxTanggal; i++) {
             headers[i + 1] = String.valueOf(i);
         }
-        headers[maxTanggal + 2] = " HADIR";
-        headers[maxTanggal + 3] = " TIDAK HADIR";
+        headers[maxTanggal + 2] = "HADIR";
+        headers[maxTanggal + 3] = "TIDAK HADIR";
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -142,16 +142,11 @@ public class ExcelDataAdmin {
             cell.setCellStyle(styleHeader);
         }
 
-        // Daftar hari libur nasional
-        Map<Integer, List<Integer>> holidays = new HashMap<>();
-        holidays.put(1, Arrays.asList(1)); // 1 Januari
-        holidays.put(5, Arrays.asList(1)); // 1 Mei
-        // Tambahkan hari libur lainnya sesuai kebutuhan
-
         // Data rows
         int no = 1;
         int[] totalPerHari = new int[maxTanggal];
         int totalKeseluruhanHadir = 0;  // Untuk menghitung total kehadiran keseluruhan
+        int totalKeseluruhanTidakHadir = 0; // Untuk menghitung total ketidakhadiran keseluruhan
         for (Map.Entry<String, List<Absensi>> entry : absensiByUser .entrySet()) {
             String username = entry.getKey();
             List<Absensi> userAbsensi = entry.getValue();
@@ -184,11 +179,13 @@ public class ExcelDataAdmin {
                             return localDate.getDayOfMonth() == tanggal;
                         });
 
-                // Cek apakah tanggal ini adalah hari libur atau akhir pekan
                 LocalDate currentDate = LocalDate.of(tahun, bulan, tanggal);
-                boolean isHoliday = holidays.getOrDefault(currentDate.getMonthValue(), Collections.emptyList())
-                        .contains(currentDate.getDayOfMonth());
+                boolean isHoliday = false; // Ganti dengan logika untuk memeriksa hari libur
                 boolean isWeekend = currentDate.getDayOfWeek() == DayOfWeek.SATURDAY || currentDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+                List<LocalDate> holidays = getHolidays(tahun);
+                if (holidays.contains(currentDate)) {
+                    isHoliday = true;
+                }
 
                 if (isPresent) {
                     totalKehadiran++;
@@ -213,12 +210,13 @@ public class ExcelDataAdmin {
             cellTotalTidakHadir.setCellStyle(styleData);
 
             totalKeseluruhanHadir += totalKehadiran;  // Menambahkan total hadir per user ke total keseluruhan
+            totalKeseluruhanTidakHadir += totalTidakHadir; // Menambahkan total tidak hadir per user ke total keseluruhan
         }
 
-        // Baris total
+        // Baris total kehadiran
         Row totalRow = sheet.createRow(rowNum++);
         Cell totalCell = totalRow.createCell(0);
-        totalCell.setCellValue("TOTAL KESELURUHAN");
+        totalCell.setCellValue("TOTAL KEHADIRAN");
         totalCell.setCellStyle(styleTitleTotal);
         sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 1)); // Gabungkan kolom A dan B
 
@@ -228,33 +226,40 @@ public class ExcelDataAdmin {
             String hadirTidakHadir = totalPerHari[i - 1] + "/" + totalTidakHadirPerHari; // Format total hadir/tidak hadir
             cellTotalPerHari.setCellValue(hadirTidakHadir);
             cellTotalPerHari.setCellStyle(styleTotal);
+
+            // Menghitung persentase kehadiran per hari
+            double persentaseKehadiran = (totalPerHari[i - 1] * 100.0) / (absensiByUser .size() > 0 ? absensiByUser .size() : 1);
+            persentaseKehadiran = Math.min(persentaseKehadiran, 100.0); // Pastikan persentase tidak melebihi 100%
+            String persentaseString = String.format("%.0f%%", persentaseKehadiran); // Format persentase dengan dua angka desimal
+            cellTotalPerHari.setCellValue(totalPerHari[i - 1] + " / " + persentaseString);
         }
 
-        // Menghitung total hadir dan tidak hadir untuk seluruh data
-        int totalTidakHadirKeseluruhan = (absensiByUser .size() * maxTanggal) - totalKeseluruhanHadir;
+        // Baris total tidak hadir
+        Row tidakHadirRow = sheet.createRow(rowNum++);
+        Cell tidakHadirCell = tidakHadirRow.createCell(0);
+        tidakHadirCell.setCellValue("TOTAL TIDAK HADIR");
+        tidakHadirCell.setCellStyle(styleTitleTotal);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 1)); // Merge columns A and B
 
-        // Format total kehadiran dan ketidakhadiran dalam format "total hadir/total tidak hadir"
-        String totalHadirTidakHadir = totalKeseluruhanHadir + "/" + totalTidakHadirKeseluruhan;
+        for (int i = 1; i <= maxTanggal; i++) {
+            Cell cellTotalTidakHadirPerHari = tidakHadirRow.createCell(i + 1);
+            int totalTidakHadirPerHari = absensiByUser .size() - totalPerHari[i - 1];
+            cellTotalTidakHadirPerHari.setCellValue(totalTidakHadirPerHari); // Display the number of absentees per day
 
-        // Menampilkan total keseluruhan hadir/tidak hadir dalam satu kolom
-        Cell cellTotalKeseluruhanHadirTidakHadir = totalRow.createCell(maxTanggal + 2);
-        cellTotalKeseluruhanHadirTidakHadir.setCellValue(totalHadirTidakHadir);
-        cellTotalKeseluruhanHadirTidakHadir.setCellStyle(styleTotal);
+            double persentaseKetidakHadiran = (totalTidakHadirPerHari * 100.0) / (absensiByUser .size() > 0 ? absensiByUser .size() : 1);
+            persentaseKetidakHadiran = Math.min(persentaseKetidakHadiran, 100.0);
+            String persentaseString = String.format("%.0f%%", persentaseKetidakHadiran); // Format percentage with no decimal places
+            cellTotalTidakHadirPerHari.setCellValue(totalTidakHadirPerHari + " / " + persentaseString);
+        }
 
-        // Menghapus kolom "Tidak Hadir" di baris total karena sudah digabungkan
-        Cell cellTotalKeseluruhanHadir = totalRow.createCell(maxTanggal + 2);
-        cellTotalKeseluruhanHadir.setCellValue(totalKeseluruhanHadir);
-        cellTotalKeseluruhanHadir.setCellStyle(styleTotal);
+        Cell cellTotalTidakHadirKeseluruhan = tidakHadirRow.createCell(maxTanggal + 2);
+        cellTotalTidakHadirKeseluruhan.setCellValue(totalKeseluruhanTidakHadir + " / " + String.format("%.0f%%", Math.min((totalKeseluruhanTidakHadir * 100.0) / (absensiByUser .size() > 0 ? absensiByUser .size() : 1), 100.0))); // Display the overall total absences with percentage
+        cellTotalTidakHadirKeseluruhan.setCellStyle(styleTotal);
 
-        Cell cellTotalKeseluruhanTidakHadir = totalRow.createCell(maxTanggal + 3);
-        cellTotalKeseluruhanTidakHadir.setCellValue(absensiByUser .size() * maxTanggal - totalKeseluruhanHadir);  // Menghitung total tidak hadir secara keseluruhan
-        cellTotalKeseluruhanTidakHadir.setCellStyle(styleTotal);
-
-        // Mengatur ukuran kolom
-        sheet.autoSizeColumn(0); // Kolom "No"
-        sheet.setColumnWidth(1, 9000); // Lebar kolom Nama
+        sheet.autoSizeColumn(0);
+        sheet.setColumnWidth(1, 9000);
         for (int i = 2; i <= maxTanggal + 2; i++) {
-            sheet.setColumnWidth(i, 2000); // Ukuran lebar kolom
+            sheet.setColumnWidth(i, 2000);
         }
 
         // Menyimpan file
@@ -263,6 +268,26 @@ public class ExcelDataAdmin {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
+    private List<LocalDate> getHolidays(int year) {
+        List<LocalDate> holidays = new ArrayList<>();
+        holidays.add(LocalDate.of(year, Month.JANUARY, 1));
+        holidays.add(LocalDate.of(year, Month.JANUARY, 20));
+        holidays.add(LocalDate.of(year, Month.MARCH, 21));
+        holidays.add(LocalDate.of(year, Month.MAY, 1));
+        holidays.add(LocalDate.of(year, Month.MAY, 18));
+        holidays.add(LocalDate.of(year, Month.MAY, 25));
+        holidays.add(LocalDate.of(year, Month.JUNE, 1));
+        holidays.add(LocalDate.of(year, Month.JUNE, 4));
+        holidays.add(LocalDate.of(year, Month.JULY, 17));
+        holidays.add(LocalDate.of(year, Month.AUGUST, 17));
+        holidays.add(LocalDate.of(year, Month.SEPTEMBER, 29));
+        holidays.add(LocalDate.of(year, Month.DECEMBER, 25));
+        // Tambahkan hari libur lainnya sesuai kebutuhan
+        return holidays;
+    }
+
+
     public void exportOrganisasi(Long idAdmin, HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("DATA ORGANISASI");

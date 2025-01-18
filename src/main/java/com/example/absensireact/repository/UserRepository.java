@@ -4,6 +4,7 @@ package com.example.absensireact.repository;
 import com.example.absensireact.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,6 +34,10 @@ public interface UserRepository extends JpaRepository<UserModel , Long> {
 
     @Query(value = "SELECT * FROM user WHERE email = :email", nativeQuery = true)
     Optional<UserModel> findByEmail(String email);
+
+    @Query(value = "SELECT * FROM user WHERE email = :email", nativeQuery = true)
+    List<UserModel> findByEmailList(String email);
+
     Boolean existsByEmail(String email);
     @Query(value = "SELECT * FROM user WHERE id_admin = :idAdmin", nativeQuery = true)
     List<UserModel> findByIdAdmin (Long idAdmin);
@@ -42,8 +47,18 @@ public interface UserRepository extends JpaRepository<UserModel , Long> {
     @Query(value = "SELECT * FROM user WHERE id_super_admin = :idSuperAdmin", nativeQuery = true)
     List<UserModel> findByIdSuperAdmin (Long idSuperAdmin);
 
+//    @Query(value = "SELECT * FROM user WHERE username = :username", nativeQuery = true)
+//    Optional<UserModel> findByUsername (String username);
+
+    @Query(value = "SELECT * FROM user WHERE LOWER(TRIM(username)) = LOWER(TRIM(:username))", nativeQuery = true)
+    Optional<UserModel> findByUsername(@Param("username") String username);
+
+//    @Query(value = "SELECT * FROM user WHERE LOWER(TRIM(email)) = LOWER(TRIM(:email))", nativeQuery = true)
+//    Optional<UserModel> findByEmail(@Param("email") String email);
+
+
     @Query(value = "SELECT * FROM user WHERE username = :username", nativeQuery = true)
-    Optional<UserModel> findByUsername (String username);
+    List<UserModel> findByUsernameList (String username);
 
 //    UserModel findByUsername1(String username);
 

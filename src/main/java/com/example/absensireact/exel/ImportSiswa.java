@@ -80,50 +80,54 @@ public class ImportSiswa {
             Cell namaUserCell = row.getCell(1);
             Cell emailCell = row.getCell(2);
             Cell passwordCell = row.getCell(3);
-            Cell orangTuaCell = row.getCell(4);
-            Cell shiftCell = row.getCell(5);
-            Cell organisasiCell = row.getCell(6);
-            Cell kelasCell = row.getCell(7);
+            Cell shiftCell = row.getCell(4);
+            Cell organisasiCell = row.getCell(5);
+            Cell kelasCell = row.getCell(6);
 
-            // Cek jika ada sel penting yang kosong (kecuali kolom Orang Tua)
+            // Cek jika ada sel penting yang kosong
             if (namaUserCell == null || emailCell == null || passwordCell == null ||
                     shiftCell == null || organisasiCell == null || kelasCell == null) {
                 System.out.println("Data kosong terdeteksi di baris: " + (i + 1));
                 continue; // Lewati baris ini dan lanjutkan ke baris berikutnya
             }
 
+            // Cek jika username sudah ada di database
+            String username = getCellValue(namaUserCell);
+            List<UserModel> existingUserByUsername = siswaRepository.findByUsernameList(username);
+            if (existingUserByUsername.size() > 1) {
+                System.out.println("Username " + username + " duplikat, baris diabaikan.");
+                continue; // Lewati baris ini dan lanjutkan ke baris berikutnya
+            }
+
+            // Cek jika email sudah ada di database
+            String email = getCellValue(emailCell);
+            List<UserModel> existingUserByEmail = siswaRepository.findByEmailList(email);
+            if (existingUserByEmail.size() > 1) {
+                System.out.println("Email " + email + " duplikat, baris diabaikan.");
+                continue; // Lewati baris ini dan lanjutkan ke baris berikutnya
+            }
+
             // Proses data user jika valid
             UserModel user = new UserModel();
-            user.setUsername(getCellValue(namaUserCell));
-            user.setEmail(getCellValue(emailCell));
+            user.setUsername(username);
+            user.setEmail(email);
             user.setPassword(encoder.encode(passwordCell.getStringCellValue()));
 
-            // Set organisasi, kelas, shift, dan orang tua berdasarkan data yang valid
+            // Set organisasi, kelas, dan shift berdasarkan data yang valid
             String namaOrganisasi = getCellValue(organisasiCell);
             String kelas = getCellValue(kelasCell);
             String namaShift = getCellValue(shiftCell);
-            String namaOrangTua = orangTuaCell != null ? getCellValue(orangTuaCell) : null;
 
             try {
                 Organisasi organisasi = organisasiRepository.findByNamaOrganisasi(namaOrganisasi)
                         .orElseThrow(() -> new NotFoundException("Organisasi dengan nama " + namaOrganisasi + " tidak ditemukan"));
                 Shift shift = shiftRepository.findByShift(namaShift)
                         .orElseThrow(() -> new NotFoundException("Shift dengan nama " + namaShift + " tidak ditemukan"));
-                 Kelas kelas1 = kelasRepository.findByNamaKelas(kelas)
+                Kelas kelas1 = kelasRepository.findByNamaKelas(kelas)
                         .orElseThrow(() -> new NotFoundException("Kelas :  " + namaShift + " tidak ditemukan"));
 
                 user.setOrganisasi(organisasi);
                 user.setShift(shift);
-
-                // Set orang tua hanya jika kolom orang tua tidak kosong
-                if (namaOrangTua != null && !namaOrangTua.isEmpty()) {
-                    OrangTua orangTua = orangTuaRepository.findByWaliMurid(namaOrangTua)
-                            .orElseThrow(() -> new NotFoundException("Orang Tua dengan nama " + namaOrangTua + " tidak ditemukan"));
-                    user.setOrangTua(orangTua);
-                } else {
-                    System.out.println("Kolom Orang Tua kosong di baris: " + (row.getRowNum() + 1));
-                }
-
                 user.setAdmin(admin);
                 user.setKelas(kelas1);
                 user.setRole("USER"); // Set status otomatis menjadi "Siswa"
@@ -145,7 +149,6 @@ public class ImportSiswa {
             System.out.println("Tidak ada data user yang valid untuk disimpan.");
         }
     }
-
 
 
     //    @Transactional

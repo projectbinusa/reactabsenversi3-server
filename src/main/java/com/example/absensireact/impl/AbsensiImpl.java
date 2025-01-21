@@ -261,7 +261,8 @@ public class AbsensiImpl implements AbsensiService {
         public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
-            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            return null;
         } else {
             UserModel user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan id: " + userId + " tidak ditemukan."));
@@ -299,7 +300,8 @@ public class AbsensiImpl implements AbsensiService {
         public Absensi PostAbsensiSmartById(Long userId, Absensi absensi) throws IOException, ParseException {
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
-            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            return null;
         } else {
             UserModel user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan id: " + userId + " tidak ditemukan."));

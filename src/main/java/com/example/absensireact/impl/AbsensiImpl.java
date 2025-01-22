@@ -343,7 +343,8 @@ public class AbsensiImpl implements AbsensiService {
                 .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
 
         if (!existingAbsensi.getJamPulang().equals("-")) {
-            throw new NotFoundException("User sudah melakukan absensi pulang hari ini.");
+            System.out.println("User sudah melakukan absensi pulang  hari ini");
+            return null;
         }
 
         Date pulang = new Date();

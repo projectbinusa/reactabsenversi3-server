@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.*;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.time.DayOfWeek;
@@ -55,6 +56,11 @@ public class ExcelDataAdmin {
         CellStyle styleTitle = workbook.createCellStyle();
         styleTitle.setAlignment(HorizontalAlignment.CENTER);
         styleTitle.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleTitle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        styleTitle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//        styleTitle.setBorderTop(BorderStyle.THIN);
+//        styleTitle.setBorderRight(BorderStyle.THIN);
+//        styleTitle.setBorderLeft(BorderStyle.THIN);
         Font titleFont = workbook.createFont();
         titleFont.setBold(true);
         styleTitle.setFont(titleFont);
@@ -64,6 +70,10 @@ public class ExcelDataAdmin {
         styleTitleTotal.setVerticalAlignment(VerticalAlignment.CENTER);
         styleTitleTotal.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
         styleTitleTotal.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleTitleTotal.setBorderTop(BorderStyle.THIN);
+        styleTitleTotal.setBorderRight(BorderStyle.THIN);
+        styleTitleTotal.setBorderBottom(BorderStyle.THIN);
+        styleTitleTotal.setBorderLeft(BorderStyle.THIN);
         Font titleFontTotal = workbook.createFont();
         titleFontTotal.setBold(true);
         styleTitleTotal.setFont(titleFontTotal);
@@ -73,10 +83,36 @@ public class ExcelDataAdmin {
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         styleHeader.setBorderTop(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
-        styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
-        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_GREEN.index);
+        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.index);
         styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        CellStyle styleBGBGreen = workbook.createCellStyle();
+        styleBGBGreen.setAlignment(HorizontalAlignment.CENTER);
+        styleBGBGreen.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleBGBGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.index);
+        styleBGBGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleBGBGreen.setBorderTop(BorderStyle.THIN);
+        styleBGBGreen.setBorderRight(BorderStyle.THIN);
+        styleBGBGreen.setBorderBottom(BorderStyle.THIN);
+        styleBGBGreen.setBorderLeft(BorderStyle.THIN);
+
+        CellStyle styleBGWhite = workbook.createCellStyle();
+        styleBGWhite.setAlignment(HorizontalAlignment.CENTER);
+        styleBGWhite.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleBGWhite.setFillForegroundColor(IndexedColors.WHITE.index);
+        styleBGWhite.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleBGWhite.setBorderTop(BorderStyle.THIN);
+        styleBGWhite.setBorderRight(BorderStyle.THIN);
+        styleBGWhite.setBorderBottom(BorderStyle.THIN);
+        styleBGWhite.setBorderLeft(BorderStyle.THIN);
+
+        // Membuat font untuk teks
+        Font font = workbook.createFont();
+        font.setColor(IndexedColors.WHITE.getIndex()); // Menentukan warna teks (misalnya merah)
+        font.setBold(true); // Menentukan apakah teks bold
+
+        styleHeader.setFont(font);
 
         CellStyle styleData1 = workbook.createCellStyle();
         styleData1.setAlignment(HorizontalAlignment.LEFT);
@@ -122,29 +158,40 @@ public class ExcelDataAdmin {
 
         int rowNum = 0;
 
+        String namaBulan = Month.of(bulan).getDisplayName(TextStyle.FULL, Locale.getDefault()); // Mengambil nama bulan dalam bahasa default
+
         // Baris judul
         Row titleRow = sheet.createRow(rowNum++);
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("DATA ABSENSI GURU DAN KARYAWAN SMK BINA NUSANTARA SEMARANG");
         titleCell.setCellStyle(styleTitle);
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxTanggal + 3)); // Menyesuaikan untuk kolom tanggal, total, dan tidak hadir
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxTanggal + 5));
+
+        Row titleRow1 = sheet.createRow(rowNum++);
+        Cell titleCell1 = titleRow1.createCell(0);
+        titleCell1.setCellValue("Bulan" + " " + namaBulan + " " + tahun);
+        titleCell1.setCellStyle(styleTitle);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, maxTanggal + 5));
 
         // Baris header
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = new String[maxTanggal + 4];  // Menyesuaikan untuk kolom "Tidak Hadir" dan persentase
+        String[] headers = new String[maxTanggal + 5];
         headers[0] = "No";
         headers[1] = "Nama";
         for (int i = 1; i <= maxTanggal; i++) {
             headers[i + 1] = String.valueOf(i);
         }
         headers[maxTanggal + 2] = "HADIR";
-        headers[maxTanggal + 3] = "TIDAK HADIR";
+        headers[maxTanggal + 4] = "TIDAK HADIR";
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styleHeader);
         }
+
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, maxTanggal + 2, maxTanggal + 3));
+        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, maxTanggal + 4, maxTanggal + 5));
 
         // Data rows
         int no = 1;
@@ -156,16 +203,19 @@ public class ExcelDataAdmin {
             List<Absensi> userAbsensi = entry.getValue();
 
             Row dataRow = sheet.createRow(rowNum++);
+            CellStyle rowStyle = (rowNum % 2 == 0) ? styleBGWhite : styleBGBGreen; // Ganti dengan style yang diinginkan
+
 
             // No
             Cell cellNo = dataRow.createCell(0);
             cellNo.setCellValue(no++);
-            cellNo.setCellStyle(styleData);
+            cellNo.setCellStyle(rowStyle);
 
             // Nama
             Cell cellNama = dataRow.createCell(1);
             cellNama.setCellValue(username);
             cellNama.setCellStyle(styleData1);
+            cellNama.setCellStyle(rowStyle);
 
             // Kehadiran per tanggal
             int totalKehadiran = 0;
@@ -201,9 +251,10 @@ public class ExcelDataAdmin {
                 } else {
                     cellTanggal.setCellValue("-"); // Menandai hari libur atau akhir pekan
                     cellTanggal.setCellStyle(styleData);
+                    cellTanggal.setCellStyle(rowStyle);
                 }
 
-                cellTanggal.setCellStyle(styleData);
+                cellTanggal.setCellStyle(rowStyle);
             }
 
             int totalHariKerja = (int) IntStream.rangeClosed(1, maxTanggal)
@@ -215,16 +266,42 @@ public class ExcelDataAdmin {
                         return !(isWeekend || isHoliday);
                     }).count();
 
+            int totalKehadiranKerja = (int) userAbsensi.stream()
+                    .filter(absensi -> {
+                        LocalDate localDate = absensi.getTanggalAbsen().toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate();
+                        boolean isWeekend = localDate.getDayOfWeek() == DayOfWeek.SATURDAY || localDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+                        List<LocalDate> holidays = getHolidays(tahun);
+                        boolean isHoliday = holidays.contains(localDate);
+                        return !(isWeekend || isHoliday); // Filter out weekends and holidays
+                    })
+                    .count();
+
             Cell cellTotalHadir = dataRow.createCell(maxTanggal + 2);
-            double presentPercentage = (totalKehadiran / (double) totalHariKerja) * 100; // Menghitung persentase kehadiran
-            cellTotalHadir.setCellValue(String.format("%d / %d%%", totalKehadiran, (int) presentPercentage)); // Hanya angka bulat
+            cellTotalHadir.setCellValue(String.format("%d", totalKehadiranKerja)); // Menggunakan totalKehadiranKerja
             cellTotalHadir.setCellStyle(styleData);
+            cellTotalHadir.setCellStyle(rowStyle);
 
+// Persentase kehadiran
+            Cell cellTotalHadirPersentase = dataRow.createCell(maxTanggal + 3);
+            double presentPercentageHadir = (totalKehadiranKerja / (double) totalHariKerja) * 100; // Menghitung persentase kehadiran hanya di hari kerja
+            cellTotalHadirPersentase.setCellValue(String.format("%d%%", (int) presentPercentageHadir)); // Hanya angka bulat
+            cellTotalHadirPersentase.setCellStyle(styleData);
+            cellTotalHadirPersentase.setCellStyle(rowStyle);
 
-            Cell cellTotalTidakHadir = dataRow.createCell(maxTanggal + 3);
-            double absentPercentage = (double) totalTidakHadir / (maxTanggal - totalTidakHadir) * 100; // Menghitung persentase ketidakhadiran
-            cellTotalTidakHadir.setCellValue(String.format("%d / %d%%", totalTidakHadir, (int) absentPercentage)); // Hanya angka bulat
+// Baris total tidak hadir
+            Cell cellTotalTidakHadir = dataRow.createCell(maxTanggal + 4);
+            cellTotalTidakHadir.setCellValue(String.format("%d", totalTidakHadir)); // Tetap menggunakan totalTidakHadir
             cellTotalTidakHadir.setCellStyle(styleData);
+            cellTotalTidakHadir.setCellStyle(rowStyle);
+
+// Persentase ketidakhadiran
+            Cell cellTotalTidakHadirPersentase = dataRow.createCell(maxTanggal + 5);
+            double absentPercentageTHdr = (double) totalTidakHadir / (maxTanggal - totalTidakHadir) * 100;
+            cellTotalTidakHadirPersentase.setCellValue(String.format("%d%%", (int) absentPercentageTHdr));
+            cellTotalTidakHadirPersentase.setCellStyle(styleData);
+            cellTotalTidakHadirPersentase.setCellStyle(rowStyle);
 
             totalKeseluruhanHadir += totalKehadiran;  // Menambahkan total hadir per user ke total keseluruhan
             totalKeseluruhanTidakHadir += totalTidakHadir; // Menambahkan total tidak hadir per user ke total keseluruhan

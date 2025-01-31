@@ -4,6 +4,7 @@ import com.example.absensireact.dto.JwtResponse;
 import com.example.absensireact.model.LoginRequest;
 import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.AuthService;
+import com.example.absensireact.service.TelegramNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,16 +43,23 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private TelegramNotificationService telegramNotificationService;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             Map<String, Object> response = authService.authenticate(loginRequest);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            String errorMessage = "⚠️ *Login Gagal* ⚠️\n"
+                    + "📧 Email: " + loginRequest.getEmail() + "\n"
+                    + "❌ Error: " + e.getMessage();
+
+            // Kirim log error ke Telegram menggunakan service
+            telegramNotificationService.sendErrorNotification(errorMessage);
+
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
-
-
-
 }

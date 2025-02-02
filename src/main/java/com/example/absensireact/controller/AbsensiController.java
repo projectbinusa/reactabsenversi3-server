@@ -65,6 +65,7 @@ public class AbsensiController {
     public AbsensiController(AbsensiService absensiService, AbsensiRepository absensiRepository) {
         this.absensiService = absensiService;
 
+
         this.absensiRepository = absensiRepository;
     }
 
@@ -561,6 +562,7 @@ public class AbsensiController {
         List<Object[]> groupedData = absensiService.getAbsensiDataGroupedByRole();
         return ResponseEntity.ok(groupedData);
     }
+
     @GetMapping("/absensi/export/bulanan/by-kelas")
     public void exportAbsensiBulananByKelas(
             @RequestParam("bulan") int bulan,

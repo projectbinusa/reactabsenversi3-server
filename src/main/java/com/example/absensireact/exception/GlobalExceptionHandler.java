@@ -4,10 +4,9 @@ import com.example.absensireact.service.TelegramNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,20 +18,26 @@ public class GlobalExceptionHandler {
         this.telegramBotService = telegramBotService;
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e, HttpServletRequest request) {
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
         String errorMessage = String.format(
-                "Error occurred at path: %s\nMessage: %s",
-                request.getRequestURI(),
-                e.getMessage()
+                "🚨 *Peringatan Error * 🚨\n\n" +
+                        "❌ Error: %s",
+                ex.getMessage()
         );
 
-        // Send error message to Telegram
         telegramBotService.sendErrorNotification(errorMessage);
 
-        // Log the exception (optional)
-        e.printStackTrace();
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
 
-        return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception ex) {
+        String errorMessage = String.format(
+                "❗ General Error: %s",
+                ex.getMessage()
+        );
+        telegramBotService.sendErrorNotification(errorMessage);
+        return new ResponseEntity<>("Terjadi kesalahan: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

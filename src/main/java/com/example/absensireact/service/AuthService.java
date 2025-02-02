@@ -73,11 +73,21 @@ public class AuthService  {
 
     public Map<String, Object> authenticate(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
+        Optional<UserModel> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            throw new UsernameNotFoundException("Email tidak ditemukan.");
+        }
+
+        UserModel user = userOptional.get();
         UserDetails userDetails = loadUserByUsername(email);
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
+            String kelasSiswa = user.getKelas() != null ? user.getKelas().getNamaKelas() : "Tidak diketahui";
+
             String errorMessage = "❌ *Percobaan Login Gagal* ❌\n"
                     + "📧 Email: " + email + "\n"
+                    + "🏫 Kelas: " + kelasSiswa + "\n"
                     + "🔑 Kesalahan: Password salah";
 
             telegramNotificationService.sendErrorNotification(errorMessage);
@@ -92,5 +102,6 @@ public class AuthService  {
         response.put("token", token);
         return response;
     }
+
 
 }

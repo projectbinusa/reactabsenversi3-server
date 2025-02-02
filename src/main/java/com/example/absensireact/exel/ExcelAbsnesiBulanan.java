@@ -320,6 +320,10 @@ public class ExcelAbsnesiBulanan {
             int userRowNum = 1;
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
             for (Absensi absensi : absensiList) {
+                if (absensi.getUser() == null) {
+                    System.err.println("Data absensi dengan ID " + absensi.getId() + " tidak memiliki user terkait.");
+                    continue;
+                }
                 Row row = sheet.createRow(rowNum++);
                 Cell cell0 = row.createCell(0);
                 cell0.setCellValue(userRowNum++);
@@ -380,6 +384,7 @@ public class ExcelAbsnesiBulanan {
         // Write the output to response
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=Presensi_Simpel_" + getMonthName(month) + "_" + year + ".xlsx");
+        response.setBufferSize(10000);
         workbook.write(response.getOutputStream());
         workbook.close();
     }

@@ -71,37 +71,49 @@ public class AuthService  {
         throw new UsernameNotFoundException("User tidak ditemukan dengan email: " + username);
     }
 
+//    public Map<String, Object> authenticate(LoginRequest loginRequest) {
+//        String email = loginRequest.getEmail();
+//        UserDetails userDetails = loadUserByUsername(email);
+//
+//        if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
+//            String errorMessage = "❌ *Percobaan Login Gagal* ❌\n"
+//                    + "📧 Email: " + email + "\n"
+//                    + "🔑 Kesalahan: Password salah";
+//
+//            telegramNotificationService.sendErrorNotification(errorMessage);
+//            throw new BadCredentialsException("Email atau password salah.");
+//        }
+//
+//        // Generate token setelah berhasil login
+//        String token = jwtTokenUtil.generateToken(userDetails);
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("data", userDetails);
+//        response.put("token", token);
+//        return response;
+//    }
+
     public Map<String, Object> authenticate(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
-        Optional<UserModel> userOptional = userRepository.findByEmail(email);
-
-        if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException("Email tidak ditemukan.");
-        }
-
-        UserModel user = userOptional.get();
         UserDetails userDetails = loadUserByUsername(email);
 
+        // Password is checked without altering the email case
         if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
-            String kelasSiswa = user.getKelas() != null ? user.getKelas().getNamaKelas() : "Tidak diketahui";
-
             String errorMessage = "❌ *Percobaan Login Gagal* ❌\n"
                     + "📧 Email: " + email + "\n"
-                    + "🏫 Kelas: " + kelasSiswa + "\n"
                     + "🔑 Kesalahan: Password salah";
 
             telegramNotificationService.sendErrorNotification(errorMessage);
             throw new BadCredentialsException("Email atau password salah.");
         }
 
-        // Generate token setelah berhasil login
-        String token = jwtTokenUtil.generateToken(userDetails);
+        // Generate token after successful authentication
+        String token = jwtTokenUtil.generateToken(userDetails );
 
         Map<String, Object> response = new HashMap<>();
         response.put("data", userDetails);
         response.put("token", token);
         return response;
     }
-
 
 }

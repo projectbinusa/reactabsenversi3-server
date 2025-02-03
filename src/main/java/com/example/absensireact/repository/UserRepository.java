@@ -35,6 +35,9 @@ public interface UserRepository extends JpaRepository<UserModel , Long> {
     @Query(value = "SELECT * FROM user WHERE email = :email", nativeQuery = true)
     Optional<UserModel> findByEmail(String email);
 
+    @Query(value = "SELECT * FROM admin WHERE email = :email", nativeQuery = true)
+    Optional<UserModel> findByEmailAdmin(String email);
+
     @Query(value = "SELECT * FROM user WHERE email = :email", nativeQuery = true)
     List<UserModel> findByEmailList(String email);
 

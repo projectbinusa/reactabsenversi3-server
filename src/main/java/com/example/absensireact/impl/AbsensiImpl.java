@@ -183,9 +183,9 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public Absensi PostAbsensi(String email, Absensi absensi) throws IOException, ParseException {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-        if (existingAbsensi.isPresent()) {
-            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        if (!existingAbsensi.isEmpty()) {
+            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
             return null;
         } else {
             UserModel user = userRepository.findByEmail(email)
@@ -219,10 +219,9 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public Absensi PostAbsensiSmart(String email, Absensi absensi) throws IOException, ParseException {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-
-        if (existingAbsensi.isPresent()) {
-            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        if (!existingAbsensi.isEmpty()) {
+            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
             return null;
         } else {
             UserModel user = userRepository.findByEmail(email)
@@ -259,9 +258,9 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
         public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
-        if (existingAbsensi.isPresent()) {
-            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        List<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        if (!existingAbsensi.isEmpty()) {
+            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
             return null;
         } else {
             UserModel user = userRepository.findById(userId)
@@ -298,9 +297,9 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
         public Absensi PostAbsensiSmartById(Long userId, Absensi absensi) throws IOException, ParseException {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
-        if (existingAbsensi.isPresent()) {
-            System.out.println("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        List<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        if (!existingAbsensi.isEmpty()) {
+            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
             return null;
         } else {
             UserModel user = userRepository.findById(userId)
@@ -339,11 +338,12 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public Absensi Pulang(String email, Absensi absensi) throws IOException, ParseException {
-        Absensi existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()))
+        Absensi existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()))
                 .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
 
         if (!existingAbsensi.getJamPulang().equals("-")) {
-            throw new NotFoundException("User sudah melakukan absensi pulang hari ini.");
+            System.out.println("User sudah melakukan absensi pulang  hari ini");
+            return null;
         }
 
         Date pulang = new Date();
@@ -361,14 +361,14 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public boolean checkUserAlreadyAbsenToday(Long userId) {
-        Optional<Absensi> absensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        Optional<Absensi> absensi = absensiRepository.findByUserIdAndTanggalAbsenOptional(userId, truncateTime(new Date()));
         return absensi.isPresent();
     }
 
 
     @Override
     public boolean checkUserAlreadyAbsenTodayByEmail(String email) {
-        Optional<Absensi> absensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        Optional<Absensi> absensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()));
         return absensi.isPresent();
     }
 
@@ -505,9 +505,10 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public Absensi izin(Long userId, String keteranganIzin) {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
-        if (existingAbsensi.isPresent()) {
-            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        List<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        if (!existingAbsensi.isEmpty()) {
+            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            return null;
         } else {
             UserModel user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan ID: " + userId + " tidak ditemukan."));
@@ -526,9 +527,10 @@ public class AbsensiImpl implements AbsensiService {
     }
     @Override
     public Absensi izinByEmail(String email, String keteranganIzin) {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-        if (existingAbsensi.isPresent()) {
-            throw new NotFoundException("User sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+        List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+        if (!existingAbsensi.isEmpty()) {
+            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            return null;
         } else {
             UserModel user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan email " + email + " tidak ditemukan."));
@@ -548,7 +550,7 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public Absensi izinTengahHari(Long userId , Absensi keterangaPulangAwal )   {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+        Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsenOptional(userId, truncateTime(new Date()));
         if (existingAbsensi.isPresent()) {
             Absensi absensi = existingAbsensi.get();
             Date masuk = new Date();
@@ -565,9 +567,12 @@ public class AbsensiImpl implements AbsensiService {
 
  @Override
     public Absensi izinTengahHariByEmail(String email , Absensi keterangaPulangAwal )   {
-        Optional<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-        if (existingAbsensi.isPresent()) {
-            Absensi absensi = existingAbsensi.get();
+     List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+     if (!existingAbsensi.isEmpty()) {
+         System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+         return null;
+        } else {
+            Absensi absensi = existingAbsensi.get(0);
             Date masuk = new Date();
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
             String jamPulang = formatter.format(masuk);
@@ -575,8 +580,6 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setKeteranganPulangAwal(keterangaPulangAwal.getKeteranganPulangAwal());
             absensi.setStatusAbsen("Izin Tengah Hari");
             return absensiRepository.save(absensi);
-        } else {
-            throw new NotFoundException("User belum melakukan absensi masuk pada hari ini.");
         }
     }
 

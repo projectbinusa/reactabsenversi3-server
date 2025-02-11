@@ -58,7 +58,7 @@ public class AuthController {
                     + "❌ Error: " + e.getMessage();
 
             // Kirim log error ke Telegram
-            telegramNotificationService.sendErrorNotification(errorMessage);
+            telegramNotificationService.sendErrorNotificationLogin(errorMessage);
 
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }

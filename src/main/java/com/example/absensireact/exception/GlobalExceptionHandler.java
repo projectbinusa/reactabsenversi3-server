@@ -26,18 +26,35 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        telegramBotService.sendErrorNotification(errorMessage);
+        telegramBotService.sendErrorNotificationLogin(errorMessage);
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
+        StackTraceElement stackTraceElement = ex.getStackTrace()[0]; // Ambil informasi error pertama
+        String className = stackTraceElement.getClassName();
+        String methodName = stackTraceElement.getMethodName();
+        String fileName = stackTraceElement.getFileName();
+        int lineNumber = stackTraceElement.getLineNumber();
+
+        // Format error message untuk Telegram
         String errorMessage = String.format(
-                "❗ General Error: %s",
-                ex.getMessage()
+                "🚨 *GENERAL API ERROR* 🚨\n" +
+                        "📌 *Class*: `%s`\n" +
+                        "🔗 *Method*: `%s`\n" +
+                        "📂 *File*: `%s`\n" +
+                        "📍 *Line*: `%d`\n" +
+                        "❌ *Exception*: `%s`\n" +
+                        "📄 *Message*: `%s`",
+                className, methodName, fileName, lineNumber, ex.getClass().getSimpleName(), ex.getMessage()
         );
-        telegramBotService.sendErrorNotification(errorMessage);
+
+        // Kirim notifikasi ke Telegram
+        telegramBotService.sendErrorNotificationForException(className, methodName, new Object[]{}, ex);
+
         return new ResponseEntity<>("Terjadi kesalahan: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }

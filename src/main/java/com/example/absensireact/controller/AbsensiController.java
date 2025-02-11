@@ -9,6 +9,7 @@ import com.example.absensireact.model.Jabatan;
 import com.example.absensireact.repository.AbsensiRepository;
 import com.example.absensireact.securityNew.JwtTokenUtil;
 import com.example.absensireact.service.AbsensiService;
+import com.example.absensireact.service.TelegramNotificationService;
 import io.swagger.annotations.ApiParam;
 import org.apache.tomcat.util.buf.UDecoder;
 //import org.slf4j.LoggerFactory;
@@ -52,6 +53,9 @@ public class AbsensiController {
 
     @Autowired
     private final AbsensiService absensiService;
+
+    @Autowired
+    private TelegramNotificationService telegramNotificationService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -379,49 +383,89 @@ public class AbsensiController {
     }
 
     @PostMapping("/absensi/masuk")
-    public ResponseEntity<Absensi> postAbsensiMasuk(@RequestParam String token, @RequestBody Absensi absensi) throws IOException, ParseException {
-        Long userId = jwtTokenUtil.getIdFromToken(token);
-        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
-        System.out.println("userid token: " + userId);
+    public ResponseEntity<?> postAbsensiMasuk(@RequestParam String token, @RequestBody Absensi absensi) {
+        try {
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+            System.out.println("User ID dari token: " + userId);
 
-        Absensi newAbsensi;
-        if (absensi.getJamShift() == null || absensi.getJamShift().isEmpty()) {
-            if (userId == 0) {
-                System.out.println("Email yang diambil dari token: " + userEmail);
-                newAbsensi = absensiService.PostAbsensi(userEmail, absensi);
+            Absensi newAbsensi;
+            boolean isJamShiftEmpty = absensi.getJamShift() == null || absensi.getJamShift().trim().isEmpty();
+
+            if (isJamShiftEmpty) {
+                if (userId == 0) {
+                    System.out.println("Email yang diambil dari token: " + userEmail);
+                    newAbsensi = absensiService.PostAbsensi(userEmail, absensi);
+                } else {
+                    System.out.println("User ID yang diambil dari token: " + userId);
+                    newAbsensi = absensiService.PostAbsensiById(userId, absensi);
+                }
             } else {
-                System.out.println("User ID yang diambil dari token: " + userId);
-                newAbsensi = absensiService.PostAbsensiById(userId, absensi);
+                if (userId == 0) {
+                    System.out.println("Email yang diambil dari token: " + userEmail);
+                    newAbsensi = absensiService.PostAbsensiSmart(userEmail, absensi);
+                } else {
+                    System.out.println("User ID yang diambil dari token: " + userId);
+                    newAbsensi = absensiService.PostAbsensiSmartById(userId, absensi);
+                }
             }
-        } else {
+
+            return ResponseEntity.ok(newAbsensi);
+
+        } catch (EntityNotFoundException e) {
+            // Jika User tidak ditemukan
+            telegramNotificationService.sendErrorNotification(
+                    "/api/absensi/masuk",
+                    absensi.toString(),
+                    token,
+                    e
+            );
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User tidak ditemukan: " + e.getMessage()));
+
+        } catch (IOException | ParseException e) {
+            // Jika terjadi kesalahan parsing atau IO
+            telegramNotificationService.sendErrorNotification(
+                    "/api/absensi/masuk",
+                    absensi.toString(),
+                    token,
+                    e
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", "Kesalahan pemrosesan data: " + e.getMessage()));
+
+        } catch (Exception e) {
+            // Kesalahan umum lainnya
+            telegramNotificationService.sendErrorNotification(
+                    "/api/absensi/masuk",
+                    absensi.toString(),
+                    token,
+                    e
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Terjadi kesalahan: " + e.getMessage()));
+        }
+    }
+
+
+
+    @PostMapping(value = "/absensi/smart/masuk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Absensi> postAbsensiSmartMasuk(
+            @RequestParam("token") String token,
+            @RequestPart("absensi") Absensi absensi,
+            @RequestPart(value = "fotoMasuk", required = false) MultipartFile fotoMasuk
+    ) throws IOException, ParseException {
+            Long userId = jwtTokenUtil.getIdFromToken(token);
+            String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+            Absensi newAbsensi;
             if (userId == 0) {
-                System.out.println("Email yang diambil dari token: " + userEmail);
                 newAbsensi = absensiService.PostAbsensiSmart(userEmail, absensi);
             } else {
-                System.out.println("User ID yang diambil dari token: " + userId);
                 newAbsensi = absensiService.PostAbsensiSmartById(userId, absensi);
             }
-        }
-
-        return ResponseEntity.ok(newAbsensi);
+            return ResponseEntity.ok(newAbsensi);
     }
 
-
-    @PostMapping("/absensi/smart/masuk")
-    public ResponseEntity<Absensi> postAbsensiSmartMasuk(@RequestParam String token, @RequestBody Absensi absensi) throws IOException, ParseException {
-        Long userId = jwtTokenUtil.getIdFromToken(token);
-        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
-        System.out.println("userid token: " + userId);
-        Absensi newAbsensi;
-        if (userId == 0) {
-            System.out.println("Email yang diambil dari token: " + userEmail);
-            newAbsensi = absensiService.PostAbsensiSmart(userEmail, absensi);
-        } else {
-            System.out.println("User ID yang diambil dari token: " + userId);
-            newAbsensi = absensiService.PostAbsensiSmartById(userId, absensi);
-        }
-        return ResponseEntity.ok(newAbsensi);
-    }
 
     @PutMapping("/absensi/pulang")
     public ResponseEntity<?> putAbsensiPulang(@RequestParam String token, @RequestBody Absensi absensi
@@ -430,8 +474,38 @@ public class AbsensiController {
             String userEmail = jwtTokenUtil.getUsernameFromToken(token);
             Absensi newJabatan = absensiService.Pulang(userEmail, absensi);
             return ResponseEntity.ok(newJabatan);
-        } catch (IOException | NotFoundException | ParseException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            // Jika User tidak ditemukan
+            telegramNotificationService.sendErrorNotification(
+                    "/api/absensi/pulang",
+                    absensi.toString(),
+                    token,
+                    e
+            );
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User tidak ditemukan: " + e.getMessage()));
+
+        } catch (IOException | ParseException e) {
+            // Jika terjadi kesalahan parsing atau IO
+            telegramNotificationService.sendErrorNotification(
+                    "/api/absensi/pulang",
+                    absensi.toString(),
+                    token,
+                    e
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", "Kesalahan pemrosesan data: " + e.getMessage()));
+
+        } catch (Exception e) {
+            // Kesalahan umum lainnya
+            telegramNotificationService.sendErrorNotification(
+                    "/api/absensi/pulang",
+                    absensi.toString(),
+                    token,
+                    e
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Terjadi kesalahan: " + e.getMessage()));
         }
     }
 

@@ -103,9 +103,9 @@ public class AuthService  {
                     + "📧 Email: " + email + "\n"
                     + "🔑 Kesalahan: Password salah";
 
-            telegramNotificationService.sendErrorNotification(errorMessage);
+            telegramNotificationService.sendErrorNotificationLogin(errorMessage);
             throw new BadCredentialsException("Email atau password salah.");
-        }
+         }
 
         // Generate token after successful authentication
         String token = jwtTokenUtil.generateToken(userDetails );

@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 
 //@Aspect
 //@Component
@@ -22,18 +24,15 @@ public class ExceptionHandlerAspect {
     }
 
     @AfterThrowing(pointcut = "execution(* com.example..*(..))", throwing = "ex")
-    public void logAfterThrowingAllMethods(JoinPoint joinPoint, Exception ex) {
+    public void logAfterThrowingAllMethods(JoinPoint joinPoint, Throwable ex) {
         String methodName = joinPoint.getSignature().toShortString();
-        String errorMessage = String.format(
-                "Exception in %s:\nMessage: %s",
-                methodName,
-                ex.getMessage()
-        );
+        String className = joinPoint.getTarget().getClass().getSimpleName();
+        Object[] methodArgs = joinPoint.getArgs();
 
-        // Log the error
-        logger.error("Exception in method {}: {}", methodName, ex.getMessage());
+        // Log error di server
+        logger.error("Exception in {}: {}", methodName, ex.getMessage(), ex);
 
-        // Send error message to Telegram
-        telegramNotificationService.sendErrorNotification(errorMessage);
+        // Kirim error ke Telegram dengan parameter yang benar
+        telegramNotificationService.sendErrorNotificationForException(className, methodName, methodArgs, ex);
     }
 }

@@ -11,6 +11,8 @@ import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.service.OrangTuaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,167 +48,229 @@ public class OrangTuaImpl implements OrangTuaService {
     @Autowired
     PasswordEncoder encoder;
 
+    private static final Logger logger = LoggerFactory.getLogger(OrangTuaImpl.class);
+
     @Override
-    public List<OrangTua>getAllOrangTua(){
-        return orangTuaRepository.findAll();
+    public List<OrangTua> getAllOrangTua() {
+        try {
+            logger.info("Fetching all OrangTua");
+            return orangTuaRepository.findAll();
+        } catch (Exception e) {
+            logger.error("Error fetching all OrangTua", e);
+            throw e;
+        }
     }
 
     @Override
-    public Optional<OrangTua> getOrangTuaById(Long id){
-        return orangTuaRepository.findById(id);
+    public Optional<OrangTua> getOrangTuaById(Long id) {
+        try {
+            logger.info("Fetching OrangTua with ID: {}", id);
+            return orangTuaRepository.findById(id);
+        } catch (Exception e) {
+            logger.error("Error fetching OrangTua with ID: {}", id, e);
+            throw e;
+        }
     }
 
     @Override
-    public List<OrangTua>getAllByAdmin(Long idAdmin){
-        return orangTuaRepository.findAllByAdmin(idAdmin);
+    public List<OrangTua> getAllByAdmin(Long idAdmin) {
+        try {
+            logger.info("Fetching all OrangTua by Admin ID: {}", idAdmin);
+            return orangTuaRepository.findAllByAdmin(idAdmin);
+        } catch (Exception e) {
+            logger.error("Error fetching OrangTua by Admin ID: {}", idAdmin, e);
+            throw e;
+        }
     }
 
     @Override
     public OrangTua tambahOrangTua(Long idAdmin, OrangTua orangTua) {
-        Optional<Admin> adminOptional = adminrepository.findById(idAdmin);
-        if (adminOptional.isPresent()) {
-            boolean emailExistsInAdmin = adminrepository.existsByEmail(orangTua.getEmail());
-            boolean emailExistsInSuperAdmin = superAdminRepository.existsByEmail(orangTua.getEmail());
-            boolean emailExistsInUser = userRepository.existsByEmail(orangTua.getEmail());
-            boolean emailExistsInOrangTua = orangTuaRepository.existsByEmail(orangTua.getEmail());
-
-            if (emailExistsInAdmin || emailExistsInSuperAdmin || emailExistsInUser || emailExistsInOrangTua) {
-                throw  new NotFoundException("email : " + orangTua.getEmail() + " telah terdaftar");
+        try {
+            logger.info("Adding new OrangTua with email: {}", orangTua.getEmail());
+            Optional<Admin> adminOptional = adminrepository.findById(idAdmin);
+            if (adminOptional.isPresent()) {
+                boolean emailExists = adminrepository.existsByEmail(orangTua.getEmail()) ||
+                        superAdminRepository.existsByEmail(orangTua.getEmail()) ||
+                        userRepository.existsByEmail(orangTua.getEmail()) ||
+                        orangTuaRepository.existsByEmail(orangTua.getEmail());
+                if (emailExists) {
+                    logger.error("Email {} already exists", orangTua.getEmail());
+                    throw new NotFoundException("email : " + orangTua.getEmail() + " telah terdaftar");
+                }
+                Admin admin = adminOptional.get();
+                orangTua.setAdmin(admin);
+                orangTua.setRole("Wali Murid");
+                orangTua.setPassword(encoder.encode(orangTua.getPassword()));
+                return orangTuaRepository.save(orangTua);
             }
-            Admin admin = adminOptional.get();
-            orangTua.setAdmin(admin);
-            orangTua.setEmail(orangTua.getEmail());
-            orangTua.setNama(orangTua.getNama());
-            orangTua.setImageOrtu(orangTua.getImageOrtu());
-            orangTua.setRole("Wali Murid");
-            orangTua.setPassword(encoder.encode(orangTua.getPassword()));
-            return orangTuaRepository.save(orangTua);
+            throw new NotFoundException("Admin tidak ditemukan");
+        } catch (Exception e) {
+            logger.error("Error adding OrangTua", e);
+            throw e;
         }
-        throw new NotFoundException("Admin tidak ditemukan");
     }
 
     @Override
     public OrangTua editOrangTuaById(Long id, Long idAdmin, OrangTua updateOrangTua) {
-        OrangTua orangTua = orangTuaRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("id ortu tidak ditemukan : " + id));
+        try {
+            logger.info("Editing OrangTua with ID: {}", id);
+            OrangTua orangTua = orangTuaRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("id ortu tidak ditemukan : " + id));
 
-        Admin admin = adminrepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("Admin dengan id: " + idAdmin + " tidak ditemukan"));
-        orangTua.setAdmin(admin);
-        if (orangTuaRepository.existsByNama(updateOrangTua.getNama())) {
-            throw new BadRequestException("Username " + updateOrangTua.getNama() + " telah digunakan");
+            Admin admin = adminrepository.findById(idAdmin)
+                    .orElseThrow(() -> new NotFoundException("Admin dengan id: " + idAdmin + " tidak ditemukan"));
+            orangTua.setAdmin(admin);
+            if (orangTuaRepository.existsByNama(updateOrangTua.getNama())) {
+                logger.error("Username {} sudah digunakan", updateOrangTua.getNama());
+                throw new BadRequestException("Username " + updateOrangTua.getNama() + " telah digunakan");
+            }
+            orangTua.setNama(updateOrangTua.getNama());
+            orangTua.setEmail(updateOrangTua.getEmail());
+            orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
+            orangTua.setPassword(encoder.encode(updateOrangTua.getPassword()));
+            return orangTuaRepository.save(orangTua);
+        } catch (Exception e) {
+            logger.error("Error editing OrangTua with ID: {}", id, e);
+            throw e;
         }
-        orangTua.setNama(updateOrangTua.getNama());
-        orangTua.setEmail(updateOrangTua.getEmail());
-        orangTua.setImageOrtu(updateOrangTua.getImageOrtu());
-        orangTua.setPassword(encoder.encode(updateOrangTua.getPassword()));
-        orangTua.setAdmin(admin);
-
-        return orangTuaRepository.save(orangTua);
     }
 
     @Override
     public OrangTua uploadImage(Long id, MultipartFile image) throws IOException {
-        Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(id);
-        if (orangTuaOptional.isEmpty()) {
-            throw new NotFoundException("Id ortu tidak ditemukan");
+        try {
+            logger.info("Uploading image for OrangTua with ID: {}", id);
+            Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(id);
+            if (orangTuaOptional.isEmpty()) {
+                throw new NotFoundException("Id ortu tidak ditemukan");
+            }
+            String fileUrl = uploadFoto(image);
+            OrangTua orangTua = orangTuaOptional.get();
+            orangTua.setImageOrtu(fileUrl);
+            return orangTuaRepository.save(orangTua);
+        } catch (IOException e) {
+            logger.error("Error uploading image for OrangTua with ID: {}", id, e);
+            throw e;
         }
-        String fileUrl = uploadFoto(image);
-        OrangTua orangTua = orangTuaOptional.get();
-        orangTua.setImageOrtu(fileUrl);
-        return orangTuaRepository.save(orangTua);
     }
 
     private String uploadFoto(MultipartFile multipartFile) throws IOException {
-        RestTemplate restTemplate = new RestTemplate();
+        try {
+            logger.info("Mengunggah foto...");
+            RestTemplate restTemplate = new RestTemplate();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", multipartFile.getResource());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", multipartFile.getResource());
 
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(BASE_URL, HttpMethod.POST, requestEntity, String.class);
-        String fileUrl = extractFileUrlFromResponse(response.getBody());
-        return fileUrl;
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.exchange(BASE_URL, HttpMethod.POST, requestEntity, String.class);
+            String fileUrl = extractFileUrlFromResponse(response.getBody());
+
+            logger.info("Foto berhasil diunggah. URL: {}", fileUrl);
+            return fileUrl;
+        } catch (Exception e) {
+            logger.error("Gagal mengunggah foto: ", e);
+            throw new IOException("Error saat mengunggah foto", e);
+        }
     }
 
     @Override
     public OrangTua putPasswordOrangTua(PasswordDTO passwordDTO, Long id) {
-        OrangTua update = orangTuaRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Id Not Found"));
+        try {
+            logger.info("Memperbarui password untuk OrangTua dengan ID: {}", id);
+            OrangTua update = orangTuaRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Id Not Found"));
 
-        boolean isOldPasswordCorrect = encoder.matches(passwordDTO.getOld_password(), update.getPassword());
+            boolean isOldPasswordCorrect = encoder.matches(passwordDTO.getOld_password(), update.getPassword());
+            if (!isOldPasswordCorrect) {
+                logger.error("Password lama tidak sesuai untuk ID: {}", id);
+                throw new NotFoundException("Password lama tidak sesuai");
+            }
 
-        if (!isOldPasswordCorrect) {
-            throw new NotFoundException("Password lama tidak sesuai");
-        }
-
-        if (passwordDTO.getNew_password().equals(passwordDTO.getConfirm_new_password())) {
-            update.setPassword(encoder.encode(passwordDTO.getNew_password()));
-            return orangTuaRepository.save(update);
-        } else {
-            throw new BadRequestException("Password tidak sesuai");
+            if (passwordDTO.getNew_password().equals(passwordDTO.getConfirm_new_password())) {
+                update.setPassword(encoder.encode(passwordDTO.getNew_password()));
+                logger.info("Password berhasil diperbarui untuk ID: {}", id);
+                return orangTuaRepository.save(update);
+            } else {
+                logger.error("Password baru dan konfirmasi password tidak cocok untuk ID: {}", id);
+                throw new BadRequestException("Password tidak sesuai");
+            }
+        } catch (Exception e) {
+            logger.error("Gagal memperbarui password untuk ID: {}", id, e);
+            throw e;
         }
     }
-
 
     @Override
     public Admin getAdminByOrangTuaId(Long id) {
-        OrangTua orangTua = orangTuaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("OrangTua not found with id: " + id));
-        return orangTua.getAdmin();
+        try {
+            logger.info("Mengambil admin berdasarkan ID OrangTua: {}", id);
+            OrangTua orangTua = orangTuaRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("OrangTua not found with id: " + id));
+            return orangTua.getAdmin();
+        } catch (Exception e) {
+            logger.error("Gagal mengambil admin untuk ID OrangTua: {}", id, e);
+            throw e;
+        }
     }
-
 
     private String extractFileUrlFromResponse(String responseBody) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonResponse = mapper.readTree(responseBody);
-        JsonNode dataNode = jsonResponse.path("data");
-        String urlFile = dataNode.path("url_file").asText();
-
-        return urlFile;
-    }
-
-    @Override
-    public OrangTua ubahUsernamedanemail(Long id, OrangTua updateOrangTua){
-        Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(id);
-        if (orangTuaOptional.isEmpty()) {
-            throw new NotFoundException("Id Ortu tidak ditemukan :" + id);
-        }
-        OrangTua orangTua = orangTuaOptional.get();
-//        boolean nameExisting = orangTuaRepository.existsByNama(updateOrangTua.getNama());
-//        if (nameExisting) {
-//            throw new IllegalStateException("Orang tua dengan nama : " + updateOrangTua.getNama() + " sudah terdaftar");
-//        }
-        orangTua.setEmail(updateOrangTua.getEmail());
-        orangTua.setNama(updateOrangTua.getNama());
-
-
-        return orangTuaRepository.save(orangTua);
-    }
-
-    @Override
-    public Map<String, Boolean> deleteOrangTua(Long id) {
         try {
-            List<UserModel> users = userRepository.findByIdOrangTua(id);
-            for (UserModel user : users) {
-                user.setOrangTua(null);
-                userRepository.save(user);
-            }
-
-            orangTuaRepository.deleteById(id);
-
-            Map<String, Boolean> res = new HashMap<>();
-            res.put("Deleted", Boolean.TRUE);
-            return res;
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonResponse = mapper.readTree(responseBody);
+            JsonNode dataNode = jsonResponse.path("data");
+            String urlFile = dataNode.path("url_file").asText();
+            logger.info("File URL berhasil diekstrak: {}", urlFile);
+            return urlFile;
         } catch (Exception e) {
-            e.printStackTrace();
-            Map<String, Boolean> res = new HashMap<>();
-            res.put("Deleted", Boolean.FALSE);
-            return res;
+            logger.error("Gagal mengekstrak file URL dari response", e);
+            throw new IOException("Error parsing response", e);
         }
     }
+
+    @Override
+    public OrangTua ubahUsernamedanemail(Long id, OrangTua updateOrangTua) {
+        try {
+            logger.info("Mengubah username dan email untuk ID OrangTua: {}", id);
+            Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(id);
+            if (orangTuaOptional.isEmpty()) {
+                logger.error("ID OrangTua tidak ditemukan: {}", id);
+                throw new NotFoundException("Id Ortu tidak ditemukan: " + id);
+            }
+            OrangTua orangTua = orangTuaOptional.get();
+            orangTua.setEmail(updateOrangTua.getEmail());
+            orangTua.setNama(updateOrangTua.getNama());
+
+            logger.info("Username dan email berhasil diperbarui untuk ID OrangTua: {}", id);
+            return orangTuaRepository.save(orangTua);
+        } catch (Exception e) {
+            logger.error("Gagal mengubah username dan email untuk ID OrangTua: {}", id, e);
+            throw e;
+        }
+    }
+
+//    @Override
+//    public Map<String, Boolean> deleteOrangTua(Long id) {
+//        try {
+//            List<UserModel> users = userRepository.findByIdOrangTua(id);
+//            for (UserModel user : users) {
+//                user.setOrangTua(null);
+//                userRepository.save(user);
+//            }
+//
+//            orangTuaRepository.deleteById(id);
+//
+//            Map<String, Boolean> res = new HashMap<>();
+//            res.put("Deleted", Boolean.TRUE);
+//            return res;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Map<String, Boolean> res = new HashMap<>();
+//            res.put("Deleted", Boolean.FALSE);
+//            return res;
+//        }
+//    }
 
 //    @Override
 //    public void deleteOrangTua(Long id) {
@@ -214,23 +278,61 @@ public class OrangTuaImpl implements OrangTuaService {
 //    }
 
     @Override
-    public void DeleteOrtuSementara(Long id){
-        Optional<OrangTua> orangtuaOptional = orangTuaRepository.findById(id);
-        if (orangtuaOptional.isPresent()) {
-            OrangTua orangtua = orangtuaOptional.get();
-            orangtua.setDeleted(1);
-            orangTuaRepository.save(orangtua);
+    public Map<String, Boolean> deleteOrangTua(Long id) {
+        try {
+            logger.info("Mulai menghapus data OrangTua dengan ID: {}", id);
+
+            List<UserModel> users = userRepository.findByIdOrangTua(id);
+            for (UserModel user : users) {
+                user.setOrangTua(null);
+                userRepository.save(user);
+            }
+
+            orangTuaRepository.deleteById(id);
+            logger.info("Berhasil menghapus data OrangTua dengan ID: {}", id);
+
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.TRUE);
+            return res;
+        } catch (Exception e) {
+            logger.error("Gagal menghapus data OrangTua dengan ID: {}. Error: {}", id, e.getMessage());
+            Map<String, Boolean> res = new HashMap<>();
+            res.put("Deleted", Boolean.FALSE);
+            return res;
         }
     }
 
     @Override
-    public void PemulihanDataOrtu(Long id){
-        Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(id);
-        if (orangTuaOptional.isPresent()) {
-            OrangTua orangTua = orangTuaOptional.get();
-            orangTua.setDeleted(0);
-            orangTuaRepository.save(orangTua);
+    public void DeleteOrtuSementara(Long id) {
+        try {
+            Optional<OrangTua> orangtuaOptional = orangTuaRepository.findById(id);
+            if (orangtuaOptional.isPresent()) {
+                OrangTua orangtua = orangtuaOptional.get();
+                orangtua.setDeleted(1);
+                orangTuaRepository.save(orangtua);
+                logger.info("Berhasil menandai OrangTua dengan ID: {} sebagai dihapus sementara", id);
+            } else {
+                logger.warn("Data OrangTua dengan ID: {} tidak ditemukan untuk penghapusan sementara", id);
+            }
+        } catch (Exception e) {
+            logger.error("Gagal menghapus sementara data OrangTua dengan ID: {}. Error: {}", id, e.getMessage());
         }
     }
 
+    @Override
+    public void PemulihanDataOrtu(Long id) {
+        try {
+            Optional<OrangTua> orangTuaOptional = orangTuaRepository.findById(id);
+            if (orangTuaOptional.isPresent()) {
+                OrangTua orangTua = orangTuaOptional.get();
+                orangTua.setDeleted(0);
+                orangTuaRepository.save(orangTua);
+                logger.info("Berhasil memulihkan data OrangTua dengan ID: {}", id);
+            } else {
+                logger.warn("Data OrangTua dengan ID: {} tidak ditemukan untuk pemulihan", id);
+            }
+        } catch (Exception e) {
+            logger.error("Gagal memulihkan data OrangTua dengan ID: {}. Error: {}", id, e.getMessage());
+        }
+    }
 }

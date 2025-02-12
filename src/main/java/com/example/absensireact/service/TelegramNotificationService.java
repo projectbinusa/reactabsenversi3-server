@@ -40,15 +40,15 @@ public class TelegramNotificationService {
 
     public void sendErrorNotification(String apiEndpoint, String payload, String jwt, Exception e) {
         String errorMessage = "🚨 *Error API Presensi* 🚨\n"
-                + "🔗 *Endpoint*: `" + apiEndpoint + "`\n"
-                + "📌 *JWT*: `" + jwt + "`\n"
-                + "📄 *Payload*: `" + payload + "`\n"
-                + "❌ *Error*: `" + e.getMessage() + "`";
+                + "🔗 *Endpoint*: `" + escapeMarkdown(apiEndpoint) + "`\n"
+                + "📌 *JWT*: `" + escapeMarkdown(jwt) + "`\n"
+                + "📄 *Payload*: `" + escapeMarkdown(payload) + "`\n"
+                + "❌ *Error*: `" + escapeMarkdown(e.getMessage()) + "`"; // Escape error message
 
         try {
             String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8.toString());
             String url = String.format(
-                    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=Markdown",
+                    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2",
                     botToken,
                     chatId,
                     encodedMessage
@@ -57,6 +57,29 @@ public class TelegramNotificationService {
         } catch (Exception ex) {
             System.err.println("Gagal mengirim notifikasi ke Telegram: " + ex.getMessage());
         }
+    }
+
+
+    public static String escapeMarkdown(String text) {
+        if (text == null) return "Tidak Ada Data";
+        return text.replace("_", "\\_")
+                .replace("*", "\\*")
+                .replace("[", "\\[")
+                .replace("]", "\\]")
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+                .replace("~", "\\~")
+                .replace("`", "\\`")
+                .replace(">", "\\>")
+                .replace("#", "\\#")
+                .replace("+", "\\+")
+                .replace("-", "\\-") // Escape karakter `-`
+                .replace("=", "\\=")
+                .replace("|", "\\|")
+                .replace("{", "\\{")
+                .replace("}", "\\}")
+                .replace(".", "\\.")
+                .replace("!", "\\!");
     }
 
 
@@ -101,7 +124,7 @@ public class TelegramNotificationService {
                 .replace(">", "\\>")
                 .replace("#", "\\#")
                 .replace("+", "\\+")
-                .replace("-", "\\-")
+                .replace("-", "\\-") // Escape karakter `-`
                 .replace("=", "\\=")
                 .replace("|", "\\|")
                 .replace("{", "\\{")

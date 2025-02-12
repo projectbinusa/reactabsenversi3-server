@@ -7,6 +7,8 @@ import com.example.absensireact.exception.ResponseHelper;
 import com.example.absensireact.model.OrangTua;
 import com.example.absensireact.model.*;
 import com.example.absensireact.service.OrangTuaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,8 @@ import java.util.Optional;
 @Controller
 public class OrangTuaController {
 
+    private static final Logger log = LoggerFactory.getLogger(OrangTuaController.class);
+
     @Autowired
     OrangTuaService orangTuaImpl;
 
@@ -38,18 +42,40 @@ public class OrangTuaController {
     private OrangTuaService orangTuaService;
 
     @GetMapping("/{id}/admin")
-    public Admin getAdminByOrangTuaId(@PathVariable Long id) {
-        return orangTuaService.getAdminByOrangTuaId(id);
+    public ResponseEntity<?> getAdminByOrangTuaId(@PathVariable Long id) {
+        try {
+            log.info("Fetching admin for OrangTua with id: {}", id);
+            Admin admin = orangTuaService.getAdminByOrangTuaId(id);
+            return ResponseEntity.ok(admin);
+        } catch (Exception e) {
+            log.error("Error fetching admin for OrangTua with id: {} - {}", id, e.getMessage());
+            return ResponseEntity.status(500).body("Error retrieving data.");
+        }
     }
+
     @GetMapping("/all")
-    public ResponseEntity<List<OrangTua>> getAllOrangTua(){
-        return ResponseEntity.ok(orangTuaService.getAllOrangTua());
+    public ResponseEntity<?> getAllOrangTua() {
+        try {
+            log.info("Fetching all OrangTua data.");
+            List<OrangTua> list = orangTuaService.getAllOrangTua();
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error("Error fetching all OrangTua data - {}", e.getMessage());
+            return ResponseEntity.status(500).body("Error retrieving data.");
+        }
     }
 
     @GetMapping("/getbyid/{id}")
-    public ResponseEntity<OrangTua> getOrangTuaById(@PathVariable Long id) {
-        Optional<OrangTua> orangTua = orangTuaService.getOrangTuaById(id);
-        return orangTua.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> getOrangTuaById(@PathVariable Long id) {
+        try {
+            log.info("Fetching OrangTua with id: {}", id);
+            Optional<OrangTua> orangTua = orangTuaService.getOrangTuaById(id);
+            return orangTua.map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error fetching OrangTua with id: {} - {}", id, e.getMessage());
+            return ResponseEntity.status(500).body("Error retrieving data.");
+        }
     }
 
     @GetMapping("/getALlBySuperAdmin/{idAdmin}")
@@ -59,94 +85,141 @@ public class OrangTuaController {
     }
 
     @PostMapping("/tambah/{idAdmin}")
-    public ResponseEntity<OrangTua> tambahOrangtua(@PathVariable Long idAdmin, @RequestBody OrangTua orangTua) {
-        orangTua.setId(null);
-        OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(idAdmin, orangTua);
-        return new ResponseEntity<>(orangTuaBaru, HttpStatus.CREATED);
+    public ResponseEntity<?> tambahOrangtua(@PathVariable Long idAdmin, @RequestBody OrangTua orangTua) {
+        try {
+            log.info("Adding new OrangTua for Admin id: {}", idAdmin);
+            orangTua.setId(null);
+            OrangTua orangTuaBaru = orangTuaService.tambahOrangTua(idAdmin, orangTua);
+            return ResponseEntity.status(201).body(orangTuaBaru);
+        } catch (Exception e) {
+            log.error("Error adding OrangTua for Admin id: {} - {}", idAdmin, e.getMessage());
+            return ResponseEntity.status(500).body("Error adding OrangTua.");
+        }
     }
 
     @PutMapping("/editOrtuById/{id}/{idAdmin}")
-    public ResponseEntity<OrangTua> editOrangTua(@PathVariable("id") Long id,
-                                                 @PathVariable("idAdmin") Long idAdmin,
-                                                 @RequestBody OrangTua orangTua) {
-        OrangTua updateOrangtua = orangTuaService.editOrangTuaById(id, idAdmin, orangTua);
-        return ResponseEntity.ok(updateOrangtua);
+    public ResponseEntity<?> editOrangTua(@PathVariable Long id, @PathVariable Long idAdmin, @RequestBody OrangTua orangTua) {
+        try {
+            log.info("Editing OrangTua with id: {}, Admin id: {}", id, idAdmin);
+            OrangTua updatedOrangtua = orangTuaService.editOrangTuaById(id, idAdmin, orangTua);
+            return ResponseEntity.ok(updatedOrangtua);
+        } catch (Exception e) {
+            log.error("Error editing OrangTua with id: {}, Admin id: {} - {}", id, idAdmin, e.getMessage());
+            return ResponseEntity.status(500).body("Error updating OrangTua.");
+        }
     }
 
-
     @PutMapping(path = "/edit-password/{id}")
-    public CommonResponse<OrangTua> putPassword(@RequestBody PasswordDTO password, @PathVariable Long id ) {
-        return ResponseHelper.ok(orangTuaService.putPasswordOrangTua(password , id));
+    public CommonResponse<OrangTua> putPassword(@RequestBody PasswordDTO password, @PathVariable Long id) {
+        try {
+            log.info("Memproses perubahan password untuk idOrangTua: {}", id);
+            OrangTua updatedOrangTua = orangTuaService.putPasswordOrangTua(password, id);
+            log.info("Password berhasil diperbarui untuk idOrangTua: {}", id);
+            return ResponseHelper.ok(updatedOrangTua);
+        } catch (Exception e) {
+            log.error("Terjadi kesalahan saat memperbarui password untuk idOrangTua: {}", id, e);
+            throw new RuntimeException("Gagal memperbarui password", e);
+        }
     }
 
     @DeleteMapping("/deleteOrangTua/{id}")
-    public ResponseEntity<Void> deleteOrangTua(@PathVariable Long id) throws IOException {
-        orangTuaService.deleteOrangTua(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteOrangTua(@PathVariable Long id) {
+        try {
+            log.info("Deleting OrangTua with id: {}", id);
+            orangTuaService.deleteOrangTua(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Error deleting OrangTua with id: {} - {}", id, e.getMessage());
+            return ResponseEntity.status(500).body("Error deleting OrangTua.");
+        }
     }
 
     @PutMapping("/orang-tua/ubah-foto/{id}")
-    public ResponseEntity<?>EditFotoOrangTua(@PathVariable Long id , @RequestPart MultipartFile image  ){
+    public ResponseEntity<?> editFotoOrangTua(@PathVariable Long id, @RequestPart MultipartFile image) {
         try {
-            OrangTua updateOrangTua = orangTuaService.uploadImage(id, image );
-            return new ResponseEntity<>(updateOrangTua, HttpStatus.OK);
+            log.info("Updating photo for OrangTua id: {}", id);
+            OrangTua updatedOrangTua = orangTuaService.uploadImage(id, image);
+            return ResponseEntity.ok(updatedOrangTua);
         } catch (IOException e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("IO error updating photo for OrangTua id: {} - {}", id, e.getMessage());
+            return ResponseEntity.status(500).body("File processing error.");
         } catch (NotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            log.error("OrangTua not found for id: {}", id);
+            return ResponseEntity.status(404).body("OrangTua not found.");
         }
     }
 
     @PutMapping("/edit-email-username/{id}")
     public ResponseEntity<OrangTua> editemailusername(@PathVariable Long id, @RequestBody OrangTua updateOrangTua) {
-        OrangTua orangTua = orangTuaImpl.ubahUsernamedanemail(id , updateOrangTua );
-        return new ResponseEntity<>(orangTua, HttpStatus.OK);
+        try {
+            log.info("Memproses perubahan email dan username untuk idOrangTua: {}", id);
+            OrangTua orangTua = orangTuaImpl.ubahUsernamedanemail(id, updateOrangTua);
+            log.info("Email dan username berhasil diperbarui untuk idOrangTua: {}", id);
+            return ResponseEntity.ok(orangTua);
+        } catch (Exception e) {
+            log.error("Terjadi kesalahan saat memperbarui email dan username untuk idOrangTua: {}", id, e);
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
-
     @GetMapping("/export/data-orang-tua/{idAdmin}")
-    public void exportOrangTua(@PathVariable Long idAdmin,HttpServletResponse response) throws IOException {
-        excelOrtu.excelOrangTua(idAdmin, response);
+    public void exportOrangTua(@PathVariable Long idAdmin, HttpServletResponse response) {
+        try {
+            log.info("Memulai proses ekspor data Orang Tua untuk idAdmin: {}", idAdmin);
+            excelOrtu.excelOrangTua(idAdmin, response);
+            log.info("Ekspor data Orang Tua berhasil untuk idAdmin: {}", idAdmin);
+        } catch (IOException e) {
+            log.error("Gagal mengekspor data Orang Tua untuk idAdmin: {}", idAdmin, e);
+        }
     }
 
     @GetMapping("/download/template-orang-tua")
-    public void templateExcelWaliMurid(HttpServletResponse response) throws IOException {
-        excelOrtu.templateExcelWaliMurid(response);
+    public void templateExcelWaliMurid(HttpServletResponse response) {
+        try {
+            log.info("Memulai proses unduh template Orang Tua");
+            excelOrtu.templateExcelWaliMurid(response);
+            log.info("Template Orang Tua berhasil diunduh");
+        } catch (IOException e) {
+            log.error("Gagal mengunduh template Orang Tua", e);
+        }
     }
 
     @PostMapping("/import/data-orang-tua/{adminId}")
-    public ResponseEntity<?> importOrangTua(@RequestParam("adminId") Long adminId, @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<?> importOrangTua(@PathVariable Long adminId, @RequestPart("file") MultipartFile file) {
         try {
+            log.info("Importing OrangTua data for Admin id: {}", adminId);
             List<String> errorMessages = importOrtu.importOrangTua(adminId, file);
-
             if (!errorMessages.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
+                return ResponseEntity.status(400).body(errorMessages);
             }
-
             return ResponseEntity.ok("Successfully imported data.");
-
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing file: " + e.getMessage());
+            log.error("IO error importing data for Admin id: {} - {}", adminId, e.getMessage());
+            return ResponseEntity.status(500).body("File processing error.");
         }
     }
 
     @DeleteMapping("/delete-sementara/{id}")
-    public ResponseEntity<String> deleteSemenetara(@PathVariable Long id) {
+    public ResponseEntity<?> deleteSementara(@PathVariable Long id) {
         try {
+            log.info("Moving OrangTua id: {} to temporary delete", id);
             orangTuaService.DeleteOrtuSementara(id);
             return ResponseEntity.ok("Ortu berhasil dipindahkan ke sampah");
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ortu tidak ditemukan dengan id: " + id);
-        }
-    }
-    @PutMapping("/pemulihan-kelas/{id}")
-    public ResponseEntity<String> PemulihanOrtu(@PathVariable Long id) {
-        try {
-            orangTuaService.PemulihanDataOrtu(id);
-            return ResponseEntity.ok("Ortu berhasil Dipulihkan");
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ortu tidak ditemukan dengan id: " + id);
+            log.error("OrangTua not found for id: {}", id);
+            return ResponseEntity.status(404).body("OrangTua tidak ditemukan.");
         }
     }
 
+    @PutMapping("/pemulihan-kelas/{id}")
+    public ResponseEntity<?> pemulihanOrtu(@PathVariable Long id) {
+        try {
+            log.info("Recovering OrangTua id: {}", id);
+            orangTuaService.PemulihanDataOrtu(id);
+            return ResponseEntity.ok("Ortu berhasil Dipulihkan");
+        } catch (NotFoundException e) {
+            log.error("OrangTua not found for id: {}", id);
+            return ResponseEntity.status(404).body("OrangTua tidak ditemukan.");
+        }
+    }
 }

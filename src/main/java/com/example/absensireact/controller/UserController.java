@@ -139,12 +139,22 @@ public class UserController {
         }
     }
 
+//    @PutMapping("/user/edit-email-username")
+//    public ResponseEntity<UserModel> editemailusername(@RequestBody String token, @RequestBody UserModel updateUser) {
+//        Long userId = jwtTokenUtil.getIdFromToken(token);
+//        UserModel user = userImpl.ubahUsernamedanemail(userId , updateUser );
+//        return new ResponseEntity<>(user, HttpStatus.OK);
+//    }
+
     @PutMapping("/user/edit-email-username")
-    public ResponseEntity<UserModel> editemailusername(@RequestBody String token, @RequestBody UserModel updateUser) {
+    public ResponseEntity<UserModel> editemailusername(
+            @RequestParam String token,
+            @RequestBody UserModel updateUser) {
         Long userId = jwtTokenUtil.getIdFromToken(token);
-        UserModel user = userImpl.ubahUsernamedanemail(userId , updateUser );
+        UserModel user = userImpl.ubahUsernamedanemail(userId, updateUser);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
 
     @GetMapping("/user/get-allUser")
     public ResponseEntity<List<UserModel>> getAllUser() {

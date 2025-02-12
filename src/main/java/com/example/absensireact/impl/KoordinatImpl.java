@@ -4,6 +4,8 @@ import com.example.absensireact.exception.NotFoundException;
 import com.example.absensireact.model.Organisasi;
 import com.example.absensireact.repository.KoordinatRepository;
 import com.example.absensireact.repository.OrganisasiRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.absensireact.model.Koordinat;
 import org.springframework.stereotype.Service;
@@ -17,102 +19,83 @@ public class KoordinatImpl {
     @Autowired
     private KoordinatRepository koordinatRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(KoordinatImpl.class);
+
     @Autowired
     private OrganisasiRepository organisasiRepository;
     public List<Koordinat> getAllKoordinat() {
-        return koordinatRepository.findAll();
+        try {
+            logger.info("Mengambil semua data koordinat");
+            return koordinatRepository.findAll();
+        } catch (Exception e) {
+            logger.error("Gagal mengambil data koordinat: {}", e.getMessage());
+            throw new RuntimeException("Terjadi kesalahan saat mengambil data koordinat", e);
+        }
     }
 
     public Optional<Koordinat> getKoordinatById(Long id) {
-        return koordinatRepository.findById(id);
+        try {
+            logger.info("Mengambil koordinat dengan ID: {}", id);
+            return koordinatRepository.findById(id);
+        } catch (Exception e) {
+            logger.error("Gagal mengambil koordinat dengan ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Terjadi kesalahan saat mengambil koordinat", e);
+        }
     }
-
-
 
     public Koordinat tambahKoordinat(Long idOrganisasi, Koordinat koordinat) {
-        // Validasi jika organisasi dengan id yang diberikan tidak ditemukan
-        Organisasi organisasiValidate = organisasiRepository.findById(idOrganisasi)
-                .orElseThrow(() -> new NotFoundException("Id organisasi tidak ditemukan: " + idOrganisasi));
+        try {
+            logger.info("Menambahkan koordinat untuk organisasi dengan ID: {}", idOrganisasi);
 
-        koordinat.setSouthEastLat(koordinat.getSouthEastLat());
-        koordinat.setSouthEastLng(koordinat.getSouthEastLng());
-        koordinat.setSouthWestLat(koordinat.getSouthWestLat());
-        koordinat.setSouthWestLng(koordinat.getSouthWestLng());
-        koordinat.setNorthEastLat(koordinat.getNorthEastLat());
-        koordinat.setNorthEastLng(koordinat.getNorthEastLng());
-        koordinat.setNorthWestLat(koordinat.getNorthWestLat());
-        koordinat.setNorthWestLng(koordinat.getNorthWestLng());
+            Organisasi organisasiValidate = organisasiRepository.findById(idOrganisasi)
+                    .orElseThrow(() -> new NotFoundException("Id organisasi tidak ditemukan: " + idOrganisasi));
 
-        koordinat.setOrganisasi(organisasiValidate);
+            koordinat.setOrganisasi(organisasiValidate);
 
-        return koordinatRepository.save(koordinat);
+            Koordinat savedKoordinat = koordinatRepository.save(koordinat);
+            logger.info("Koordinat berhasil ditambahkan dengan ID: {}", savedKoordinat.getId());
+
+            return savedKoordinat;
+        } catch (Exception e) {
+            logger.error("Gagal menambahkan koordinat untuk organisasi dengan ID {}: {}", idOrganisasi, e.getMessage());
+            throw new RuntimeException("Terjadi kesalahan saat menambahkan koordinat", e);
+        }
     }
 
-    public Koordinat updateKoordinat(Long id , Koordinat koordinat2) {
-        Koordinat koordinat = koordinatRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Id koordinat tidak ditemukan: " + id));
+    public Koordinat updateKoordinat(Long id, Koordinat koordinat2) {
+        try {
+            logger.info("Memperbarui koordinat dengan ID: {}", id);
 
-        koordinat.setSouthEastLat(koordinat2.getSouthEastLat());
-        koordinat.setSouthEastLng(koordinat2.getSouthEastLng());
-        koordinat.setSouthWestLat(koordinat2.getSouthWestLat());
-        koordinat.setSouthWestLng(koordinat2.getSouthWestLng());
-        koordinat.setNorthEastLat(koordinat2.getNorthEastLat());
-        koordinat.setNorthEastLng(koordinat2.getNorthEastLng());
-        koordinat.setNorthWestLat(koordinat2.getNorthWestLat());
-        koordinat.setNorthWestLng(koordinat2.getNorthWestLng());
+            Koordinat koordinat = koordinatRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Id koordinat tidak ditemukan: " + id));
 
+            koordinat.setSouthEastLat(koordinat2.getSouthEastLat());
+            koordinat.setSouthEastLng(koordinat2.getSouthEastLng());
+            koordinat.setSouthWestLat(koordinat2.getSouthWestLat());
+            koordinat.setSouthWestLng(koordinat2.getSouthWestLng());
+            koordinat.setNorthEastLat(koordinat2.getNorthEastLat());
+            koordinat.setNorthEastLng(koordinat2.getNorthEastLng());
+            koordinat.setNorthWestLat(koordinat2.getNorthWestLat());
+            koordinat.setNorthWestLng(koordinat2.getNorthWestLng());
 
-        return koordinatRepository.save(koordinat);
+            Koordinat updatedKoordinat = koordinatRepository.save(koordinat);
+            logger.info("Koordinat dengan ID {} berhasil diperbarui", id);
+
+            return updatedKoordinat;
+        } catch (Exception e) {
+            logger.error("Gagal memperbarui koordinat dengan ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Terjadi kesalahan saat memperbarui koordinat", e);
+        }
     }
-
-//    public Koordinat updateKoordinat(Long id, Koordinat updatedKoordinat) {
-//        return koordinatRepository.findById(id).map(koordinat -> {
-//            validateKoordinat(updatedKoordinat);
-//            koordinat.setSouthEastLat(updatedKoordinat.getSouthEastLat());
-//            koordinat.setSouthEastLng(updatedKoordinat.getSouthEastLng());
-//            koordinat.setSouthWestLat(updatedKoordinat.getSouthWestLat());
-//            koordinat.setSouthWestLng(updatedKoordinat.getSouthWestLng());
-//            koordinat.setNorthEastLat(updatedKoordinat.getNorthEastLat());
-//            koordinat.setNorthEastLng(updatedKoordinat.getNorthEastLng());
-//            koordinat.setNorthWestLat(updatedKoordinat.getNorthWestLat());
-//            koordinat.setNorthWestLng(updatedKoordinat.getNorthWestLng());
-//            koordinat.setOrganisasi(updatedKoordinat.getOrganisasi());
-//            return koordinatRepository.save(koordinat);
-//        }).orElseThrow(() -> new RuntimeException("Koordinat not found with id " + id));
-//    }
-
-//    private void validateKoordinat(Koordinat koordinat) {
-//        try {
-//            double southWestLat = Double.parseDouble(koordinat.getSouthWestLat());
-//            double southWestLng = Double.parseDouble(koordinat.getSouthWestLng());
-//            double northWestLat = Double.parseDouble(koordinat.getNorthWestLat());
-//            double northWestLng = Double.parseDouble(koordinat.getNorthWestLng());
-//            double southEastLat = Double.parseDouble(koordinat.getSouthEastLat());
-//            double southEastLng = Double.parseDouble(koordinat.getSouthEastLng());
-//            double northEastLat = Double.parseDouble(koordinat.getNorthEastLat());
-//            double northEastLng = Double.parseDouble(koordinat.getNorthEastLng());
-//
-//            if (southWestLat >= northWestLat || southWestLng >= southEastLng) {
-//                throw new IllegalArgumentException("Koordinat Southwest tidak valid.");
-//            }
-//
-//            if (northWestLat <= southWestLat || northWestLng >= northEastLng) {
-//                throw new IllegalArgumentException("Koordinat Northwest tidak valid.");
-//            }
-//
-//            if (southEastLat >= northEastLat || southEastLng <= southWestLng) {
-//                throw new IllegalArgumentException("Koordinat Southeast tidak valid.");
-//            }
-//
-//            if (northEastLat <= southEastLat || northEastLng <= northWestLng) {
-//                throw new IllegalArgumentException("Koordinat Northeast tidak valid.");
-//            }
-//        } catch (NumberFormatException e) {
-//            throw new IllegalArgumentException("Nilai koordinat harus berupa angka yang valid.", e);
-//        }
-//    }
 
     public void deleteKoordinat(Long id) {
-        koordinatRepository.deleteById(id);
+        try {
+            logger.info("Menghapus koordinat dengan ID: {}", id);
+            koordinatRepository.deleteById(id);
+            logger.info("Koordinat dengan ID {} berhasil dihapus", id);
+        } catch (Exception e) {
+            logger.error("Gagal menghapus koordinat dengan ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Terjadi kesalahan saat menghapus koordinat", e);
+        }
     }
 }

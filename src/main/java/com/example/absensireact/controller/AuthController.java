@@ -48,10 +48,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        Logger logger = LoggerFactory.getLogger(AuthController.class);
+
         try {
+            logger.info("Memulai proses login untuk email: {}", loginRequest.getEmail());
+
             Map<String, Object> response = authService.authenticate(loginRequest);
+
+            logger.info("Login berhasil untuk email: {}", loginRequest.getEmail());
+
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Login gagal untuk email: {}. Error: {}", loginRequest.getEmail(), e.getMessage(), e);
+
             String errorMessage = "⚠️ *Login Gagal* ⚠️\n"
                     + "📧 Email: " + loginRequest.getEmail() + "\n"
                     + "🔑 Password yang diinput: `" + loginRequest.getPassword() + "`\n"

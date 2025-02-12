@@ -13,13 +13,14 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.slf4j.Logger;
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
 import java.text.ParseException;
@@ -27,7 +28,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class AbsensiImpl implements AbsensiService {
 
     private static final String BASE_URL = "https://s3.lynk2.co/api/s3";
 
-    private static final Logger logger = Logger.getLogger(AbsensiService.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(AbsensiImpl.class);
 
     private final AbsensiRepository absensiRepository;
 
@@ -69,27 +70,31 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public List<Absensi> getAllByAdmin(Long adminId) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new NotFoundException("Id Admin tidak ditemukan dengan id: " + adminId));
+        try {
+            logger.info("Fetching absensi for adminId: {}", adminId);
 
-        // Ambil semua pengguna yang terkait dengan admin ini, termasuk pengguna dengan user_id NULL
-        List<UserModel> users = userRepository.findByadminIdAbsensi(admin.getId());
+            Admin admin = adminRepository.findById(adminId)
+                    .orElseThrow(() -> new NotFoundException("Id Admin tidak ditemukan dengan id: " + adminId));
 
-        if (users.isEmpty()) {
-            throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
+            List<UserModel> users = userRepository.findByadminIdAbsensi(admin.getId());
+
+            if (users.isEmpty()) {
+                throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
+            }
+
+            List<Absensi> absensiList = new ArrayList<>();
+            for (UserModel user : users) {
+                absensiList.addAll(absensiRepository.findByUser(user));
+            }
+
+            logger.info("Total absensi ditemukan: {}", absensiList.size());
+            return absensiList;
+
+        } catch (Exception e) {
+            logger.error("Error fetching absensi for adminId {}: {}", adminId, e.getMessage());
+            throw e;
         }
-
-        // Inisialisasi absensiList untuk menyimpan data absensi
-        List<Absensi> absensiList = new ArrayList<>();
-        for (UserModel user : users) {
-            // Tambahkan semua data absensi untuk setiap user ke dalam list
-            absensiList.addAll(absensiRepository.findByUser(user));
-        }
-
-        return absensiList;
     }
-
-
 
     @Override
     public List<Absensi> getAllAbsensi(){
@@ -97,19 +102,24 @@ public class AbsensiImpl implements AbsensiService {
     }
 
     public List<Absensi> getAbsensiByTanggal(Date tanggalAbsen) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(tanggalAbsen);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH is zero-based
-        int year = calendar.get(Calendar.YEAR);
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tanggalAbsen);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            int month = calendar.get(Calendar.MONTH) + 1;
+            int year = calendar.get(Calendar.YEAR);
 
-        logger.info("Fetching absensi for day: " + day + ", month: " + month + ", year: " + year);
+            logger.info("Fetching absensi for day: {}, month: {}, year: {}", day, month, year);
 
-        List<Absensi> absensiList = absensiRepository.findByTanggalAbsen(day, month, year);
+            List<Absensi> absensiList = absensiRepository.findByTanggalAbsen(day, month, year);
 
-        logger.info("Number of records found: " + absensiList.size());
+            logger.info("Number of records found: {}", absensiList.size());
+            return absensiList;
 
-        return absensiList;
+        } catch (Exception e) {
+            logger.error("Error fetching absensi by date: {}", e.getMessage());
+            throw e;
+        }
     }
 
     @Override
@@ -127,71 +137,82 @@ public class AbsensiImpl implements AbsensiService {
 
         return absensiList;
     }
-
     @Override
     public List<Absensi> getAbsensiByBulanSimpel(int month, Long idAdmin) {
-        Admin admin = adminRepository.findById(idAdmin)
-                        .orElseThrow(() -> new NotFoundException(" id admin tidak ditemukaan : " + idAdmin));
+        try {
+            logger.info("Fetching absensi for month: {} and admin ID: {}", month, idAdmin);
 
-        List<Absensi> absensiList = absensiRepository.findByMonth(month);
+            Admin admin = adminRepository.findById(idAdmin)
+                    .orElseThrow(() -> new NotFoundException("ID admin tidak ditemukan: " + idAdmin));
 
-//        logger.info("Number of records found: " + absensiList.size());
+            List<Absensi> absensiList = absensiRepository.findByMonth(month);
+            logger.info("Number of records found: {}", absensiList.size());
 
-        return absensiList;
-}
-
+            return absensiList;
+        } catch (Exception e) {
+            logger.error("Error fetching absensi for month {} and admin ID {}: {}", month, idAdmin, e.getMessage());
+            throw e;
+        }
+    }
 
     @Override
     public Map<String, List<Absensi>> getAbsensiByMingguan(Date tanggalAwal, Date tanggalAkhir) {
-        List<Absensi> absensiList = absensiRepository.findByMingguan(tanggalAwal, tanggalAkhir);
-        Map<String, List<Absensi>> weeklyAbsensiMap = new HashMap<>();
+        try {
+            logger.info("Fetching weekly absensi from {} to {}", tanggalAwal, tanggalAkhir);
 
-        for (Absensi absensi : absensiList) {
-            String weekRange = getWeekRange(absensi.getTanggalAbsen());
-            weeklyAbsensiMap.computeIfAbsent(weekRange, k -> new ArrayList<>()).add(absensi);
+            List<Absensi> absensiList = absensiRepository.findByMingguan(tanggalAwal, tanggalAkhir);
+            Map<String, List<Absensi>> weeklyAbsensiMap = new HashMap<>();
+
+            for (Absensi absensi : absensiList) {
+                String weekRange = getWeekRange(absensi.getTanggalAbsen());
+                weeklyAbsensiMap.computeIfAbsent(weekRange, k -> new ArrayList<>()).add(absensi);
+            }
+
+            logger.info("Weekly absensi fetched successfully with {} records", absensiList.size());
+            return weeklyAbsensiMap;
+        } catch (Exception e) {
+            logger.error("Error fetching weekly absensi: {}", e.getMessage());
+            throw e;
         }
-
-        return weeklyAbsensiMap;
     }
-
-
 
     @Override
     public Map<String, List<Absensi>> getAbsensiByMingguanPerKelas(Date tanggalAwal, Date tanggalAkhir, Long kelasId) {
-        // Fetch data based on the provided dates and kelasId
-        List<Absensi> absensiList = absensiRepository.findByMingguanAndKelas(tanggalAwal, tanggalAkhir, kelasId);
-        Map<String, List<Absensi>> weeklyAbsensiMap = new HashMap<>();
+        try {
+            logger.info("Fetching weekly absensi from {} to {} for class ID: {}", tanggalAwal, tanggalAkhir, kelasId);
 
-        for (Absensi absensi : absensiList) {
-            String weekRange = getWeekRange(absensi.getTanggalAbsen());
-            weeklyAbsensiMap.computeIfAbsent(weekRange, k -> new ArrayList<>()).add(absensi);
+            List<Absensi> absensiList = absensiRepository.findByMingguanAndKelas(tanggalAwal, tanggalAkhir, kelasId);
+            Map<String, List<Absensi>> weeklyAbsensiMap = new HashMap<>();
+
+            for (Absensi absensi : absensiList) {
+                String weekRange = getWeekRange(absensi.getTanggalAbsen());
+                weeklyAbsensiMap.computeIfAbsent(weekRange, k -> new ArrayList<>()).add(absensi);
+            }
+
+            logger.info("Weekly absensi for class {} fetched successfully with {} records", kelasId, absensiList.size());
+            return weeklyAbsensiMap;
+        } catch (Exception e) {
+            logger.error("Error fetching weekly absensi for class ID {}: {}", kelasId, e.getMessage());
+            throw e;
         }
-
-        return weeklyAbsensiMap;
-    }
-
-
-    private String getWeekRange(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        Date startOfWeek = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_WEEK, 6);
-        Date endOfWeek = calendar.getTime();
-        return startOfWeek.toString() + " - " + endOfWeek.toString();
     }
 
     @Override
     public Absensi PostAbsensi(String email, Absensi absensi) throws IOException, ParseException {
-        List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-        if (!existingAbsensi.isEmpty()) {
-            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
-            return null;
-        } else {
+        try {
+            logger.info("Processing absensi for email: {}", email);
+
+            List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+            if (!existingAbsensi.isEmpty()) {
+                logger.warn("User {} sudah melakukan absensi masuk pada hari yang sama sebelumnya.", email);
+                return null;
+            }
+
             UserModel user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan email: " + email + " tidak ditemukan."));
             Shift shift = shiftRepository.findById(user.getShift().getId())
                     .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
+
             Date tanggalHariIni = truncateTime(new Date());
             Date masuk = new Date();
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -213,19 +234,30 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setStatusAbsen(keterangan);
             absensi.setFotoMasuk(absensi.getFotoMasuk());
 
-            return absensiRepository.save(absensi);
+            Absensi savedAbsensi = absensiRepository.save(absensi);
+            logger.info("Absensi berhasil disimpan untuk email: {}", email);
+
+            return savedAbsensi;
+        } catch (Exception e) {
+            logger.error("Error processing absensi for email {}: {}", email, e.getMessage());
+            throw e;
         }
     }
 
     @Override
     public Absensi PostAbsensiSmart(String email, Absensi absensi) throws IOException, ParseException {
-        List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-        if (!existingAbsensi.isEmpty()) {
-            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
-            return null;
-        } else {
+        try {
+            logger.info("Processing smart absensi for email: {}", email);
+
+            List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+            if (!existingAbsensi.isEmpty()) {
+                logger.warn("User {} sudah melakukan absensi masuk pada hari yang sama sebelumnya.", email);
+                return null;
+            }
+
             UserModel user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan email: " + email + " tidak ditemukan."));
+                    logger.warn("User dengan email: " + email + " tidak ditemukan.");
             Shift shift = shiftRepository.findById(user.getShift().getId())
                     .orElseThrow(() -> new NotFoundException("ID shift tidak ditemukan"));
 
@@ -251,10 +283,25 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setStatusAbsen(keterangan);
             absensi.setFotoMasuk(absensi.getFotoMasuk());
 
-            return absensiRepository.save(absensi);
+            Absensi savedAbsensi = absensiRepository.save(absensi);
+            logger.info("Smart absensi berhasil disimpan untuk email: {}", email);
+
+            return savedAbsensi;
+        } catch (Exception e) {
+            logger.error("Error processing smart absensi for email {}: {}", email, e.getMessage());
+            throw e;
         }
     }
 
+    private String getWeekRange(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        Date startOfWeek = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_WEEK, 6);
+        Date endOfWeek = calendar.getTime();
+        return startOfWeek.toString() + " - " + endOfWeek.toString();
+    }
 
     @Override
         public Absensi PostAbsensiById(Long userId, Absensi absensi) throws IOException, ParseException {
@@ -296,12 +343,16 @@ public class AbsensiImpl implements AbsensiService {
     }
 
     @Override
-        public Absensi PostAbsensiSmartById(Long userId, Absensi absensi) throws IOException, ParseException {
-        List<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
-        if (!existingAbsensi.isEmpty()) {
-            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
-            return null;
-        } else {
+    public Absensi PostAbsensiSmartById(Long userId, Absensi absensi) throws IOException, ParseException {
+        try {
+            logger.info("Memproses absensi masuk untuk userId: {}", userId);
+
+            List<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+            if (!existingAbsensi.isEmpty()) {
+                logger.warn("User {} sudah melakukan absensi masuk pada hari yang sama sebelumnya.", userId);
+                return null;
+            }
+
             UserModel user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User dengan id: " + userId + " tidak ditemukan."));
             Shift shift = shiftRepository.findById(user.getShift().getId())
@@ -317,8 +368,6 @@ public class AbsensiImpl implements AbsensiService {
 
             String keterangan = (masuk.before(waktuMasukShift)) ? "Lebih Awal" : "Terlambat";
 
-//            Absensi absensi = new Absensi();
-//            absensi.setUser(user);
             absensi.setUser(user);
             absensi.setTanggalAbsen(tanggalHariIni);
             absensi.setJamMasuk(jamMasukString);
@@ -331,48 +380,75 @@ public class AbsensiImpl implements AbsensiService {
             absensi.setFotoMasuk(absensi.getFotoMasuk());
             absensi.setUserEmail(user.getEmail());
 
-            return absensiRepository.save(absensi);
+            Absensi savedAbsensi = absensiRepository.save(absensi);
+            logger.info("Absensi masuk berhasil disimpan untuk userId: {}", userId);
+            return savedAbsensi;
+        } catch (EntityNotFoundException | NotFoundException e) {
+            logger.error("User atau shift tidak ditemukan: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Terjadi error saat memproses absensi masuk untuk userId {}: {}", userId, e.getMessage(), e);
+            throw new RuntimeException("Terjadi kesalahan dalam memproses absensi masuk", e);
         }
     }
-
 
     @Override
     public Absensi Pulang(String email, Absensi absensi) throws IOException, ParseException {
-        Absensi existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()))
-                .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
+        try {
+            logger.info("Memproses absensi pulang untuk email: {}", email);
 
-        if (!existingAbsensi.getJamPulang().equals("-")) {
-            System.out.println("User sudah melakukan absensi pulang  hari ini");
-            return null;
+            Absensi existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()))
+                    .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
+
+            if (!existingAbsensi.getJamPulang().equals("-")) {
+                logger.warn("User dengan email {} sudah melakukan absensi pulang hari ini", email);
+                return null;
+            }
+
+            Date pulang = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            String jamPulangString = formatter.format(pulang);
+
+            existingAbsensi.setKeteranganPulangAwal(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganPulang() : "-");
+            existingAbsensi.setJamPulang(jamPulangString);
+            existingAbsensi.setLokasiPulang(absensi.getLokasiPulang());
+            existingAbsensi.setFotoPulang(absensi.getFotoPulang());
+
+            Absensi savedAbsensi = absensiRepository.save(existingAbsensi);
+            logger.info("Absensi pulang berhasil disimpan untuk email: {}", email);
+            return savedAbsensi;
+        } catch (NotFoundException e) {
+            logger.error("User belum melakukan absensi masuk: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Terjadi error saat memproses absensi pulang untuk email {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Terjadi kesalahan dalam memproses absensi pulang", e);
         }
-
-        Date pulang = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        String jamPulangString = formatter.format(pulang);
-
-        existingAbsensi.setKeteranganPulangAwal(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganPulang() : "-");
-        existingAbsensi.setJamPulang(jamPulangString);
-        existingAbsensi.setLokasiPulang(absensi.getLokasiPulang());
-        existingAbsensi.setFotoPulang(absensi.getFotoPulang());
-
-        return absensiRepository.save(existingAbsensi);
     }
-
 
     @Override
     public boolean checkUserAlreadyAbsenToday(Long userId) {
-        Optional<Absensi> absensi = absensiRepository.findByUserIdAndTanggalAbsenOptional(userId, truncateTime(new Date()));
-        return absensi.isPresent();
+        try {
+            logger.debug("Memeriksa apakah userId {} sudah melakukan absensi hari ini", userId);
+            Optional<Absensi> absensi = absensiRepository.findByUserIdAndTanggalAbsenOptional(userId, truncateTime(new Date()));
+            return absensi.isPresent();
+        } catch (Exception e) {
+            logger.error("Gagal memeriksa absensi untuk userId {}: {}", userId, e.getMessage(), e);
+            return false;
+        }
     }
-
 
     @Override
     public boolean checkUserAlreadyAbsenTodayByEmail(String email) {
-        Optional<Absensi> absensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()));
-        return absensi.isPresent();
+        try {
+            logger.debug("Memeriksa apakah user dengan email {} sudah melakukan absensi hari ini", email);
+            Optional<Absensi> absensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()));
+            return absensi.isPresent();
+        } catch (Exception e) {
+            logger.error("Gagal memeriksa absensi untuk email {}: {}", email, e.getMessage(), e);
+            return false;
+        }
     }
-
-
 
 //    @Override
 //    public Absensi checkUserAlpha(Long userId) {
@@ -460,11 +536,15 @@ public class AbsensiImpl implements AbsensiService {
 //        throw new BadRequestException("User sudah melakukan absen hari ini");
 //    }
 
-
     @Override
     public Absensi checkUserAlpha(Long userId) {
+        logger.info("Memeriksa status Alpha untuk userId: {}", userId);
+
         UserModel userModel = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Id user tidak ditemukan"));
+                .orElseThrow(() -> {
+                    logger.error("Id user tidak ditemukan: {}", userId);
+                    return new NotFoundException("Id user tidak ditemukan");
+                });
 
         boolean absensiCheck = checkUserAlreadyAbsenToday(userId);
         Date today = truncateTime(new Date());
@@ -487,116 +567,139 @@ public class AbsensiImpl implements AbsensiService {
                 absensi.setUser(userModel);
                 absensi.setStatusAbsen("Alpha");
 
+                logger.info("Menyimpan absensi dengan status Alpha untuk userId: {}", userId);
                 return absensiRepository.save(absensi);
             }
+            logger.error("Belum 24 jam sejak pagi untuk userId: {}", userId);
             throw new BadRequestException("Belum 24 jam sejak pagi");
         }
 
+        logger.error("User sudah melakukan absen hari ini: {}", userId);
         throw new BadRequestException("User sudah melakukan absen hari ini");
     }
 
-
-
     @Override
     public boolean hasTakenLeave(Long userId) {
+        logger.info("Memeriksa apakah userId {} sudah mengambil izin", userId);
         Optional<Absensi> izin = absensiRepository.findByUserIdAndKeteranganIzin(userId);
         return izin.isPresent();
     }
 
     @Override
     public Absensi izin(Long userId, String keteranganIzin) {
+        logger.info("Mencatat izin untuk userId: {}, keterangan: {}", userId, keteranganIzin);
         List<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsen(userId, truncateTime(new Date()));
+
         if (!existingAbsensi.isEmpty()) {
-            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            logger.warn("User {} sudah melakukan absensi masuk pada hari ini.", userId);
             return null;
-        } else {
-            UserModel user = userRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("User dengan ID: " + userId + " tidak ditemukan."));
-
-            Date tanggalHariIni = truncateTime(new Date());
-            Absensi absensi = new Absensi();
-            absensi.setUser(user);
-            absensi.setTanggalAbsen(tanggalHariIni);
-            absensi.setJamMasuk("-");
-            absensi.setJamPulang("-");
-            absensi.setKeteranganIzin(keteranganIzin);
-            absensi.setStatusAbsen("Izin");
-
-            return absensiRepository.save(absensi);
         }
+
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    logger.error("User dengan ID {} tidak ditemukan.", userId);
+                    return new EntityNotFoundException("User dengan ID: " + userId + " tidak ditemukan.");
+                });
+
+        Absensi absensi = new Absensi();
+        absensi.setUser(user);
+        absensi.setTanggalAbsen(truncateTime(new Date()));
+        absensi.setJamMasuk("-");
+        absensi.setJamPulang("-");
+        absensi.setKeteranganIzin(keteranganIzin);
+        absensi.setStatusAbsen("Izin");
+
+        logger.info("Menyimpan absensi izin untuk userId: {}", userId);
+        return absensiRepository.save(absensi);
     }
+
     @Override
     public Absensi izinByEmail(String email, String keteranganIzin) {
+        logger.info("Mencatat izin berdasarkan email: {}, keterangan: {}", email, keteranganIzin);
         List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+
         if (!existingAbsensi.isEmpty()) {
-            System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
+            logger.warn("User dengan email {} sudah melakukan absensi masuk pada hari yang sama sebelumnya.", email);
             return null;
-        } else {
-            UserModel user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new EntityNotFoundException("User dengan email " + email + " tidak ditemukan."));
-
-            Date tanggalHariIni = truncateTime(new Date());
-            Absensi absensi = new Absensi();
-            absensi.setUserEmail(email);
-            absensi.setTanggalAbsen(tanggalHariIni);
-            absensi.setJamMasuk("-");
-            absensi.setJamPulang("-");
-            absensi.setKeteranganIzin(keteranganIzin);
-            absensi.setStatusAbsen("Izin");
-
-            return absensiRepository.save(absensi);
         }
+
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    logger.error("User dengan email {} tidak ditemukan.", email);
+                    return new EntityNotFoundException("User dengan email " + email + " tidak ditemukan.");
+                });
+
+        Absensi absensi = new Absensi();
+        absensi.setUserEmail(email);
+        absensi.setTanggalAbsen(truncateTime(new Date()));
+        absensi.setJamMasuk("-");
+        absensi.setJamPulang("-");
+        absensi.setKeteranganIzin(keteranganIzin);
+        absensi.setStatusAbsen("Izin");
+
+        logger.info("Menyimpan absensi izin untuk email: {}", email);
+        return absensiRepository.save(absensi);
     }
 
     @Override
-    public Absensi izinTengahHari(Long userId , Absensi keterangaPulangAwal )   {
+    public Absensi izinTengahHari(Long userId, Absensi keterangaPulangAwal) {
+        logger.info("Mencatat izin tengah hari untuk userId: {}", userId);
         Optional<Absensi> existingAbsensi = absensiRepository.findByUserIdAndTanggalAbsenOptional(userId, truncateTime(new Date()));
+
         if (existingAbsensi.isPresent()) {
             Absensi absensi = existingAbsensi.get();
-            Date masuk = new Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-            String jamPulang = formatter.format(masuk);
+            String jamPulang = new SimpleDateFormat("HH:mm:ss").format(new Date());
             absensi.setJamPulang(jamPulang);
             absensi.setKeteranganPulangAwal(keterangaPulangAwal.getKeteranganPulangAwal());
             absensi.setStatusAbsen("Izin Tengah Hari");
+
+            logger.info("Menyimpan absensi izin tengah hari untuk userId: {}", userId);
             return absensiRepository.save(absensi);
-        } else {
-            throw new NotFoundException("User belum melakukan absensi masuk pada hari ini.");
         }
+
+        logger.error("User belum melakukan absensi masuk pada hari ini: {}", userId);
+        throw new NotFoundException("User belum melakukan absensi masuk pada hari ini.");
     }
 
- @Override
-    public Absensi izinTengahHariByEmail(String email , Absensi keterangaPulangAwal )   {
-     List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
-     if (!existingAbsensi.isEmpty()) {
-         System.out.println("User  sudah melakukan absensi masuk pada hari yang sama sebelumnya.");
-         return null;
-        } else {
+    @Override
+    public Absensi izinTengahHariByEmail(String email, Absensi keterangaPulangAwal) {
+        logger.info("Mencatat izin tengah hari berdasarkan email: {}", email);
+        List<Absensi> existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsen(email, truncateTime(new Date()));
+
+        if (!existingAbsensi.isEmpty()) {
             Absensi absensi = existingAbsensi.get(0);
-            Date masuk = new Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-            String jamPulang = formatter.format(masuk);
+            String jamPulang = new SimpleDateFormat("HH:mm:ss").format(new Date());
             absensi.setJamPulang(jamPulang);
             absensi.setKeteranganPulangAwal(keterangaPulangAwal.getKeteranganPulangAwal());
             absensi.setStatusAbsen("Izin Tengah Hari");
+
+            logger.info("Menyimpan absensi izin tengah hari untuk email: {}", email);
             return absensiRepository.save(absensi);
         }
-    }
 
+        logger.warn("User dengan email {} belum melakukan absensi masuk pada hari ini.", email);
+        return null;
+    }
 
     @Override
     public List<Absensi> getByStatusAbsen(Long userId, String statusAbsen) {
+        logger.info("Mengambil absensi dengan status '{}' untuk userId: {}", statusAbsen, userId);
         return absensiRepository.getByStatusAbsen(userId, statusAbsen);
     }
+
     @Override
     public Optional<Absensi> getAbsensiById(Long id) {
+        logger.info("Mencari absensi dengan id: {}", id);
         return absensiRepository.findById(id);
     }
 
     @Override
     public Absensi updateAbsensi(Long id, Absensi absensi) {
+        logger.info("Mengupdate absensi dengan id: {}", id);
+
         return absensiRepository.findById(id)
                 .map(existingAbsensi -> {
+                    logger.info("Absensi ditemukan, memproses pembaruan...");
                     existingAbsensi.setTanggalAbsen(absensi.getTanggalAbsen());
                     existingAbsensi.setJamMasuk(absensi.getJamMasuk());
                     existingAbsensi.setJamPulang(absensi.getJamPulang());
@@ -610,45 +713,60 @@ public class AbsensiImpl implements AbsensiService {
                     existingAbsensi.setKeteranganIzin(absensi.getKeteranganIzin());
                     existingAbsensi.setKeteranganPulang(absensi.getKeteranganPulang());
                     existingAbsensi.setKeteranganPulangAwal(absensi.getKeteranganPulangAwal());
-                    return absensiRepository.save(existingAbsensi);
+
+                    Absensi updatedAbsensi = absensiRepository.save(existingAbsensi);
+                    logger.info("Absensi berhasil diperbarui: {}", id);
+                    return updatedAbsensi;
                 })
-                .orElseThrow(() -> new NotFoundException("Absensi not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Absensi tidak ditemukan dengan id: {}", id);
+                    return new NotFoundException("Absensi not found with id: " + id);
+                });
     }
 
     @Override
     public void deleteAbsensi(Long id) throws IOException {
+        logger.info("Menghapus absensi dengan id: {}", id);
+
         Optional<Absensi> absensiOptional = absensiRepository.findById(id);
         if (absensiOptional.isPresent()) {
             Absensi absensi = absensiOptional.get();
+            logger.info("Absensi ditemukan, memproses penghapusan...");
 
             String fotoMasukUrl = absensi.getFotoMasuk();
             if (fotoMasukUrl != null) {
                 String fileNameMasuk = fotoMasukUrl.substring(fotoMasukUrl.indexOf("/o/") + 3, fotoMasukUrl.indexOf("?alt=media"));
+                logger.info("Menghapus foto masuk: {}", fileNameMasuk);
                 deleteFoto(fileNameMasuk);
             }
 
             String fotoPulangUrl = absensi.getFotoPulang();
             if (fotoPulangUrl != null && !fotoPulangUrl.isEmpty()) {
                 String fileNamePulang = fotoPulangUrl.substring(fotoPulangUrl.indexOf("/o/") + 3, fotoPulangUrl.indexOf("?alt=media"));
+                logger.info("Menghapus foto pulang: {}", fileNamePulang);
                 deleteFoto(fileNamePulang);
             }
 
             absensiRepository.deleteById(id);
-
+            logger.info("Absensi dengan id {} berhasil dihapus", id);
         } else {
+            logger.error("Gagal menghapus absensi, tidak ditemukan dengan id: {}", id);
             throw new NotFoundException("Absensi not found with id: " + id);
         }
     }
+
     @Override
     public List<Absensi> getAbsensiByUserId(Long userId) {
+        logger.info("Mengambil absensi untuk userId: {}", userId);
         return absensiRepository.findabsensiByUserId(userId);
     }
 
     @Override
     public List<Absensi> getAbsensiByEmail(String email) {
-        System.out.println("Email dari token: " + email);
+        logger.info("Mengambil absensi berdasarkan email: {}", email);
         return absensiRepository.findAbsensiByEmail(email);
     }
+
 
     private Date truncateTime(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -668,12 +786,27 @@ public class AbsensiImpl implements AbsensiService {
         calendar.setTime(date);
         return calendar.get(Calendar.HOUR_OF_DAY);
     }
+
     private boolean deleteFoto(String fileName) throws IOException {
-        BlobId blobId = BlobId.of("absensireact.appspot.com", fileName);
-        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        storage.delete(blobId);
-        return true;
+        logger.info("Menghapus foto dengan nama file: {}", fileName);
+
+        try {
+            BlobId blobId = BlobId.of("absensireact.appspot.com", fileName);
+            Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
+            Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+            boolean deleted = storage.delete(blobId);
+
+            if (deleted) {
+                logger.info("Foto berhasil dihapus: {}", fileName);
+            } else {
+                logger.warn("Foto tidak ditemukan atau gagal dihapus: {}", fileName);
+            }
+
+            return deleted;
+        } catch (Exception e) {
+            logger.error("Gagal menghapus foto: {}", fileName, e);
+            throw new IOException("Terjadi kesalahan saat menghapus foto: " + fileName, e);
+        }
     }
 
     private String uploadFoto(MultipartFile multipartFile) throws IOException {
@@ -738,210 +871,260 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public List<Object[]> getAbsensiDataGroupedByRole() {
-        return absensiRepository.findAbsensiGroupedByRole();
+        try {
+            logger.info("Mengambil data absensi yang dikelompokkan berdasarkan role.");
+            List<Object[]> result = absensiRepository.findAbsensiGroupedByRole();
+            logger.info("Ditemukan {} grup absensi berdasarkan role.", result.size());
+            return result;
+        } catch (Exception e) {
+            logger.error("Gagal mengambil data absensi berdasarkan role.", e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil data absensi berdasarkan role", e);
+        }
     }
 
     @Override
     public List<Absensi> getAbsensiByKelas(Long kelasId) {
-        List<UserModel> users = userRepository.findByKelasId(kelasId);
-        if (users.isEmpty()) {
-            throw new NotFoundException("Tidak ada pengguna yang terkait dengan kelas dengan id: " + kelasId);
-        }
+        try {
+            logger.info("Mengambil data absensi untuk kelas dengan ID: {}", kelasId);
+            List<UserModel> users = userRepository.findByKelasId(kelasId);
 
-        List<Absensi> absensiList = new ArrayList<>();
-        for (UserModel user : users) {
-            List<Absensi> userAbsensi = absensiRepository.findByUser(user);
-            absensiList.addAll(userAbsensi);
-        }
+            if (users.isEmpty()) {
+                logger.warn("Tidak ada pengguna yang terkait dengan kelas ID: {}", kelasId);
+                throw new NotFoundException("Tidak ada pengguna yang terkait dengan kelas dengan id: " + kelasId);
+            }
 
-        return absensiList;
+            List<Absensi> absensiList = new ArrayList<>();
+            for (UserModel user : users) {
+                logger.info("Mengambil absensi untuk user ID: {}", user.getId());
+                List<Absensi> userAbsensi = absensiRepository.findByUser(user);
+                absensiList.addAll(userAbsensi);
+            }
+
+            logger.info("Ditemukan {} data absensi untuk kelas dengan ID: {}", absensiList.size(), kelasId);
+            return absensiList;
+        } catch (Exception e) {
+            logger.error("Gagal mengambil data absensi untuk kelas ID: {}", kelasId, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil data absensi berdasarkan kelas", e);
+        }
     }
 
     @Override
     public Map<String, List<Absensi>> getAbsensiByBulananPerKelas(int bulan, int tahun, Long kelasId) {
-        // Fetch data based on the provided month, year, and kelasId
-        List<Absensi> absensiList = absensiRepository.findByBulananAndKelas(bulan, tahun, kelasId);
-        Map<String, List<Absensi>> monthlyAbsensiMap = new HashMap<>();
+        try {
+            logger.info("Mengambil data absensi untuk bulan: {}, tahun: {}, kelas ID: {}", bulan, tahun, kelasId);
+            List<Absensi> absensiList = absensiRepository.findByBulananAndKelas(bulan, tahun, kelasId);
+            Map<String, List<Absensi>> monthlyAbsensiMap = new HashMap<>();
 
-        for (Absensi absensi : absensiList) {
-            String monthKey = getMonthKey(absensi.getTanggalAbsen());
-            monthlyAbsensiMap.computeIfAbsent(monthKey, k -> new ArrayList<>()).add(absensi);
+            for (Absensi absensi : absensiList) {
+                String monthKey = getMonthKey(absensi.getTanggalAbsen());
+                monthlyAbsensiMap.computeIfAbsent(monthKey, k -> new ArrayList<>()).add(absensi);
+            }
+
+            logger.info("Ditemukan {} data absensi untuk bulan: {}, tahun: {}, kelas ID: {}", absensiList.size(), bulan, tahun, kelasId);
+            return monthlyAbsensiMap;
+        } catch (Exception e) {
+            logger.error("Gagal mengambil data absensi bulanan untuk bulan: {}, tahun: {}, kelas ID: {}", bulan, tahun, kelasId, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil data absensi berdasarkan bulan dan kelas", e);
         }
-
-        return monthlyAbsensiMap;
     }
-
     private String getMonthKey(Date tanggalAbsen) {
         LocalDate date = new java.sql.Date(tanggalAbsen.getTime()).toLocalDate();
         return date.getYear() + "-" + String.format("%02d", date.getMonthValue());
     }
+
     @Override
     public List<Map<String, Object>> getAbsensiPerHariKelas(Date tanggal, Long idAdmin) {
-        // Ambil semua kelas
-        List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
+        logger.info("Memproses absensi per hari untuk idAdmin: {} pada tanggal: {}", idAdmin, tanggal);
 
-        // Atur start dan end of the day
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(tanggal);
+        try {
+            // Ambil semua kelas
+            List<Kelas> kelasList = kelasRepository.findByIdAdmin(idAdmin);
+            logger.info("Ditemukan {} kelas untuk idAdmin: {}", kelasList.size(), idAdmin);
 
-        // Set start of the day
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        Date startOfDay = calendar.getTime();
+            // Atur start dan end of the day
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tanggal);
 
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        calendar.add(Calendar.MILLISECOND, -1);
-        Date endOfDay = calendar.getTime();
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date startOfDay = calendar.getTime();
 
-        // List untuk menampung hasil
-        List<Map<String, Object>> responseList = new ArrayList<>();
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            calendar.add(Calendar.MILLISECOND, -1);
+            Date endOfDay = calendar.getTime();
 
-        // Loop untuk setiap kelas
-        for (Kelas kelas : kelasList) {
-            Long kelasId = kelas.getId();
+            logger.info("Menghitung absensi dari {} hingga {}", startOfDay, endOfDay);
 
-            // Hitung total siswa dalam kelas
-            int jumlahTotalSiswa = userRepository.findByKelasId(kelasId).size();
+            // List untuk menampung hasil
+            List<Map<String, Object>> responseList = new ArrayList<>();
 
-            // Ambil data absensi berdasarkan tanggal dan kelas
-            List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+            // Loop untuk setiap kelas
+            for (Kelas kelas : kelasList) {
+                Long kelasId = kelas.getId();
 
-            // Hitung jumlah hadir
-            int jumlahHadir = (int) absensiList.stream()
-                    .map(Absensi::getUser)
-                    .distinct()
-                    .count();
+                // Hitung total siswa dalam kelas
+                int jumlahTotalSiswa = userRepository.findByKelasId(kelasId).size();
+                logger.info("Kelas {} (ID: {}): Jumlah siswa = {}", kelas.getNamaKelas(), kelasId, jumlahTotalSiswa);
 
-            // Hitung jumlah tidak hadir
-            int jumlahTidakHadir = jumlahTotalSiswa - jumlahHadir;
+                // Ambil data absensi berdasarkan tanggal dan kelas
+                List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+                logger.info("Kelas {} (ID: {}): Ditemukan {} data absensi", kelas.getNamaKelas(), kelasId, absensiList.size());
 
-            // Buat respons dalam bentuk map
-            Map<String, Object> response = new HashMap<>();
-            response.put("kelasId", kelas.getId());
-            response.put("kelasName", kelas.getNamaKelas());
-            response.put("jumlahSiswa", jumlahTotalSiswa);
-            response.put("hadir", jumlahHadir);
-            response.put("tidakHadir", jumlahTidakHadir);
+                // Hitung jumlah hadir
+                int jumlahHadir = (int) absensiList.stream()
+                        .map(Absensi::getUser)
+                        .distinct()
+                        .count();
+                int jumlahTidakHadir = jumlahTotalSiswa - jumlahHadir;
 
-            // Tambahkan ke responseList
-            responseList.add(response);
+                // Log hasil per kelas
+                logger.info("Kelas {} (ID: {}): Hadir = {}, Tidak Hadir = {}", kelas.getNamaKelas(), kelasId, jumlahHadir, jumlahTidakHadir);
+
+                // Buat respons dalam bentuk map
+                Map<String, Object> response = new HashMap<>();
+                response.put("kelasId", kelas.getId());
+                response.put("kelasName", kelas.getNamaKelas());
+                response.put("jumlahSiswa", jumlahTotalSiswa);
+                response.put("hadir", jumlahHadir);
+                response.put("tidakHadir", jumlahTidakHadir);
+
+                // Tambahkan ke responseList
+                responseList.add(response);
+            }
+
+            logger.info("Sukses memproses absensi per hari untuk idAdmin: {}", idAdmin);
+            return responseList;
+
+        } catch (Exception e) {
+            logger.error("Terjadi kesalahan saat memproses absensi per hari untuk idAdmin: {}", idAdmin, e);
+            throw new RuntimeException("Gagal mengambil data absensi", e);
         }
-
-        return responseList;
     }
 
     @Override
     public byte[] exportAbsensiPerHariKelasToExcel(Date tanggal, Long idAdmin) throws IOException {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.info("Memulai proses ekspor absensi ke Excel untuk tanggal {} dan idAdmin {}", tanggal, idAdmin);
+
         List<Map<String, Object>> absensiData = getAbsensiPerHariKelas(tanggal, idAdmin);
+        logger.info("Jumlah data absensi yang ditemukan: {}", absensiData.size());
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Absensi");
         int rowNum = 0;
 
-        Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No.", "Kelas", "Total Siswa", "Hadir", "Tidak Hadir", "Presentase (%)"};
-        for (int i = 0; i < headers.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(headers[i]);
-            cell.setCellStyle(createHeaderStyle(workbook));
-        }
-
-        int totalSiswa = 0, totalHadir = 0, totalTidakHadir = 0;
-        List<Map<String, Object>> guruData = new ArrayList<>();
-
-        for (int i = 0; i < absensiData.size(); i++) {
-            Map<String, Object> data = absensiData.get(i);
-
-            if ("GURU".equalsIgnoreCase((String) data.get("kelasName"))) {
-                guruData.add(data);
-                continue;
+        try {
+            // Membuat header
+            Row headerRow = sheet.createRow(rowNum++);
+            String[] headers = {"No.", "Kelas", "Total Siswa", "Hadir", "Tidak Hadir", "Presentase (%)"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(createHeaderStyle(workbook));
             }
 
-            Row row = sheet.createRow(rowNum++);
-            int colNum = 0;
+            int totalSiswa = 0, totalHadir = 0, totalTidakHadir = 0;
+            List<Map<String, Object>> guruData = new ArrayList<>();
 
-            row.createCell(colNum++).setCellValue(i + 1);
-            row.createCell(colNum++).setCellValue((String) data.get("kelasName"));
-            int jumlahSiswa = (int) data.get("jumlahSiswa");
-            int hadir = (int) data.get("hadir");
-            int tidakHadir = (int) data.get("tidakHadir");
-            double prosentase = jumlahSiswa > 0 ? (hadir * 100.0) / jumlahSiswa : 0;
+            for (int i = 0; i < absensiData.size(); i++) {
+                Map<String, Object> data = absensiData.get(i);
 
-            row.createCell(colNum++).setCellValue(jumlahSiswa);
-            row.createCell(colNum++).setCellValue(hadir);
-            row.createCell(colNum++).setCellValue(tidakHadir);
-            row.createCell(colNum).setCellValue(String.format("%.2f", prosentase));
+                if ("GURU".equalsIgnoreCase((String) data.get("kelasName"))) {
+                    guruData.add(data);
+                    continue;
+                }
 
-            totalSiswa += jumlahSiswa;
-            totalHadir += hadir;
-            totalTidakHadir += tidakHadir;
+                Row row = sheet.createRow(rowNum++);
+                int colNum = 0;
+
+                row.createCell(colNum++).setCellValue(i + 1);
+                row.createCell(colNum++).setCellValue((String) data.get("kelasName"));
+                int jumlahSiswa = (int) data.get("jumlahSiswa");
+                int hadir = (int) data.get("hadir");
+                int tidakHadir = (int) data.get("tidakHadir");
+                double prosentase = jumlahSiswa > 0 ? (hadir * 100.0) / jumlahSiswa : 0;
+
+                row.createCell(colNum++).setCellValue(jumlahSiswa);
+                row.createCell(colNum++).setCellValue(hadir);
+                row.createCell(colNum++).setCellValue(tidakHadir);
+                row.createCell(colNum).setCellValue(String.format("%.2f", prosentase));
+
+                totalSiswa += jumlahSiswa;
+                totalHadir += hadir;
+                totalTidakHadir += tidakHadir;
+            }
+
+            logger.info("Total siswa: {}, Total hadir: {}, Total tidak hadir: {}", totalSiswa, totalHadir, totalTidakHadir);
+
+            // Baris total
+            Row totalRow = sheet.createRow(rowNum++);
+            Cell totalCell = totalRow.createCell(0);
+            totalCell.setCellValue("Total");
+            CellStyle totalTitleStyle = workbook.createCellStyle();
+            Font boldFont = workbook.createFont();
+            boldFont.setBold(true);
+            boldFont.setColor(IndexedColors.WHITE.getIndex());
+            totalTitleStyle.setFont(boldFont);
+            totalTitleStyle.setFillForegroundColor(IndexedColors.BLACK.getIndex());
+            totalTitleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            totalTitleStyle.setAlignment(HorizontalAlignment.CENTER);
+            totalCell.setCellStyle(totalTitleStyle);
+
+            sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 1));
+
+            CellStyle totalDataStyle = workbook.createCellStyle();
+            totalDataStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+            totalDataStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            Font totalDataFont = workbook.createFont();
+            totalDataFont.setColor(IndexedColors.WHITE.getIndex());
+            totalDataStyle.setFont(totalDataFont);
+
+            totalRow.createCell(2).setCellValue(totalSiswa);
+            totalRow.createCell(3).setCellValue(totalHadir);
+            totalRow.createCell(4).setCellValue(totalTidakHadir);
+            double totalProsentase = totalSiswa > 0 ? (totalHadir * 100.0) / totalSiswa : 0;
+            totalRow.createCell(5).setCellValue(String.format("%.2f", totalProsentase));
+
+            for (int i = 2; i <= 5; i++) {
+                totalRow.getCell(i).setCellStyle(totalDataStyle);
+            }
+
+            for (Map<String, Object> data : guruData) {
+                Row row = sheet.createRow(rowNum++);
+                int colNum = 0;
+
+                row.createCell(colNum++).setCellValue(" ");
+                row.createCell(colNum++).setCellValue((String) data.get("kelasName"));
+                int jumlahSiswa = (int) data.get("jumlahSiswa");
+                int hadir = (int) data.get("hadir");
+                int tidakHadir = (int) data.get("tidakHadir");
+                double prosentase = jumlahSiswa > 0 ? (hadir * 100.0) / jumlahSiswa : 0;
+
+                row.createCell(colNum++).setCellValue(jumlahSiswa);
+                row.createCell(colNum++).setCellValue(hadir);
+                row.createCell(colNum++).setCellValue(tidakHadir);
+                row.createCell(colNum).setCellValue(String.format("%.2f", prosentase));
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            logger.info("Ekspor absensi ke Excel selesai.");
+            return outputStream.toByteArray();
+
+        } catch (Exception e) {
+            logger.error("Terjadi kesalahan saat mengekspor absensi ke Excel", e);
+            throw new IOException("Gagal mengekspor absensi ke Excel", e);
         }
-
-        Row totalRow = sheet.createRow(rowNum++);
-
-        Cell totalCell = totalRow.createCell(0);
-        totalCell.setCellValue("Total");
-        CellStyle totalTitleStyle = workbook.createCellStyle();
-        Font boldFont = workbook.createFont();
-        boldFont.setBold(true);
-        boldFont.setColor(IndexedColors.WHITE.getIndex());
-        totalTitleStyle.setFont(boldFont);
-        totalTitleStyle.setFillForegroundColor(IndexedColors.BLACK.getIndex());
-        totalTitleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        totalTitleStyle.setAlignment(HorizontalAlignment.CENTER);
-        totalCell.setCellStyle(totalTitleStyle);
-
-        sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 1));
-
-        CellStyle totalDataStyle = workbook.createCellStyle();
-        totalDataStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-        totalDataStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        Font totalDataFont = workbook.createFont();
-        totalDataFont.setColor(IndexedColors.WHITE.getIndex());
-        totalDataStyle.setFont(totalDataFont);
-
-        totalRow.createCell(2).setCellValue(totalSiswa);
-        totalRow.createCell(3).setCellValue(totalHadir);
-        totalRow.createCell(4).setCellValue(totalTidakHadir);
-        double totalProsentase = totalSiswa > 0 ? (totalHadir * 100.0) / totalSiswa : 0;
-        totalRow.createCell(5).setCellValue(String.format("%.2f", totalProsentase));
-
-        for (int i = 2; i <= 5; i++) {
-            totalRow.getCell(i).setCellStyle(totalDataStyle);
-        }
-
-        for (Map<String, Object> data : guruData) {
-            Row row = sheet.createRow(rowNum++);
-            int colNum = 0;
-
-            row.createCell(colNum++).setCellValue(" ");
-            row.createCell(colNum++).setCellValue((String) data.get("kelasName"));
-            int jumlahSiswa = (int) data.get("jumlahSiswa");
-            int hadir = (int) data.get("hadir");
-            int tidakHadir = (int) data.get("tidakHadir");
-            double prosentase = jumlahSiswa > 0 ? (hadir * 100.0) / jumlahSiswa : 0;
-
-            row.createCell(colNum++).setCellValue(jumlahSiswa);
-            row.createCell(colNum++).setCellValue(hadir);
-            row.createCell(colNum++).setCellValue(tidakHadir);
-            row.createCell(colNum).setCellValue(String.format("%.2f", prosentase));
-        }
-
-        for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-
-        return outputStream.toByteArray();
     }
-
-
     private CellStyle createHeaderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
@@ -952,89 +1135,130 @@ public class AbsensiImpl implements AbsensiService {
 
     @Override
     public Map<String, Object> getAbsensiPerHari(Date tanggal, Long kelasId) {
-        // Ambil informasi kelas berdasarkan ID
-        Kelas kelas = kelasRepository.findById(kelasId)
-                .orElseThrow(() -> new NotFoundException("Kelas dengan ID " + kelasId + " tidak ditemukan."));
+        logger.info("Memproses absensi per hari untuk kelas ID: {}, tanggal: {}", kelasId, tanggal);
 
-        // Hitung total siswa dalam kelas
-        int jumlahTotalSiswa = userRepository.findByKelasId(kelasId).size();
+        try {
+            // Ambil informasi kelas berdasarkan ID
+            Kelas kelas = kelasRepository.findById(kelasId)
+                    .orElseThrow(() -> new NotFoundException("Kelas dengan ID " + kelasId + " tidak ditemukan."));
+            logger.debug("Kelas ditemukan: {} - {}", kelas.getId(), kelas.getNamaKelas());
 
-        // Atur start dan end of the day
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(tanggal);
+            // Hitung total siswa dalam kelas
+            int jumlahTotalSiswa = userRepository.findByKelasId(kelasId).size();
+            logger.debug("Total siswa dalam kelas: {}", jumlahTotalSiswa);
 
-        // Set start of the day
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        Date startOfDay = calendar.getTime();
+            // Atur start dan end of the day
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tanggal);
 
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        calendar.add(Calendar.MILLISECOND, -1);
-        Date endOfDay = calendar.getTime();
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date startOfDay = calendar.getTime();
 
-        List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            calendar.add(Calendar.MILLISECOND, -1);
+            Date endOfDay = calendar.getTime();
 
-        int jumlahHadir = (int) absensiList.stream()
-                .map(Absensi::getUser)
-                .distinct()
-                .count();
+            logger.debug("Start of day: {}, End of day: {}", startOfDay, endOfDay);
 
-        int jumlahTidakHadir = jumlahTotalSiswa - jumlahHadir;
+            List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+            logger.info("Ditemukan {} data absensi untuk kelas ID: {}", absensiList.size(), kelasId);
 
-        // Buat respons dalam bentuk map
-        Map<String, Object> response = new HashMap<>();
-        response.put("kelasId", kelas.getId());
-        response.put("kelasName", kelas.getNamaKelas());
-        response.put("jumlahSiswa", jumlahTotalSiswa);
-        response.put("hadir", jumlahHadir);
-        response.put("tidakHadir", jumlahTidakHadir);
+            int jumlahHadir = (int) absensiList.stream()
+                    .map(Absensi::getUser)
+                    .distinct()
+                    .count();
 
-        return response;
+            int jumlahTidakHadir = jumlahTotalSiswa - jumlahHadir;
+
+            logger.info("Jumlah Hadir: {}, Jumlah Tidak Hadir: {}", jumlahHadir, jumlahTidakHadir);
+
+            // Buat respons dalam bentuk map
+            Map<String, Object> response = new HashMap<>();
+            response.put("kelasId", kelas.getId());
+            response.put("kelasName", kelas.getNamaKelas());
+            response.put("jumlahSiswa", jumlahTotalSiswa);
+            response.put("hadir", jumlahHadir);
+            response.put("tidakHadir", jumlahTidakHadir);
+
+            return response;
+        } catch (Exception e) {
+            logger.error("Terjadi error saat mengambil absensi per hari untuk kelas ID: {}", kelasId, e);
+            throw new RuntimeException("Terjadi kesalahan dalam mengambil data absensi per hari", e);
+        }
     }
-
-
 
     @Override
     public Map<String, List<Absensi>> getAbsensiHarianByKelas(Date tanggal, Long kelasId) {
-        // Normalize date to start and end of the day
-        Calendar calendar = GregorianCalendar.getInstance();
-        calendar.setTime(tanggal);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Date startOfDay = calendar.getTime();
+        logger.info("Mengambil absensi harian untuk kelas ID: {}, tanggal: {}", kelasId, tanggal);
 
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        Date endOfDay = calendar.getTime();
+        try {
+            // Normalize date to start and end of the day
+            Calendar calendar = GregorianCalendar.getInstance();
+            calendar.setTime(tanggal);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            Date startOfDay = calendar.getTime();
 
-        // Fetch data based on the provided date and kelasId
-        List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
-        Map<String, List<Absensi>> dailyAbsensiMap = new HashMap<>();
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            Date endOfDay = calendar.getTime();
 
-        // Use the date as the key
-        String dateKey = startOfDay.toString();
-        dailyAbsensiMap.put(dateKey, absensiList);
+            logger.debug("Start of day: {}, End of day: {}", startOfDay, endOfDay);
 
-        return dailyAbsensiMap;
+            // Fetch data based on the provided date and kelasId
+            List<Absensi> absensiList = absensiRepository.findByTanggalAndKelas(startOfDay, endOfDay, kelasId);
+            logger.info("Ditemukan {} data absensi untuk kelas ID: {}", absensiList.size(), kelasId);
+
+            Map<String, List<Absensi>> dailyAbsensiMap = new HashMap<>();
+
+            // Use the date as the key
+            String dateKey = startOfDay.toString();
+            dailyAbsensiMap.put(dateKey, absensiList);
+
+            return dailyAbsensiMap;
+        } catch (Exception e) {
+            logger.error("Terjadi error saat mengambil absensi harian untuk kelas ID: {}", kelasId, e);
+            throw new RuntimeException("Terjadi kesalahan dalam mengambil data absensi harian", e);
+        }
     }
+
 
     @Override
     public List<Absensi> getAbsensiByOrangTua(Long orangTuaId) {
-        // Fetch the OrangTua entity
-        OrangTua orangTua = orangTuaRepository.findById(orangTuaId)
-                .orElseThrow(() -> new RuntimeException("OrangTua not found"));
+        try {
+            // Fetch the OrangTua entity
+            logger.debug("Mengambil data absensi by orangtua dari repository untuk idOrangTua: {}", orangTuaId);
+            OrangTua orangTua = orangTuaRepository.findById(orangTuaId)
+                    .orElseThrow(() -> new RuntimeException("OrangTua not found"));
 
-        // Fetch all Absensi entries where the associated user has the given orangTuaId
-        return absensiRepository.findByOrangTuaId(orangTuaId);
+            // Fetch all Absensi entries where the associated user has the given orangTuaId
+            return absensiRepository.findByOrangTuaId(orangTuaId);
+        } catch (Exception e) {
+            logger.error("Gagal mengambil data absensi by oragntua dari repository untuk idOrangTua: {}", orangTuaId, e);
+            throw new RuntimeException("Terjadi kesalahan dalam mengambil data absensi by orangtua", e);
+        }
     }
 
     @Override
     public List<Absensi> getStatusAbsenIzinByOrangTua(Long idOrangTua) {
-        return absensiRepository.getStatusAbsenIzinByOrangTua(idOrangTua);
+        try {
+            logger.debug("Mengambil data absensi izin dari repository untuk idOrangTua: {}", idOrangTua);
+
+            List<Absensi> absensiList = absensiRepository.getStatusAbsenIzinByOrangTua(idOrangTua);
+
+            logger.debug("Ditemukan {} data absensi izin untuk idOrangTua: {}", absensiList.size(), idOrangTua);
+
+            return absensiList;
+        } catch (Exception e) {
+            logger.error("Gagal mengambil data absensi izin dari repository untuk idOrangTua: {}", idOrangTua, e);
+            throw new RuntimeException("Terjadi kesalahan dalam mengambil data absensi izin", e);
+        }
     }
+
 
 }

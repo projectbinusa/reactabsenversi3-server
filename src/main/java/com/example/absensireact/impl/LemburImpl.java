@@ -8,6 +8,8 @@ import com.example.absensireact.repository.AdminRepository;
 import com.example.absensireact.repository.LemburRepository;
 import com.example.absensireact.repository.UserRepository;
 import com.example.absensireact.service.LemburService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,79 +28,123 @@ public class LemburImpl implements LemburService {
     @Autowired
     private LemburRepository lemburRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(LemburImpl.class);
+
     @Override
     public List<Lembur> getAllLembur() {
-        return lemburRepository.findAll();
+        try {
+            logger.info("Mengambil semua data lembur");
+            return lemburRepository.findAll();
+        } catch (Exception e) {
+            logger.error("Gagal mengambil semua data lembur", e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil data lembur", e);
+        }
     }
-
 
     @Override
     public Lembur getLemburById(Long id) {
-        Optional<Lembur> lemburOptional = lemburRepository.findById(id);
-        return lemburOptional.orElse(null);
+        try {
+            logger.info("Mengambil lembur dengan id: {}", id);
+            Optional<Lembur> lemburOptional = lemburRepository.findById(id);
+            return lemburOptional.orElse(null);
+        } catch (Exception e) {
+            logger.error("Gagal mengambil lembur dengan id: {}", id, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil lembur", e);
+        }
     }
+
     @Override
     public List<Lembur> getLemburByUserId(Long userId) {
-        return lemburRepository.findByuserId(userId);
-
+        try {
+            logger.info("Mengambil lembur berdasarkan userId: {}", userId);
+            return lemburRepository.findByuserId(userId);
+        } catch (Exception e) {
+            logger.error("Gagal mengambil lembur berdasarkan userId: {}", userId, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil lembur berdasarkan userId", e);
+        }
     }
 
     @Override
-    public Lembur IzinLembur(Long userId, Lembur lembur){
-        UserModel userLembur = userRepository.findById(userId).orElse(null);
-        if (userLembur == null) {
-            throw new NotFoundException("User id tidak ditemukan");
+    public Lembur IzinLembur(Long userId, Lembur lembur) {
+        try {
+            logger.info("Mengajukan izin lembur untuk userId: {}", userId);
+            UserModel userLembur = userRepository.findById(userId).orElse(null);
+
+            if (userLembur == null) {
+                logger.error("User id tidak ditemukan: {}", userId);
+                throw new NotFoundException("User id tidak ditemukan");
+            }
+
+            lembur.setUser(userLembur);
+            return lemburRepository.save(lembur);
+        } catch (Exception e) {
+            logger.error("Gagal mengajukan izin lembur untuk userId: {}", userId, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengajukan izin lembur", e);
         }
-        lembur.setTanggalLembur(lembur.getTanggalLembur());
-        lembur.setJamMulai(lembur.getJamMulai());
-        lembur.setJamSelesai(lembur.getJamSelesai());
-        lembur.setKeteranganLembur(lembur.getKeteranganLembur());
-        lembur.setUser(userLembur);
-        lembur.setNama(lembur.getNama());
-        return lemburRepository.save(lembur);
     }
 
     @Override
     public Lembur updateLembur(Long id, Lembur updatedLembur) {
-        Optional<Lembur> lemburOptional = lemburRepository.findById(id);
-        if (lemburOptional.isPresent()) {
-            Lembur lembur = lemburOptional.get();
-            lembur.setTanggalLembur(updatedLembur.getTanggalLembur());
-            lembur.setJamMulai(updatedLembur.getJamMulai());
-            lembur.setJamSelesai(updatedLembur.getJamSelesai());
-            lembur.setKeteranganLembur(updatedLembur.getKeteranganLembur());
-            lembur.setUser(updatedLembur.getUser());
-            lembur.setNama(lembur.getNama());
-            return lemburRepository.save(lembur);
+        try {
+            logger.info("Mengupdate lembur dengan id: {}", id);
+            Optional<Lembur> lemburOptional = lemburRepository.findById(id);
+
+            if (lemburOptional.isPresent()) {
+                Lembur lembur = lemburOptional.get();
+                lembur.setTanggalLembur(updatedLembur.getTanggalLembur());
+                lembur.setJamMulai(updatedLembur.getJamMulai());
+                lembur.setJamSelesai(updatedLembur.getJamSelesai());
+                lembur.setKeteranganLembur(updatedLembur.getKeteranganLembur());
+                lembur.setUser(updatedLembur.getUser());
+                return lemburRepository.save(lembur);
+            } else {
+                logger.error("Lembur dengan id {} tidak ditemukan", id);
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Gagal mengupdate lembur dengan id: {}", id, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengupdate lembur", e);
         }
-        return null;
     }
 
     @Override
     public List<Lembur> getAllByAdmin(Long adminId) {
-        Optional<Admin> adminOptional = adminRepository.findById(adminId);
+        try {
+            logger.info("Mengambil semua lembur berdasarkan adminId: {}", adminId);
+            Optional<Admin> adminOptional = adminRepository.findById(adminId);
 
-        if (adminOptional.isPresent()) {
-            Long admin = adminOptional.get().getId();
-            List<UserModel> users = userRepository.findByadminIdAbsensi(admin);
+            if (!adminOptional.isPresent()) {
+                logger.error("Admin dengan id {} tidak ditemukan", adminId);
+                throw new NotFoundException("Id Admin tidak ditemukan dengan id: " + adminId);
+            }
+
+            List<UserModel> users = userRepository.findByadminIdAbsensi(adminId);
 
             if (users.isEmpty()) {
+                logger.error("Tidak ada pengguna yang terkait dengan admin dengan id: {}", adminId);
                 throw new NotFoundException("Tidak ada pengguna yang terkait dengan admin dengan id: " + adminId);
             }
 
             List<Lembur> lemburList = new ArrayList<>();
             for (UserModel user : users) {
-                List<Lembur> lemburUser = lemburRepository.findByUser(user);
-                lemburList.addAll(lemburUser);
+                lemburList.addAll(lemburRepository.findByUser(user));
             }
 
             return lemburList;
-        } else {
-            throw new NotFoundException("Id Admin tidak ditemukan dengan id: " + adminId);
+        } catch (Exception e) {
+            logger.error("Gagal mengambil lembur berdasarkan adminId: {}", adminId, e);
+            throw new RuntimeException("Terjadi kesalahan saat mengambil lembur berdasarkan adminId", e);
         }
     }
+
     @Override
     public void deleteLembur(Long id) {
-        lemburRepository.deleteById(id);
+        try {
+            logger.info("Menghapus lembur dengan id: {}", id);
+            lemburRepository.deleteById(id);
+        } catch (Exception e) {
+            logger.error("Gagal menghapus lembur dengan id: {}", id, e);
+            throw new RuntimeException("Terjadi kesalahan saat menghapus lembur", e);
+        }
     }
 }

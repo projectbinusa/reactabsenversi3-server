@@ -61,8 +61,8 @@ public interface AbsensiRepository extends JpaRepository<Absensi , Long> {
     @Query(value = "SELECT * FROM absensi WHERE user_email = :email AND DATE(tanggal_absen) = :tanggalAbsen", nativeQuery = true)
     List<Absensi> findByUserEmailAndTanggalAbsen(String email, Date tanggalAbsen);
 
-    @Query(value = "SELECT * FROM absensi WHERE user_email = :email AND DATE(tanggal_absen) = :tanggalAbsen LIMIT 1", nativeQuery = true)
-    Optional<Absensi> findByUserEmailAndTanggalAbsenOptional(String email, Date tanggalAbsen);
+    @Query("SELECT a FROM Absensi a WHERE a.userEmail = :email AND DATE(a.tanggalAbsen) = :tanggalAbsen")
+    Optional<Absensi> findByUserEmailAndTanggalAbsenOptional(@Param("email") String email, @Param("tanggalAbsen") Date tanggalAbsen);
 
     @Query(value = "SELECT * FROM absensi WHERE user_id = :userId AND DATE(tanggal_absen) = :tanggalAbsen", nativeQuery = true)
     List<Absensi> findByUserIdAndTanggalAbsen(Long userId, Date tanggalAbsen);

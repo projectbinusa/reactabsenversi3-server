@@ -524,8 +524,8 @@ public class AbsensiController {
             String userEmail = jwtTokenUtil.getUsernameFromToken(token);
             logger.info("Proses absensi pulang untuk user: {}", userEmail);
 
-            Absensi newJabatan = absensiService.Pulang(userEmail, absensi);
-            return ResponseEntity.ok(newJabatan);
+            Absensi hasilAbsensi = absensiService.Pulang(userEmail, absensi);
+            return ResponseEntity.ok(hasilAbsensi);
         } catch (EntityNotFoundException e) {
             logger.error("User tidak ditemukan: {}", e.getMessage());
             telegramNotificationService.sendErrorNotification("/api/absensi/pulang", absensi.toString(), token, e);

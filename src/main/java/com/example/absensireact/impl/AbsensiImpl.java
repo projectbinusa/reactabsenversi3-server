@@ -400,13 +400,13 @@ public class AbsensiImpl implements AbsensiService {
             Absensi existingAbsensi = absensiRepository.findByUserEmailAndTanggalAbsenOptional(email, truncateTime(new Date()))
                     .orElseThrow(() -> new NotFoundException("User belum melakukan absensi masuk hari ini."));
 
-            if (!existingAbsensi.getJamPulang().equals("-")) {
+            if (!"-".equals(existingAbsensi.getJamPulang())) {
                 logger.warn("User dengan email {} sudah melakukan absensi pulang hari ini", email);
-                return null;
+                throw new IllegalStateException("Anda sudah melakukan absensi pulang hari ini.");
             }
 
             Date pulang = new Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
             String jamPulangString = formatter.format(pulang);
 
             existingAbsensi.setKeteranganPulangAwal(absensi.getKeteranganTerlambat() != null ? absensi.getKeteranganPulang() : "-");
@@ -422,7 +422,7 @@ public class AbsensiImpl implements AbsensiService {
             throw e;
         } catch (Exception e) {
             logger.error("Terjadi error saat memproses absensi pulang untuk email {}: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Terjadi kesalahan dalam memproses absensi pulang", e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 

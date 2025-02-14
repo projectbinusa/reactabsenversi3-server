@@ -12,6 +12,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 
+
+import org.slf4j.MDC;
+import org.springframework.web.filter.OncePerRequestFilter;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy
@@ -32,4 +43,39 @@ public class AppConfig implements WebMvcConfigurer {
 //                .allowCredentials(true)
                 .maxAge(3600);
     }
+    @Bean
+    public Filter loggingFilter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+                    throws ServletException, IOException {
+                ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+                long startTime = System.currentTimeMillis();
+                try {
+                    filterChain.doFilter(wrappedRequest, response);  // Gunakan wrappedRequest
+                } finally {
+                    long duration = System.currentTimeMillis() - startTime;
+
+                    MDC.put("remoteAddr", wrappedRequest.getRemoteAddr());
+                    MDC.put("method", wrappedRequest.getMethod());
+                    MDC.put("requestUri", wrappedRequest.getRequestURI());
+                    MDC.put("status", String.valueOf(response.getStatus()));
+                    MDC.put("responseTime", duration + "ms");
+                    MDC.put("payload", getRequestBody(wrappedRequest));  // Sekarang payload sudah tersedia
+
+                    logger.info("Request completed.");
+                    MDC.clear();
+                }
+            }
+        };
+    }
+
+    private String getRequestBody(ContentCachingRequestWrapper request) {
+        byte[] buf = request.getContentAsByteArray();
+        if (buf.length > 0) {
+            return new String(buf, StandardCharsets.UTF_8);
+        }
+        return "";
+    }
+
 }
